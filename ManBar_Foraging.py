@@ -420,6 +420,7 @@ class ManBar(Experiment):
 
     def on_mouse_motion(self, x, y, dx, dy):
         """Update target position""" #Turned off (no mouse control in foraging)
+        pass
 
 
     def on_key_press(self, symbol, modifiers):
