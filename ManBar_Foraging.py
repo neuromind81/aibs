@@ -132,11 +132,6 @@ class ManBar(Experiment):
                                     max_alpha=1.0,
                                     on = False) # opaque
         self.gp = self.grating.parameters
-        self.tip = Target2D(size=(5, 1),
-                            anchor='center',
-                            anti_aliasing=self.antialiase,
-                            color=(1.0, 0.0, 0.0, 1.0))
-        self.tipp = self.tip.parameters
         self.fixationspot = ve.Core.FixationSpot(anchor='center',
                                                  color=(1.0, 0.0, 0.0, 0.0),
                                                  size=(5, 5),
@@ -191,7 +186,7 @@ class ManBar(Experiment):
         # last entry will be topmost layer in viewport
         self.basic_stimuli = (self.background, self.grating, self.target)
         self.all_stimuli = (self.background, self.grating, 
-                            self.target, self.tip,
+                            self.target,
                             self.fixationspot, self.centerspot,
                             self.textbg, self.manbartext, 
                             self.datatext, self.timetext, 
@@ -295,9 +290,6 @@ class ManBar(Experiment):
         self.tp.orientation = self.ori
         self.tp.color = (self.brightness, self.brightness, self.brightness, 1.0)
         self.bgp.color = (self.bgbrightness, self.bgbrightness, self.bgbrightness, 1.0)
-        self.tipp.position = ( self.x + width / 2 * math.cos(math.pi / 180 * self.ori),
-                               self.y + width / 2 * math.sin(math.pi / 180 * self.ori) )
-        self.tipp.orientation = self.ori
         self.cp.position = self.x, self.y # update center spot position
         self.wlp.position = I.SCREENWIDTH/2 - self.terrain.windowwidth, self.y #DW
         self.wrp.position = I.SCREENWIDTH/2 + self.terrain.windowwidth, self.y #DW
