@@ -180,10 +180,12 @@ class Experiment(object):
                     DT.setBitsNoDelay(SWEEP) # make sure it's high
                     DT.postInt16NoDelay(postval) # post value to port, no delay
                     self.nvsyncsdisplayed += 1 # increment. Count this as a vsync that Surf has seen
+            self.dOut.Write(self.noSweepFrame)  #---------------------------------
             self.screen.clear()
             self.viewport.draw()
             ve.Core.swap_buffers() # returns immediately
             gl.glFlush() # waits for next vsync pulse from video card
+            self.dOut.Write(self.noSweepNoFrame)  #---------------------------------
             self.vsynctimer.tick()
             vsynci += int(not self.pause) # don't increment if in pause mode
         if I.DTBOARDINSTALLED: DT.clearBits(SWEEP) # be tidy, clear sweep bit low, delay to make sure Surf sees the end of this sweep
@@ -236,9 +238,10 @@ class Experiment(object):
         #Prepare IODAQ       
         self.dOut = DigitalOutput(1,0,8)
         self.dOut.StartTask()
-        self.sweepOut = np.ones(8, dtype = np.uint8)
-        self.nosweepOut = np.zeros(8, dtype = np.uint8)
-        
+        self.sweepFrame = np.array([1,1,0,0,0,0,0,0], dtype = np.uint8)
+        self.noSweepFrame = np.array([0,1,0,0,0,0,0,0], dtype = np.uint8)
+        self.sweepNoFrame = np.array([1,0,0,0,0,0,0,0], dtype = np.uint8)
+        self.noSweepNoFrame = np.array([0,0,0,0,0,0,0,0], dtype = np.uint8)
 
         self.quit = False # init quit signal
         self.pause = False # init pause signal
@@ -275,7 +278,7 @@ class Experiment(object):
             DT.clearBitsNoDelay(0x00ffffff) # clear all bits (including run bit) low, no delay
             DT.closeBoard()
         '''
-        self.dOut.Write(self.nosweepOut) #ensure sweep bit is low
+        self.dOut.Write(self.noSweepNoFrame) #ensure sweep bit is low
         self.dOut.ClearTask() #clear NIDAQ
         
         # Close OpenGL graphics screen (necessary when running from Python interpreter)

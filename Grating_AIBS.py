@@ -149,7 +149,7 @@ class Grating(Experiment):
             # Set sweep bit high, do the sweep
             #if I.DTBOARDINSTALLED: DT.setBitsNoDelay(SWEEP) # set sweep bit high, no delay
             
-            self.dOut.Write(self.sweepOut) #DW sets sweep bit high on NIDAQ
+            self.dOut.Write(self.sweepNoFrame) #DW sets sweep bit high on NIDAQ
             
             for vsynci in xrange(self.nvsyncs): # nvsyncs depends on if this is a blank sweep or not
                 for event in pygame.event.get(): # for all events in the event queue
@@ -164,17 +164,19 @@ class Grating(Experiment):
                 if self.gp.on: # not a blank sweep
                     self.gp.phase_at_t0 = self.phase[vsynci] # update grating phase
                 #if I.DTBOARDINSTALLED: DT.postInt16NoDelay(self.postval) # post value to port, no delay
+                self.dOut.Write(self.sweepFrame)
                 self.screen.clear()
                 self.viewport.draw()
                 ve.Core.swap_buffers() # returns immediately
                 gl.glFlush() # waits for next vsync pulse from video card
+                self.dOut.Write(self.sweepNoFrame)
                 self.vsynctimer.tick()
                 self.nvsyncsdisplayed += 1 # increment
 
             # Sweep's done, turn off the grating, do the postsweep delay, clear sweep bit low
             self.gp.on = False
             
-            self.dOut.Write(self.nosweepOut) #DW sets sweep bit low on NIDAQ
+            self.dOut.Write(self.noSweepNoFrame) #DW sets sweep bit low on NIDAQ
             
             self.staticscreen(nvsyncs=self.npostvsyncs) # clears sweep bit low when done
 
