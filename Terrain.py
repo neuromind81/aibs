@@ -86,9 +86,10 @@ class Terrain(object):
 
     def correct(self):
         """Sets the terrain to correct"""
-        self.orientation = self.oricorrect
-        if self.colormatters & self.colorrandom:
-            self.brightness = self.colorcorrect
+        if self.orientationmatters:
+            self.orientation = self.oricorrect
+        if self.colormatters:
+            self.color = self.colorcorrect
         self.iscorrect = True
         
     def incorrect(self):
@@ -96,18 +97,18 @@ class Terrain(object):
         #random orientation
         self.orientation = self.getRandomOrientation()
         #random color
-        self.color = self.getRandomColor()
+        if self.colorrandom:
+            self.color = self.getRandomColor()
         self.iscorrect = False
         self.check()
 
 
     def getRandomColor(self):
         '''Gets a random color from the palatte '''
-        if self.colorrandom == True:
-            if random.random() < 0.5:
-                return self.white
-            else:
-                return self.black
+        if random.random() < 0.5:
+            return self.white
+        else:
+            return self.black
             
     def getRandomOrientation(self):
         '''Gets a random orientation from the orientation array '''
@@ -118,7 +119,7 @@ class Terrain(object):
         '''Checks to ensure that we didn't get the correct stimulus somehow for our random incorrect '''
         '''HACK! fix later when N-Dimensional input is completed''' 
         if self.orientationmatters and self.colormatters:
-            if [self.orientation, self.color] == [self.oricorrect, self.colorcorrect]:
+            if self.orientation == self.oricorrect and self.color == self.colorcorrect:
                 self.incorrect() #get a new stimulus
         elif self.orientationmatters and not self.colormatters:
             if self.orientation == self.oricorrect:

@@ -517,6 +517,8 @@ class ManBar(Experiment):
         #prevents object from blinking when the lapdistance is short  
         if self.x > (self.terrain.lapdistance + self.offscreen):
             self.terrain.new() # gets new object
+            self.ori = self.terrain.orientation
+            self.brightness = self.terrain.color
             self.offscreen = self.off_screen_distance(self.terrain.orientation)
             self.x = 0-self.offscreen
         elif self.x < 0-self.offscreen:
@@ -531,9 +533,7 @@ class ManBar(Experiment):
         
     def check_terrain(self):
         '''Gets any terrain that can change per lap'''
-        self.ori = self.terrain.orientation
-        self.brightness = self.terrain.color
-        if self.terrain.iscorrect == True:
+        if self.terrain.iscorrect:
             if I.SCREENWIDTH/2 + self.terrain.windowwidth > self.x > I.SCREENWIDTH/2-self.terrain.windowwidth:
                 self.wlp.color = (0.0,1.0,0.0,0.0)
                 self.wrp.color = (0.0,1.0,0.0,0.0)
