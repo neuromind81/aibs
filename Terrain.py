@@ -102,7 +102,6 @@ class Terrain(object):
         self.iscorrect = False
         self.check()
 
-
     def getRandomColor(self):
         '''Gets a random color from the palatte '''
         if random.random() < 0.5:
