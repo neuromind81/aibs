@@ -235,14 +235,15 @@ class Experiment(object):
         #if I.DTBOARDINSTALLED: DT.initBoard()
         #if I.DTBOARDINSTALLED: self.header.broadcast()
         
-        #Prepare IODAQ       
+        #Prepare IODAQ
+          
         self.dOut = DigitalOutput(1,0,8)
         self.dOut.StartTask()
         self.sweepFrame = np.array([1,1,0,0,0,0,0,0], dtype = np.uint8)
         self.noSweepFrame = np.array([0,1,0,0,0,0,0,0], dtype = np.uint8)
         self.sweepNoFrame = np.array([1,0,0,0,0,0,0,0], dtype = np.uint8)
         self.noSweepNoFrame = np.array([0,0,0,0,0,0,0,0], dtype = np.uint8)
-
+        
         self.quit = False # init quit signal
         self.pause = False # init pause signal
         self.paused = False # remembers whether this experiment has been paused
@@ -267,17 +268,6 @@ class Experiment(object):
         self.stopdatetime = datetime.datetime.now()
         # time-critical stuff ends here
 
-        # Send the Experiment checksum and close the board
-        '''
-        if I.DTBOARDINSTALLED:
-            DT.postInt16NoDelay(0) # clear the value on the port, no delay
-            self.checksum = DT.getChecksum()
-            DT.postInt16NoDelay(self.checksum) # post the value, no delay
-            DT.setChecksum(0) # reset DT module's checksum variable
-            DT.toggleBits(C.DATA) # toggle data bit to trigger Surf, delay
-            DT.clearBitsNoDelay(0x00ffffff) # clear all bits (including run bit) low, no delay
-            DT.closeBoard()
-        '''
         self.dOut.Write(self.noSweepNoFrame) #ensure sweep bit is low
         self.dOut.ClearTask() #clear NIDAQ
         
@@ -293,5 +283,7 @@ class Experiment(object):
         if self.quit:
             warning('dimstim was interrupted before completion')
         else:
-            info('dimstim completed successfully')
+            info('dimstim completed successfully\n')
+        printf2log('SWEEP ORDER: \n' + str(self.sweeptable.i) + '\n')
+        printf2log('SWEEP TABLE: \n' + self.sweeptable._pprint(None) + '\n')
         printf2log('\n' + '-'*80 + '\n') # add minuses to end of log to space it out between sessions
