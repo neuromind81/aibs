@@ -195,8 +195,8 @@ class ManBar(Experiment):
     def loadManbar(self, n):
         """Load Manbar n setting in dimstim config file and assign it to the current manual bar"""
         mbn = 'Manbar' + str(n)
-        self.x = intround(I.SCREENWIDTH / 2) # int pix, since pygame.mouse pos works with ints
-        self.y = intround(I.SCREENHEIGHT / 2)
+        self.x = intround(I.SCREENWIDTH / 2) # initial horizontal position
+        self.y = self.ypos #allow user to set vertical position
         self.widthDeg = self.terrain.objectwidthDeg #provided by user in script
         self.heightDeg = self.terrain.objectwidthDeg #same DW
         self.offscreen = self.off_screen_distance(self.terrain.orientation)
