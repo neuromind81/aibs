@@ -105,7 +105,10 @@ class DigitalOutput(Task):
     def __init__(self, device = 1, port = 0, deviceLines = 8):
         Task.__init__(self)
         #create dev str for various lines
+        ##TODO: Get these values from the device instad, as well as current line states
         devStr = "Dev" + str(device) + "/port" + str(port) + "/line0:" + str(deviceLines-1)
+
+        self.lastOut = np.zeros(deviceLines, dtype = np.uint8) #keep track of last output
 
         #create IO channel
         self.CreateDOChan(devStr,"",DAQmx_Val_ChanForAllLines)
@@ -119,11 +122,17 @@ class DigitalOutput(Task):
         return 0
     
     def Write(self,data):
-        #writes a numpy array of data to set the current output state
+        '''Writes a numpy array of data to set the current output state'''
         self.WriteDigitalLines(1,1,10.0,DAQmx_Val_GroupByChannel,data,None,None)
+        self.lastOut = data
         '''
         http://zone.ni.com/reference/en-XX/help/370471W-01/daqmxcfunc/daqmxwritedigitallines/
         '''
+
+    def WriteBit(self, index, value):
+        '''Writes a single bit to the given line index NOT TESTED '''
+        self.lastOut[index] = value
+        self.WriteDigitalLines(1,1,10.0,DAQmx_Val_GroupByChannel,self.lastOut,None,None)
         
 #-------------------------------------------------------------------------- Main
 def main():
