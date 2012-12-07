@@ -160,7 +160,7 @@ class Experiment(object):
         and posts postval to the port. Adds ticks to self.vsynctimer"""
         #assert nvsyncs >= 1 # nah, let it take nvsyncs=0 and do nothing and return right away
         vsynci = 0
-        if I.DTBOARDINSTALLED: DT.setBitsNoDelay(SWEEP) # set sweep bit high, no delay. Should this be set? If it isn't, Surf detects that we're in pause mode. Does it collect whatever's on the port when it's in pause mode, ie will it see the 65535s? I doubt it. Probably have to set this high, then set it back low before returning
+
         if self.pause and nvsyncs == 0:
             nvsyncs = 1 # need at least one vsync to get into the while loop and pause the stimulus indefinitely
         while vsynci < nvsyncs: # need a while loop for pause to work
@@ -174,18 +174,15 @@ class Experiment(object):
             if self.quit:
                 break # out of vsync loop
             if self.pause: # indicate pause to Surf
-                if I.DTBOARDINSTALLED: DT.clearBitsNoDelay(SWEEP) # clear sweep bit low, no delay
+                pass
             else: # post value to port
-                if I.DTBOARDINSTALLED:
-                    DT.setBitsNoDelay(SWEEP) # make sure it's high
-                    DT.postInt16NoDelay(postval) # post value to port, no delay
-                    self.nvsyncsdisplayed += 1 # increment. Count this as a vsync that Surf has seen
-            self.dOut.Write(self.noSweepFrame)  #---------------------------------
+                self.nvsyncsdisplayed += 1 # increment. Count this as a vsync that Surf has seen
+            if self.ni: self.dOut.Write(self.noSweepFrame)  #---------------------------------
             self.screen.clear()
             self.viewport.draw()
             ve.Core.swap_buffers() # returns immediately
             gl.glFlush() # waits for next vsync pulse from video card
-            self.dOut.Write(self.noSweepNoFrame)  #---------------------------------
+            if self.ni: self.dOut.Write(self.noSweepNoFrame)  #---------------------------------
             self.vsynctimer.tick()
             vsynci += int(not self.pause) # don't increment if in pause mode
         if I.DTBOARDINSTALLED: DT.clearBits(SWEEP) # be tidy, clear sweep bit low, delay to make sure Surf sees the end of this sweep
@@ -194,7 +191,7 @@ class Experiment(object):
         """Get the raw frame buffer data that corresponds to what's
         drawn for sweep table index i
         UNFINISHED!!!!!!!!!!
-        TODO: finish this
+        ##TODO: finish this
         """
         self.updateparams()
         self.screen.clear()
@@ -236,9 +233,13 @@ class Experiment(object):
         #if I.DTBOARDINSTALLED: self.header.broadcast()
         
         #Prepare IODAQ
-          
-        self.dOut = DigitalOutput(1,0,8)
-        self.dOut.StartTask()
+        try:
+            self.dOut = DigitalOutput(1,0,8)
+            self.dOut.StartTask()
+            self.ni = True
+        except:
+            self.ni = False
+            print "NIDAQ could not be initialized! No frame/sweep data will be output."
         self.sweepFrame = np.array([1,1,0,0,0,0,0,0], dtype = np.uint8)
         self.noSweepFrame = np.array([0,1,0,0,0,0,0,0], dtype = np.uint8)
         self.sweepNoFrame = np.array([1,0,0,0,0,0,0,0], dtype = np.uint8)
@@ -268,8 +269,9 @@ class Experiment(object):
         self.stopdatetime = datetime.datetime.now()
         # time-critical stuff ends here
 
-        self.dOut.Write(self.noSweepNoFrame) #ensure sweep bit is low
-        self.dOut.ClearTask() #clear NIDAQ
+        if self.ni:
+            self.dOut.Write(self.noSweepNoFrame) #ensure sweep bit is low
+            self.dOut.ClearTask() #clear NIDAQ
         
         # Close OpenGL graphics screen (necessary when running from Python interpreter)
         self.screen.close()
