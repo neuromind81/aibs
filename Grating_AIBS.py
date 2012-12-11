@@ -123,7 +123,7 @@ class Grating(Experiment):
             self.gp.spatial_freq = sfreq
             self.gp.pedestal = self.st.ml[i]
             
-            if self.st.contrastreverse: 
+            if self.st.contrastreverse[i]: 
                 contraststep = cycSec2cycVsync(self.st.cfreqCycSec[i])*self.st.contrast[i]*2
                 self.contrast =self.st.contrast[i]*np.sin(contraststep * np.arange(self.nvsyncs))
             else: self.gp.contrast = self.st.contrast[i]
@@ -164,7 +164,7 @@ class Grating(Experiment):
                     break # out of vsync loop
                 if self.gp.on: # not a blank sweep
                     self.gp.phase_at_t0 = self.phase[vsynci] # update grating phase
-                    if self.st.contrastreverse: self.gp.contrast = self.contrast[vsynci] #if phase reversal is on
+                    if self.st.contrastreverse[i]: self.gp.contrast = self.contrast[vsynci] #if phase reversal is on
                 if self.ni: self.dOut.Write(self.sweepFrame) #set frame bit high
                 self.screen.clear()
                 self.viewport.draw()
