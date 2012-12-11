@@ -124,7 +124,7 @@ class Grating(Experiment):
             self.gp.pedestal = self.st.ml[i]
             
             if self.st.contrastreverse: 
-                contraststep = cycSec2cycVsync(self.st.cfreqCycSec[i])*self.st.contrast[i]
+                contraststep = cycSec2cycVsync(self.st.cfreqCycSec[i])*self.st.contrast[i]*2
                 self.contrast =self.st.contrast[i]*np.sin(contraststep * np.arange(self.nvsyncs))
             else: self.gp.contrast = self.st.contrast[i]
 
