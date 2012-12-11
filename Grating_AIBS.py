@@ -35,7 +35,6 @@ class Grating(Experiment):
         self.width = deg2pix(self.static.widthDeg) # do this here so it doesn't have to be done repeatedly in self.updateparams()
         self.height = deg2pix(self.static.heightDeg)
 
-
     def check(self):
         """Check Grating-specific parameters"""
         super(Grating, self).check()
@@ -113,6 +112,7 @@ class Grating(Experiment):
             """phaseoffset is req'd to make phase0 the initial phase at the centre of the grating, instead of at the edge of the grating as VE does. Take the distance from the centre to the edge along the axis of the sinusoid (which in this case is the height), multiply by spatial freq to get numcycles between centre and edge, multiply by 360 deg per cycle to get req'd phaseoffset. THE EXTRA 180 DEG IS NECESSARY FOR SOME REASON, DON'T REALLY UNDERSTAND WHY, BUT IT WORKS!!!"""
             phaseoffset = self.height / 2 * sfreq * 360 + 180
             phasestep = cycSec2cycVsync(self.st.tfreqCycSec[i]) * 360 # delta cycles per vsync, in degrees of sinusoid
+
             self.phase = -self.st.phase0[i] - phaseoffset - phasestep * np.arange(self.nvsyncs) # array of phases for this sweep. -ve makes the grating move in +ve direction along sinusoidal axis, see sin eq'n above
 
             # Update grating stimulus
@@ -122,7 +122,11 @@ class Grating(Experiment):
                 self.gp.mask = self.masks[self.st.diameterDeg[i]]
             self.gp.spatial_freq = sfreq
             self.gp.pedestal = self.st.ml[i]
-            self.gp.contrast = self.st.contrast[i]
+            
+            if self.st.contrastreverse: 
+                contraststep = cycSec2cycVsync(self.st.cfreqCycSec[i])*self.st.contrast[i]
+                self.contrast =self.st.contrast[i]*np.sin(contraststep * np.arange(self.nvsyncs))
+            else: self.gp.contrast = self.st.contrast[i]
 
             # Update background parameters
             self.bgp.color = self.st.bgbrightness[i], self.st.bgbrightness[i], self.st.bgbrightness[i], 1.0
@@ -160,6 +164,7 @@ class Grating(Experiment):
                     break # out of vsync loop
                 if self.gp.on: # not a blank sweep
                     self.gp.phase_at_t0 = self.phase[vsynci] # update grating phase
+                    if self.st.contrastreverse: self.gp.contrast = self.contrast[vsynci] #if phase reversal is on
                 if self.ni: self.dOut.Write(self.sweepFrame) #set frame bit high
                 self.screen.clear()
                 self.viewport.draw()
