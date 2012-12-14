@@ -46,7 +46,6 @@ class Grating(Experiment):
         
         #square initialization
         self.brightness = self.terrain.color
-        self.orientation = self.terrain.orientation
         
         #set up encoder
         self.static.encoder.start()
@@ -131,7 +130,7 @@ class Grating(Experiment):
         # Update target stimulus with initial values
         self.tp.position = self.x, self.y
         self.tp.size = deg2pix(self.terrain.objectwidthDeg),deg2pix(self.terrain.objectwidthDeg)
-        self.tp.orientation = self.orientation
+        self.tp.orientation = self.terrain.orientation
         
         
         # Set stimuli tuple
@@ -177,7 +176,7 @@ class Grating(Experiment):
             
     
     def checkTerrain(self):
-        '''Checks terrain to see if a reward needs to be given'''
+        """Checks terrain to see if a reward needs to be given"""
         if self.static.terrain.iscorrect:
             if I.SCREENWIDTH/2 + self.static.terrain.windowwidth > self.x > I.SCREENWIDTH/2-self.static.terrain.windowwidth:
                 if self.framescorrect > self.static.terrain.selectiontime:
@@ -188,7 +187,9 @@ class Grating(Experiment):
                 self.framescorrect = 0
         
     def updateTerrain(self):
-        self.tp.orientation = self.orientation
+        self.brightness = self.static.terrain.color
+        self.offscreen = self.off_screen_distance(self.static.terrain.orientation)
+        self.tp.orientation = self.static.terrain.orientation
         self.tp.color = (self.brightness, self.brightness, self.brightness, 1.0)
     
     def checkEncoder(self):
@@ -209,9 +210,6 @@ class Grating(Experiment):
         #prevents object from blinking when the lapdistance is short  
         if self.x > (self.static.terrain.lapdistance + self.offscreen):
             self.static.terrain.new() # gets new object
-            self.orientation = self.static.terrain.orientation
-            self.brightness = self.static.terrain.color
-            self.offscreen = self.off_screen_distance(self.static.terrain.orientation)
             self.updateTerrain()
             self.x = 0-self.offscreen
         elif self.x < 0-self.offscreen:
