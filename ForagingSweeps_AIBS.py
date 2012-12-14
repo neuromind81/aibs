@@ -54,6 +54,10 @@ class Grating(Experiment):
         self.lastDx = 0
         if self.static.encoder.getVin() < 1:
             print 'Encoder not connected or powered on.'
+            
+        #set up reward
+        self.framescorrect = 0
+        self.static.reward.start()
 
     def check(self):
         """Check Grating-specific parameters"""
@@ -80,6 +84,7 @@ class Grating(Experiment):
         self.yorig = deg2pix(self.static.yorigDeg) + I.SCREENHEIGHT / 2
         self.y = self.static.ypos
         self.x = self.xorig
+        self.offscreen = self.off_screen_distance(self.static.terrain.orientation)
 
         # Calculate Experiment duration
         self.sec = self.calcduration()
@@ -128,6 +133,7 @@ class Grating(Experiment):
         self.tp.size = deg2pix(self.terrain.objectwidthDeg),deg2pix(self.terrain.objectwidthDeg)
         self.tp.orientation = self.orientation
         
+        
         # Set stimuli tuple
         self.stimuli = (self.background, self.grating, self.target) # last entry will be topmost layer in viewport
 
@@ -169,9 +175,54 @@ class Grating(Experiment):
             # Update background parameters
             self.bgp.color = self.st.bgbrightness[i], self.st.bgbrightness[i], self.st.bgbrightness[i], 1.0
             
+    
+    def checkTerrain(self):
+        '''Checks terrain to see if a reward needs to be given'''
+        if self.static.terrain.iscorrect:
+            if I.SCREENWIDTH/2 + self.static.terrain.windowwidth > self.x > I.SCREENWIDTH/2-self.static.terrain.windowwidth:
+                if self.framescorrect > self.static.terrain.selectiontime:
+                    self.static.reward.reward()
+                    self.static.terrain.iscorrect = False
+                self.framescorrect += 1
+            else:
+                self.framescorrect = 0
         
     def updateTerrain(self):
-        pass
+        self.tp.orientation = self.orientation
+        self.tp.color = (self.brightness, self.brightness, self.brightness, 1.0)
+    
+    def checkEncoder(self):
+        '''Gets any input that can change terrain'''
+        ##TODO: Put this all in Terrain class
+        if self.static.encoder.getVin() > 1: #ensure that encoder voltage is on
+            deg = self.static.encoder.getDegrees()
+            dx = deg-self.encDeg
+            self.encDeg = deg
+            if 100 > dx > -100:
+                self.x += dx*self.terrain.speedgain
+                self.lastDx = dx
+            elif dx >= 100:
+                self.x += self.lastDx*self.terrain.speedgain
+            elif dx <=-100:
+                self.x -= 0-self.lastDx*self.terrain.speedgain
+        
+        #prevents object from blinking when the lapdistance is short  
+        if self.x > (self.static.terrain.lapdistance + self.offscreen):
+            self.static.terrain.new() # gets new object
+            self.orientation = self.static.terrain.orientation
+            self.brightness = self.static.terrain.color
+            self.offscreen = self.off_screen_distance(self.static.terrain.orientation)
+            self.updateTerrain()
+            self.x = 0-self.offscreen
+        elif self.x < 0-self.offscreen:
+            self.x = self.static.terrain.lapdistance + self.offscreen
+            #perhaps do something here so that something happens when they go backwards
+
+    def off_screen_distance(self, orientation = 0):
+        '''Gets off screen distance using formula to compensate for orientation of object '''
+        x = deg2pix(self.static.terrain.objectwidthDeg) # converts width of object to pixels from degrees
+        dist = orientation/45*(np.sqrt(2*(x)**2)-x) + x #pythagorean theorem
+        return dist/2 #float divide by two because measurement is from center of object
 
     def main(self):
         """Run the main stimulus loop for this Experiment subclass
@@ -198,7 +249,12 @@ class Grating(Experiment):
                 if self.gp.on: # not a blank sweep
                     self.gp.phase_at_t0 = self.phase[vsynci] # update grating phase
                     if self.st.contrastreverse[i]: self.gp.contrast = self.contrast[vsynci] #if phase reversal is on
+                self.tp.position = self.x,self.y
+                
+                self.checkEncoder()
+                self.checkTerrain()
                 self.updateTerrain()
+                
                 self.screen.clear()
                 self.viewport.draw()
                 ve.Core.swap_buffers() # returns immediately
@@ -277,12 +333,16 @@ class Grating(Experiment):
         info(self.vsynctimer.pprint())
         info('%d vsyncs displayed, %d sweeps completed' % (self.nvsyncsdisplayed, self.ii))
         info('Experiment duration: %s expected, %s actual' % (isotime(self.sec, 6), isotime(self.stoptime-self.starttime, 6)))
+        
+        '''    #something is wonky here idk what.  Throws excepthook error
         if self.paused:
             warning('dimstim was paused at some point')
         if self.quit:
             warning('dimstim was interrupted before completion')
         else:
             info('dimstim completed successfully\n')
+            '''
+        
         printf2log('SWEEP ORDER: \n' + str(self.sweeptable.i) + '\n')
         printf2log('SWEEP TABLE: \n' + self.sweeptable._pprint(None) + '\n')
         printf2log('\n' + '-'*80 + '\n') # add minuses to end of log to space it out between sessions

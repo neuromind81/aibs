@@ -185,7 +185,6 @@ class Experiment(object):
             if self.ni: self.dOut.Write(self.noSweepNoFrame)  #---------------------------------
             self.vsynctimer.tick()
             vsynci += int(not self.pause) # don't increment if in pause mode
-        if I.DTBOARDINSTALLED: DT.clearBits(SWEEP) # be tidy, clear sweep bit low, delay to make sure Surf sees the end of this sweep
 
     def get_framebuffer(self, i):
         """Get the raw frame buffer data that corresponds to what's
@@ -228,10 +227,6 @@ class Experiment(object):
         # Create the VsyncTimer
         self.vsynctimer = Core.VsyncTimer()
 
-        # Init DT board and send the entire stimulus (Surf and NVS and text) header
-        #if I.DTBOARDINSTALLED: DT.initBoard()
-        #if I.DTBOARDINSTALLED: self.header.broadcast()
-        
         #Prepare IODAQ
         try:
             self.dOut = DigitalOutput(1,0,8)
