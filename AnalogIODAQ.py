@@ -149,7 +149,7 @@ class AnalogOutput(Task):
 def main():
 
     
-    '''  # For analog output.  I don't have an output channel on my device so I couldn't test it
+    '''# For analog output.  I don't have an output channel on my device so I couldn't test it
     task = AnalogOutput()
     task.StartTask()
     
