@@ -421,9 +421,9 @@ class ManBar(Experiment):
         path = os.path.join(dir, filename)
         f = open(path, 'w+')
         meta = "Mouse ID: " + self.mouseid + "\n" + "Start Time: " + \
-            str(self.startdatetime) + "\n" + "Stop Time: " str(self.stopdatetime) + '\n'
+            str(self.startdatetime) + "\n" + "Stop Time: " str(self.stopdatetime) + '\n' + 'Laps: '
         for l in self.laps: meta += str(l) + ','
-        meta = meta[:-1] + '\n'
+        meta = meta[:-1] + '\n' + 'Rewards: '
         for r in self.rewards: meta += str(r) + ','
         meta = meta[:-1] + '\n'
         f.write(meta)
