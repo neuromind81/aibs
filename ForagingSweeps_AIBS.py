@@ -35,6 +35,7 @@ info = printer.info
 warning = printer.warning
 printf2log = printer.printf2log
 
+
 class Grating(Experiment):
     """Grating experiment"""
     def __init__(self, *args, **kwargs):
@@ -57,6 +58,10 @@ class Grating(Experiment):
         #set up reward
         self.framescorrect = 0
         self.static.reward.start()
+        
+        #set up lap and reward logs
+        self.laps = []
+        self.rewards = []
 
     def check(self):
         """Check Grating-specific parameters"""
@@ -181,6 +186,7 @@ class Grating(Experiment):
             if I.SCREENWIDTH/2 + self.static.terrain.windowwidth > self.x > I.SCREENWIDTH/2-self.static.terrain.windowwidth:
                 if self.framescorrect > self.static.terrain.selectiontime:
                     self.static.reward.reward()
+                    self.rewards.append(time.clock())
                     self.static.terrain.iscorrect = False
                 self.framescorrect += 1
             else:
@@ -212,6 +218,7 @@ class Grating(Experiment):
             self.static.terrain.new() # gets new object
             self.updateTerrain()
             self.x = 0-self.offscreen
+            self.laps.append(time.clock())
         elif self.x < 0-self.offscreen:
             self.x = self.static.terrain.lapdistance + self.offscreen
             #perhaps do something here so that something happens when they go backwards
