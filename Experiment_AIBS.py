@@ -281,6 +281,6 @@ class Experiment(object):
             warning('dimstim was interrupted before completion')
         else:
             info('dimstim completed successfully\n')
-        printf2log('SWEEP ORDER: \n' + str(self.sweeptable.i) + '\n')
+        printf2log('SWEEP ORDER: \n' + str(self.sweeptable.i.tolist()) + '\n')
         printf2log('SWEEP TABLE: \n' + self.sweeptable._pprint(None) + '\n')
         printf2log('\n' + '-'*80 + '\n') # add minuses to end of log to space it out between sessions
