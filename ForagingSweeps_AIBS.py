@@ -2,6 +2,7 @@
 
 from __future__ import division
 
+import os
 import struct
 import time
 import datetime
@@ -352,6 +353,27 @@ class Grating(Experiment):
         printf2log('SWEEP TABLE: \n' + self.sweeptable._pprint(None) + '\n')
         printf2log('\n' + '-'*80 + '\n') # add minuses to end of log to space it out between sessions
         
+        self.logmeta()
+        
+    def logmeta(self):
+        """Logs some stuff to C:\MouseData\ """
+        dir = "C:\\MouseData\\" + self.static.mouseid
+        if not os.path.exists(dir): os.makedirs(dir)
+        t = self.startdatetime
+        filename = self.static.mouseid + "-" + t.strftime('%y%m%d%H%M%S') + ".log"
+        path = os.path.join(dir, filename)
+        print path
+        f = open(path, 'w+')
+        f.write(self.static.mouseid + "\n" + str(self.startdatetime)+ "\n" + str(self.stopdatetime) + '\n')
+        for l in self.laps: f.write(str(l) + ',')
+        f.write('\n')
+        for r in self.rewards: f.write(str(r) + ',')
+        f.write('\n')
+        for s in self.sweeptable.i: f.write(str(s) + ',')
+        f.write('\n')
+        f.write(self.sweeptable._pprint(None)) 
+        f.close()
+        
     def staticscreen(self, nvsyncs, postval=C.MAXPOSTABLEINT):
         """Display whatever's defined in the viewport on-screen for nvsyncs,
         and posts postval to the port. Adds ticks to self.vsynctimer"""
@@ -381,4 +403,3 @@ class Grating(Experiment):
             self.vsynctimer.tick()
             vsynci += int(not self.pause) # don't increment if in pause mode
         if I.DTBOARDINSTALLED: DT.clearBits(SWEEP) # be tidy, clear sweep bit low, delay to make sure Surf sees the end of this sweep
-
