@@ -357,21 +357,22 @@ class Grating(Experiment):
         
     def logmeta(self):
         """Logs some stuff to C:\MouseData\ """
+        meta = ""
         dir = "C:\\MouseData\\" + self.static.mouseid
         if not os.path.exists(dir): os.makedirs(dir)
-        t = self.startdatetime
-        filename = self.static.mouseid + "-" + t.strftime('%y%m%d%H%M%S') + ".log"
+        filename = self.static.mouseid + "-" + self.startdatetime.strftime('%y%m%d%H%M%S') + ".log"
         path = os.path.join(dir, filename)
-        print path
         f = open(path, 'w+')
-        f.write(self.static.mouseid + "\n" + str(self.startdatetime)+ "\n" + str(self.stopdatetime) + '\n')
-        for l in self.laps: f.write(str(l) + ',')
-        f.write('\n')
-        for r in self.rewards: f.write(str(r) + ',')
-        f.write('\n')
-        for s in self.sweeptable.i: f.write(str(s) + ',')
-        f.write('\n')
-        f.write(self.sweeptable._pprint(None)) 
+        meta = "Mouse ID: " + self.static.mouseid + "\n" + "Start Time: " + \
+            str(self.startdatetime) + "\n" + "Stop Time: " str(self.stopdatetime) + '\n'
+        for l in self.laps: meta += str(l) + ','
+        meta = meta[:-1] + '\n'
+        for r in self.rewards: meta += str(r) + ','
+        meta = meta[:-1] + '\n'
+        for s in self.sweeptable.i: meta += str(s) + ','
+        meta = meta[:-1] + '\n'
+        meta += self.sweeptable._pprint(None))
+        f.write(meta)
         f.close()
         
     def staticscreen(self, nvsyncs, postval=C.MAXPOSTABLEINT):

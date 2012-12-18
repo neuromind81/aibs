@@ -77,6 +77,7 @@ class ManBar(Experiment):
         #Set up initial terrain
         self.brightness = self.terrain.color
         self.ori = self.terrain.orientation
+        self.laps = []
         
         #Set up initial gratings
         self.gratingWidth = I.SCREENWIDTH*2
@@ -94,6 +95,7 @@ class ManBar(Experiment):
         #set up reward
         self.reward.start()
         self.framescorrect = 0
+        self.rewards = []
         
         #set up session clock
         self.sc = SessionClock()
@@ -410,6 +412,23 @@ class ManBar(Experiment):
         info('Experiment duration: %s' % isotime(self.stoptime-self.starttime, 6))
         printf2log('\n' + '-'*80 + '\n') # add minuses to end of log to space it out between sessions
 
+    def logmeta(self):
+        """Logs some stuff to C:\MouseData\ """
+        meta = ""
+        dir = "C:\\MouseData\\" + self.mouseid
+        if not os.path.exists(dir): os.makedirs(dir)
+        filename = self.mouseid + "-" + self.startdatetime.strftime('%y%m%d%H%M%S') + ".log"
+        path = os.path.join(dir, filename)
+        f = open(path, 'w+')
+        meta = "Mouse ID: " + self.mouseid + "\n" + "Start Time: " + \
+            str(self.startdatetime) + "\n" + "Stop Time: " str(self.stopdatetime) + '\n'
+        for l in self.laps: meta += str(l) + ','
+        meta = meta[:-1] + '\n'
+        for r in self.rewards: meta += str(r) + ','
+        meta = meta[:-1] + '\n'
+        f.write(meta)
+        f.close()        
+
     def on_mouse_motion(self, x, y, dx, dy):
         """Update target position""" #Turned off (no mouse control in foraging)
         pass
@@ -521,6 +540,7 @@ class ManBar(Experiment):
             self.brightness = self.terrain.color
             self.offscreen = self.off_screen_distance(self.terrain.orientation)
             self.x = 0-self.offscreen
+            self.laps.append(time.clock())
         elif self.x < 0-self.offscreen:
             self.x = self.terrain.lapdistance + self.offscreen
             #perhaps do something here so that something happens when they go backwards
@@ -540,6 +560,7 @@ class ManBar(Experiment):
                 if self.framescorrect > self.terrain.selectiontime:
                     self.reward.reward()
                     self.terrain.iscorrect = False
+                    self.reward.append(time.clock())
                 self.framescorrect += 1
             else:
                 self.framescorrect = 0
