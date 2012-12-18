@@ -411,6 +411,8 @@ class ManBar(Experiment):
         info('%d vsyncs displayed' % self.nvsyncsdisplayed)
         info('Experiment duration: %s' % isotime(self.stoptime-self.starttime, 6))
         printf2log('\n' + '-'*80 + '\n') # add minuses to end of log to space it out between sessions
+        
+        self.logmeta()
 
     def logmeta(self):
         """Logs some stuff to C:\MouseData\ """
@@ -420,10 +422,10 @@ class ManBar(Experiment):
         filename = self.mouseid + "-" + self.startdatetime.strftime('%y%m%d%H%M%S') + ".log"
         path = os.path.join(dir, filename)
         f = open(path, 'w+')
-        meta = "Mouse ID: " + self.mouseid + "\n" + "Start Time: " + \
-            str(self.startdatetime) + "\n" + "Stop Time: " str(self.stopdatetime) + '\n' + 'Laps: '
+        meta = "Mouse ID: " + self.mouseid + "\nStart Time: " + \
+            str(self.startdatetime) + "\nStop Time: " + str(self.stopdatetime) + '\nLaps: '
         for l in self.laps: meta += str(l) + ','
-        meta = meta[:-1] + '\n' + 'Rewards: '
+        meta = meta[:-1] + '\nRewards: '
         for r in self.rewards: meta += str(r) + ','
         meta = meta[:-1] + '\n'
         f.write(meta)
@@ -560,7 +562,7 @@ class ManBar(Experiment):
                 if self.framescorrect > self.terrain.selectiontime:
                     self.reward.reward()
                     self.terrain.iscorrect = False
-                    self.reward.append(time.clock())
+                    self.rewards.append(time.clock())
                 self.framescorrect += 1
             else:
                 self.framescorrect = 0

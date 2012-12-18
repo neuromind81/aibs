@@ -363,16 +363,16 @@ class Grating(Experiment):
         filename = self.static.mouseid + "-" + self.startdatetime.strftime('%y%m%d%H%M%S') + ".log"
         path = os.path.join(dir, filename)
         f = open(path, 'w+')
-        meta = "Mouse ID: " + self.static.mouseid + "\n" + "Start Time: " + \
-            str(self.startdatetime) + "\n" + "Stop Time: " str(self.stopdatetime) + \
-            '\n' + 'Laps: '
+        meta = "Mouse ID: " + self.static.mouseid + "\nStart Time: " + \
+            str(self.startdatetime) + "\nStop Time: " + str(self.stopdatetime) + \
+            '\nLaps: '
         for l in self.laps: meta += str(l) + ','
-        meta = meta[:-1] + '\n' + 'Rewards: '
+        meta = meta[:-1] + '\nRewards: '
         for r in self.rewards: meta += str(r) + ','
-        meta = meta[:-1] + '\n' + 'Sweep Order: '
+        meta = meta[:-1] + '\nSweep Order: '
         for s in self.sweeptable.i: meta += str(s) + ','
-        meta = meta[:-1] + '\n' + 'Sweep Table: '
-        meta += self.sweeptable._pprint(None))
+        meta = meta[:-1] + '\nSweep Table:\n'
+        meta += self.sweeptable._pprint(None)
         f.write(meta)
         f.close()
         
