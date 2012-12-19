@@ -105,8 +105,8 @@ class SparseNoise(Experiment):
         for ii, i in enumerate(self.sweeptable.i):
 
             self.updateparams(i)
-
-            self.dOut.Write(self.sweepNoFrame) #sets sweep bit high on NIDAQ
+            
+            if self.ni: self.dOut.Write(self.sweepNoFrame) #sets sweep bit high on NIDAQ
 
             # Set sweep bit high, do the sweep
             for vsynci in xrange(self.nvsyncs): # nvsyncs depends on if this is a blank sweep or not
@@ -119,12 +119,12 @@ class SparseNoise(Experiment):
                             self.paused = True # remember that a pause happened
                 if self.quit:
                     break # out of vsync loop
-                self.dOut.Write(self.sweepFrame)  #set frame bit high
+                if self.ni: self.dOut.Write(self.sweepFrame)  #set frame bit high
                 self.screen.clear()
                 self.viewport.draw()
                 ve.Core.swap_buffers() # returns immediately
                 gl.glFlush() # waits for next vsync pulse from video card
-                self.dOut.Write(self.sweepNoFrame) #set frame bit low
+                if self.ni: self.dOut.Write(self.sweepNoFrame) #set frame bit low
                 self.vsynctimer.tick()
                 self.nvsyncsdisplayed += 1 # increment
 
@@ -132,7 +132,7 @@ class SparseNoise(Experiment):
             self.tp.on = False
             self.staticscreen(nvsyncs=self.npostvsyncs) # clears sweep bit low when done
 
-            self.dOut.Write(self.noSweepNoFrame) #DW sets sweep bit low on NIDAQ
+            if self.ni: self.dOut.Write(self.noSweepNoFrame) #DW sets sweep bit low on NIDAQ
 
             if self.quit:
                 self.ii = ii + 1 - 1 # dec for accurate count of nsweeps successfully displayed
