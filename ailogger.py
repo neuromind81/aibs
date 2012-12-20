@@ -8,16 +8,21 @@ Created on Tue Dec 18 14:07:05 2012
 import numpy as np
 from numpy import *
 import os
+import datetime
 
 class ailogger(object):
-    def __init__(self,path):
+    """ Creates a logger that writes objects and their values to a file. """
+    def __init__(self,path, timestamp = True):
         self.dir = os.path.dirname(path)
         self.filename = os.path.basename(path)
+        if timestamp: self.filename = datetime.datetime.now().strftime('%y%m%d%H%M%S') + self.filename
+        self.path = os.path.join(self.dir,self.filename)
         if not os.path.exists(self.dir): os.makedirs(self.dir)
-        self.f = open(path,'w+')
+        self.f = open(self.path,'w+')
         self.objnames = []
         
     def add(self,*args, **kwargs):
+        """ Adds the object to the file. """
         for a in args:
             t = type(a).__name__
             i = 0
@@ -34,6 +39,7 @@ class ailogger(object):
             self.f.write(string)
 
     def comment(self, comment, multiline = False):
+        """ Adds a comment to the file."""
         if not multiline:
             if comment[0] == "#":
                 string = comment + '\n'
@@ -48,9 +54,11 @@ class ailogger(object):
             self.f.write(string)
                 
     def addstr(self,string):
+        """ Adds custom string to the file. """
         self.f.write(string)
 
     def close(self):
+        """ Closes the logger. """
         self.f.close()
         
         
@@ -63,7 +71,6 @@ if __name__ == "__main__":
     log.comment("this is a comment that i haven't added a # to")
     log.add(balls = [456.7])
     log.comment("#this is a comment that I added a # to")
-    #log.addstr('This is a string that I have added')
     log.add('test adding a string arg')
     log.close()
 
