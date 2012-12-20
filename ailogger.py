@@ -14,10 +14,21 @@ class ailogger(object):
         if not os.path.exists(self.dir): os.makedirs(self.dir)
         self.f = open(path,'w+')
         
+        self.objnames = []
+        
     def add(self,*args, **kwargs):
         for a in args:
-            t = type(a)
-            print t.__name__
+            t = type(a).__name__
+            i = 0
+            name = t + str(i)
+            while t in self.objnames:
+                i += 1
+                name = "%s%i" % (t,i)
+            self.objnames.append(name)
+            string = "%s = %s\n" % (name,a)
+            self.f.write(string)
+                
+            
         for k,v in kwargs.iteritems():
             string = "%s = %s\n" % (k, repr(v))
             self.f.write(string)
