@@ -37,10 +37,10 @@ warning = printer.warning
 printf2log = printer.printf2log
 
 
-class Grating(Experiment):
+class ForagingSweeps(Experiment):
     """Grating experiment"""
     def __init__(self, *args, **kwargs):
-        super(Grating, self).__init__(*args, **kwargs)
+        super(ForagingSweeps, self).__init__(*args, **kwargs)
         self.width = deg2pix(self.static.widthDeg) # do this here so it doesn't have to be done repeatedly in self.updateparams()
         self.height = deg2pix(self.static.heightDeg)
         
@@ -66,7 +66,7 @@ class Grating(Experiment):
 
     def check(self):
         """Check Grating-specific parameters"""
-        super(Grating, self).check()
+        super(ForagingSweeps, self).check()
         '''
         if self.dynamic.speedDegSe == None:
             self.dynamic.speedDegSec = 0 # required for self.updateparams()
@@ -98,7 +98,7 @@ class Grating(Experiment):
 
     def createstimuli(self):
         """Creates the VisionEgg stimuli objects for this Experiment subclass"""
-        super(Grating, self).createstimuli()
+        super(ForagingSweeps, self).createstimuli()
 
         # Create instances of the Mask2D class, one for each diameter
         if self.static.mask:

@@ -54,9 +54,9 @@ class SessionClock():
         return e.seconds
 
 #===============================================================================
-# ManBar
+# Foraging
 #===============================================================================
-class ManBar(Experiment):
+class Foraging(Experiment):
     """Manual bar experiment"""
     def __init__(self, script, params):
         self.script = script.replace('\\', C.SLASH).replace('.pyc', '.py') # Experiment script file name, with stuff cleaned up
@@ -107,7 +107,7 @@ class ManBar(Experiment):
     def setgamma(self, gamma):
         """Set VisionEgg's gamma parameter and apply it to pyglet windows"""
         vc = VisionEgg.config
-        super(ManBar, self).setgamma(gamma) # Set VisionEgg's gamma parameter
+        super(Foraging, self).setgamma(gamma) # Set VisionEgg's gamma parameter
         if gamma:
             ramps = [] # now apply it to our pyglet windows
             for gamma in (vc.VISIONEGG_GAMMA_INVERT_RED,
@@ -120,7 +120,7 @@ class ManBar(Experiment):
 
     def createstimuli(self):
         """Creates the VisionEgg stimuli objects for this Experiment"""
-        super(ManBar, self).createstimuli()
+        super(Foraging, self).createstimuli()
         self.target = Target2D(anchor='center',
                                anti_aliasing=self.antialiase,
                                color=(self.brightness, self.brightness, self.brightness, 1.0))
