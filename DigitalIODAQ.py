@@ -63,11 +63,11 @@ from ctypes import c_long, c_ulong
 
 #-------------------------------------------------------------- Config Functions
 def GetDevices():
-    """Gets all NIDAQ devices """
-    buffersize = 1024
-    devicenames = " "*buffersize
-    DAQmxGetSysDevNames(devicenames, buffersize)
-    return devicenames.strip().strip('\x00')
+    """Gets all NIDAQ devices and returns a list of their names"""
+    buffersize = 1024 #set max buffer size
+    devicenames = " "*buffersize #build device string
+    DAQmxGetSysDevNames(devicenames, buffersize) #fill string with names
+    return devicenames.strip().strip('\x00').split(', ')  #strip off null char for each
 
 #-------------------------------------------------------------------- Input Task
 class DigitalInput(Task):
