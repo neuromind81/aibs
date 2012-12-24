@@ -10,9 +10,8 @@ Derric's wrapper for Digital IO from an NIDAQ board using the PyDAQmx library.
 
 List of features to add in the future:
 1) Buffered reading and writing with clock timing
-2) Task should automatically get port/line numbers (if possible via NI api)
-3) TDMS data logging
-4) ???
+2) TDMS data logging
+3) ???
 
 
 Dependencies:
@@ -26,8 +25,15 @@ http://zone.ni.com/reference/en-XX/help/370471W-01/
 Examples usage:
 #------------------------------------------------------------------------------ 
     
-    #Digital outout example
-    task = DigitalOutput(1,1,4) #device 1, port 1, 4 lines
+    # Get device info example    
+    dev = GetDevices() #get all devices
+    for d in dev:
+        print d
+        print GetDILines(d) #get all DI lines
+        print GetDOLines(d) #get all DO lines    
+    
+    # Digital outout example
+    task = DigitalOutput('Dev1',1) #device 1, port 1
     task.StartTask()
     
     data = np.array([1,0,1,0],dtype = np.uint8)
@@ -38,8 +44,8 @@ Examples usage:
     task.ClearTask()
     
     
-    #Digital Input Example
-    task = DigitalInput(1,0,4) #device 1, port 0, 4 lines
+    # Digital Input Example
+    task = DigitalInput('Dev1',0) #device 1, port 0
     task.StartTask()
     
     data = task.Read()
@@ -68,21 +74,52 @@ def GetDevices():
     devicenames = " "*buffersize #build device string
     DAQmxGetSysDevNames(devicenames, buffersize) #fill string with names
     return devicenames.strip().strip('\x00').split(', ')  #strip off null char for each
+    
+def GetDOPorts(device):
+    """Returns the names of all Digital Output ports on the specified device"""
+    buffersize = 1024
+    ports = " "*buffersize
+    DAQmxGetDevDOPorts(device, ports, buffersize)
+    return ports.strip().strip('\x00').split(', ')
+
+def GetDIPorts(device):
+    """Returns the names of all Digital Input ports on the specified device"""
+    buffersize = 1024
+    ports = " "*buffersize
+    DAQmxGetDevDIPorts(device, ports, buffersize)
+    return ports.strip().strip('\x00').split(', ')
+
+def GetDOLines(device):
+    """Returns the names of all Digital Output lines on the specified device"""
+    buffersize = 1024
+    lines = " "*buffersize
+    DAQmxGetDevDOLines(device, lines, buffersize)
+    return lines.strip().strip('\x00').split(', ')
+    
+def GetDILines(device):
+    """Returns the names of all Digital Input lines on the specified device"""
+    buffersize = 1024
+    lines = " "*buffersize
+    DAQmxGetDevDILines(device, lines, buffersize)
+    return lines.strip().strip('\x00').split(', ')
 
 #-------------------------------------------------------------------- Input Task
 class DigitalInput(Task):
     '''
-    Gets the state of the inputs from the NIDAQ Device/port specified.  Lines is number of IO
-        lines on the port.  Different devices have different number of lines.  Tested on a
+    Gets the state of the inputs from the NIDAQ Device/port specified. 
+        Different devices have different number of lines.  Tested on a
         device with 4 input lines
     '''
-    def __init__(self,device = 1,port = 0,lines = 8):
+    def __init__(self,device = 'Dev1',port = 0):
         #construct task
         Task.__init__(self)
         
+        lines = GetDILines(device)
+        lines = [l for l in lines if 'port' + str(port) in l]
+        self.deviceLines = len(lines)
+        
         #set up task properties
-        devStr = "Dev" + str(device) + "/port" + str(port) + "/line0:" + str(lines-1)
-        self.deviceLines = lines
+        devStr = str(device) + "/port" + str(port) + "/line0:" + str(self.deviceLines-1)
             
         #create channel
         self.CreateDIChan(devStr,"",DAQmx_Val_ChanForAllLines)
@@ -109,16 +146,21 @@ class DigitalInput(Task):
 #------------------------------------------------------------------- Output Task
 class DigitalOutput(Task):
     '''
-    Sets the current output state of all digital lines.  Input is device #, output port #,
-        and number of output lines on device.  Tested on a device with 4 output lines.
+    Sets the current output state of all digital lines.  Input is device name, output port #.
+        Tested on a device with 4 output lines.
     '''
-    def __init__(self, device = 1, port = 0, deviceLines = 8):
+    def __init__(self, device = 'Dev1', port = 0):
         Task.__init__(self)
+        
+        lines = GetDOLines(device)
+        lines = [l for l in lines if 'port' + str(port) in l]
+        self.deviceLines = len(lines)  
+        
         #create dev str for various lines
         ##TODO: Get these values from the device instad, as well as current line states
-        devStr = "Dev" + str(device) + "/port" + str(port) + "/line0:" + str(deviceLines-1)
+        devStr = str(device) + "/port" + str(port) + "/line0:" + str(self.deviceLines-1)
 
-        self.lastOut = np.zeros(deviceLines, dtype = np.uint8) #keep track of last output
+        self.lastOut = np.zeros(self.deviceLines, dtype = np.uint8) #keep track of last output
 
         #create IO channel
         self.CreateDOChan(devStr,"",DAQmx_Val_ChanForAllLines)
@@ -147,20 +189,24 @@ class DigitalOutput(Task):
 #-------------------------------------------------------------------------- Main
 def main():
     
-    '''
-    task = DigitalOutput(1,1,4) #device 1, port 1, 4 lines
+    dev = GetDevices() #get all devices
+    for d in dev:
+        print d
+        print GetDILines(d) #get all DI lines
+        print GetDOLines(d) #get all DO lines
+    
+    #Digital Input Example
+    task = DigitalInput(dev[0],0) #device 1, port 0
     task.StartTask()
     
-    data = np.array([1,1,1,1],dtype = np.uint8)
+    print task.deviceLines    
     
-    task.Write(data)
+    data = task.Read()
+    
+    print data
     
     task.StopTask()
     task.ClearTask()
-    '''
-    dev = GetDevices()
-    print dev
-    print len(dev)
     
     
 #----------------------------------------------------------------------- IF MAIN

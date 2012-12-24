@@ -17,7 +17,7 @@ Examples usage:
 #------------------------------------------------------------------------------ 
     import time
     
-    task=AnalogInput(1,[0,1,2], 1000) #device 1, channels 0, 1, 2
+    task=AnalogInput('Dev1',[0,1,2], 1000) #device 1, channels 0, 1, 2, buffer size 1000
     task.StartTask() #NI begins data collection
     
     #At any time after .StartTask() you can sample data from the current buffer which is
@@ -44,6 +44,28 @@ from PyDAQmx.DAQmxConstants import *
 from PyDAQmx.DAQmxFunctions import *
 from numpy import zeros, sin, arange, pi
 
+#-------------------------------------------------------------- Config Functions
+def GetDevices():
+    """Gets all NIDAQ devices and returns a list of their names"""
+    buffersize = 1024 #set max buffer size
+    devicenames = " "*buffersize #build device string
+    DAQmxGetSysDevNames(devicenames, buffersize) #fill string with names
+    return devicenames.strip().strip('\x00').split(', ')  #strip off null char for each
+
+def GetAIChannels(device):
+    """ Returns a list of Analog Input Channels for the specified device """
+    buffersize = 1024
+    channels = " "*buffersize
+    DAQmxGetDevAIPhysicalChans(device,channels,buffersize)
+    return channels.strip().strip('\x00').split(', ')
+    
+def GetAOChannels(device):
+    """ Returns a list of analog output channels for the specified device """
+    buffersize = 1024
+    channels = " "*buffersize
+    DAQmxGetDevAOPhysicalChans(device,channels,buffersize)
+    return channels.strip().strip('\x00').split(', ')
+
 #-------------------------------------------------------------------- Input Task
 class AnalogInput(Task):
     '''
@@ -57,7 +79,7 @@ class AnalogInput(Task):
     Set self.accumulate on/off to accumulate all data into self.dataArray
     
     '''
-    def __init__(self,device = 1,channels = [0],bufferSize = 500):
+    def __init__(self,device = 'Dev1',channels = [0],bufferSize = 500):
         #construct task
         Task.__init__(self)
         
@@ -71,7 +93,7 @@ class AnalogInput(Task):
         #create dev str for various channels
         devStr = ""
         for channel in channels:
-            devStr += "Dev" + str(device) + "/ai" + str(channel) + ","
+            devStr += str(device) + "/ai" + str(channel) + ","
         devStr = devStr[:-1]
         
         self.CreateAIVoltageChan(devStr,"",DAQmx_Val_RSE,-10.0,10.0,DAQmx_Val_Volts,None)
@@ -126,13 +148,13 @@ class AnalogOutput(Task):
     Untested. The code below is for a single case.  Need to add support for input waveform,
         custom buffer size, etc.
     '''
-    def __init__(self, device = 1, channels = [0]):
+    def __init__(self, device = 'Dev1', channels = [0]):
         Task.__init__(self)
         
         #create dev str for various channels
         devStr = ""
         for channel in channels:
-            devStr += "Dev" + str(device) + "/ao" + str(channel) + ","
+            devStr += str(device) + "/ao" + str(channel) + ","
         devStr = devStr[:-1]
         #print devStr #for troubleshooting
         
@@ -147,17 +169,7 @@ class AnalogOutput(Task):
 
 #-------------------------------------------------------------------------- Main
 def main():
-
-    
-    '''# For analog output.  I don't have an output channel on my device so I couldn't test it
-    task = AnalogOutput()
-    task.StartTask()
-    
-    raw_input('Generating signal continuously. Press Enter to interrupt\n')
-    
-    task.StopTask()
-    task.ClearTask()
-    '''
+    pass
     
 #----------------------------------------------------------------------- IF MAIN
 if __name__ == "__main__":
