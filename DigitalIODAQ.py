@@ -10,7 +10,9 @@ Derric's wrapper for Digital IO from an NIDAQ board using the PyDAQmx library.
 
 List of features to add in the future:
 1) Buffered reading and writing with clock timing
-2) ???
+2) Task should automatically get port/line numbers (if possible via NI api)
+3) TDMS data logging
+4) ???
 
 
 Dependencies:
@@ -58,6 +60,14 @@ from PyDAQmx.DAQmxFunctions import *
 import numpy as np
 from ctypes import c_long, c_ulong
 
+
+#-------------------------------------------------------------- Config Functions
+def GetDevices():
+    """Gets all NIDAQ devices """
+    buffersize = 1024
+    devicenames = " "*buffersize
+    DAQmxGetSysDevNames(devicenames, buffersize)
+    return devicenames.strip().strip('\x00')
 
 #-------------------------------------------------------------------- Input Task
 class DigitalInput(Task):
@@ -137,6 +147,7 @@ class DigitalOutput(Task):
 #-------------------------------------------------------------------------- Main
 def main():
     
+    '''
     task = DigitalOutput(1,1,4) #device 1, port 1, 4 lines
     task.StartTask()
     
@@ -146,6 +157,11 @@ def main():
     
     task.StopTask()
     task.ClearTask()
+    '''
+    dev = GetDevices()
+    print dev
+    print len(dev)
+    
     
 #----------------------------------------------------------------------- IF MAIN
 if __name__ == "__main__":
