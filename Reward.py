@@ -18,18 +18,21 @@ see main() below.
 #------------------------------------------------------------------------------ 
 '''
 from DigitalIODAQ import DigitalOutput as do
+from DigitalIODAQ import GetDOLines
 import numpy as np
 from threading import Timer
 import time
 
 class Reward(object):
     '''
-    Reward object.  
+    Reward object. Flips a timed Digital IO Line. 
     '''
 
-    def __init__(self, device = 1, port = 1, deviceLines = 8, rewardline = 0):
+    def __init__(self, device = 'Dev1', port = 1, rewardline = 0):
         '''Construct reward '''
-        self.dout = do(device,port,deviceLines)
+        ##TODO:  Update to only write specific line using do.WriteBit()
+        self.dout = do(device,port)
+        deviceLines = len(GetDOLines(device))
         self.on = np.ones(deviceLines,dtype = np.uint8)
         self.on[rewardline] = 0
         self.off = np.ones(deviceLines,dtype = np.uint8)
@@ -61,7 +64,7 @@ class Reward(object):
         self.dout.Write(self.off)
         
 def main():
-    reward = Reward(1,1,4,0)  #create a reward object
+    reward = Reward('Dev1',1,0)  #create a reward object
     reward.start()            #start NIDAQ
     reward.reward()           #trigger reward
     time.sleep(5)             #sleep for 5 seconds

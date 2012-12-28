@@ -111,7 +111,8 @@ class DigitalInput(Task):
         device with 4 input lines
     '''
     def __init__(self,device = 'Dev1',port = 0):
-        #construct task
+        """Constructor for DI Object"""
+        ##TODO: Get dault port automatically if none are specified instead of using 0
         Task.__init__(self)
         
         lines = GetDILines(device)
@@ -150,6 +151,8 @@ class DigitalOutput(Task):
         Tested on a device with 4 output lines.
     '''
     def __init__(self, device = 'Dev1', port = 0):
+        """Constructor for DO object """
+        ##TODO: Get port value automatically if one is not specified instead of using port 0
         Task.__init__(self)
         
         lines = GetDOLines(device)
@@ -157,7 +160,6 @@ class DigitalOutput(Task):
         self.deviceLines = len(lines)  
         
         #create dev str for various lines
-        ##TODO: Get these values from the device instad, as well as current line states
         devStr = str(device) + "/port" + str(port) + "/line0:" + str(self.deviceLines-1)
 
         self.lastOut = np.zeros(self.deviceLines, dtype = np.uint8) #keep track of last output
