@@ -74,9 +74,3 @@ if __name__ == "__main__":
     log.add('test adding a string arg')
     log.close()
 
-    f = open(path)
-    l = f.read()
-    f.close()
-    print l
-    exec(l)
-    print t
