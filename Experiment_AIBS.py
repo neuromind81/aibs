@@ -237,7 +237,7 @@ class Experiment(object):
             print "NIDAQ could not be initialized! No frame/sweep data will be output."
 
         self.sweepBit = 0
-        self.sweepBit = 1
+        self.frameBit = 1
         
         self.quit = False # init quit signal
         self.pause = False # init pause signal
