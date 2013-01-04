@@ -104,7 +104,7 @@ class Bar(Experiment):
 
             self.updateparams(i)
             
-            if self.ni: self.dOut.Write(self.sweepNoFrame) #DW sets sweep bit high on NIDAQ
+            if self.ni: self.dOut.WriteBit(self.sweepBit, 1) #DW sets sweep bit high on NIDAQ
 
             # Set sweep bit high, do the sweep
             for vsynci in xrange(self.nvsyncs): # nvsyncs depends on if this is a blank sweep or not
@@ -119,12 +119,12 @@ class Bar(Experiment):
                     break # out of vsync loop
                 if self.tp.on: # not a blank sweep
                     self.tp.position = self.x[vsynci], self.y[vsynci] # update target position
-                if self.ni: self.dOut.Write(self.sweepFrame) #set frame bit high
+                if self.ni: self.dOut.WriteBit(self.frameBit, 1) #set frame bit high
                 self.screen.clear()
                 self.viewport.draw()
                 ve.Core.swap_buffers() # returns immediately
                 gl.glFlush() # waits for next vsync pulse from video card
-                if self.ni: self.dOut.Write(self.sweepNoFrame) #set frame bit low
+                if self.ni: self.dOut.WriteBit(self.frameBit, 0) #set frame bit low
                 self.vsynctimer.tick()
                 self.nvsyncsdisplayed += 1 # increment
 
@@ -132,7 +132,7 @@ class Bar(Experiment):
             self.tp.on = False
             self.staticscreen(nvsyncs=self.npostvsyncs) # clears sweep bit low when done
 
-            if self.ni: self.dOut.Write(self.noSweepNoFrame) #DW sets sweep bit low on NIDAQ
+            if self.ni: self.dOut.WriteBit(self.sweepBit, 0) #DW sets sweep bit low on NIDAQ
 
             if self.quit:
                 self.ii = ii + 1 - 1 # dec for accurate count of nsweeps successfully displayed
