@@ -177,12 +177,12 @@ class Experiment(object):
                 pass
             else: # post value to port
                 self.nvsyncsdisplayed += 1 # increment. Count this as a vsync that Surf has seen
-            if self.ni: self.dOut.Write(self.noSweepFrame)  #---------------------------------
+            if self.ni: self.dOut.WriteBit(self.frameBit, 1)  #---------------------------------
             self.screen.clear()
             self.viewport.draw()
             ve.Core.swap_buffers() # returns immediately
             gl.glFlush() # waits for next vsync pulse from video card
-            if self.ni: self.dOut.Write(self.noSweepNoFrame)  #---------------------------------
+            if self.ni: self.dOut.WriteBit(self.frameBit, 0)  #---------------------------------
             self.vsynctimer.tick()
             vsynci += int(not self.pause) # don't increment if in pause mode
 
@@ -229,16 +229,15 @@ class Experiment(object):
 
         #Prepare IODAQ
         try:
-            self.dOut = DigitalOutput(1,0,8)
+            self.dOut = DigitalOutput('Dev1',0)
             self.dOut.StartTask()
             self.ni = True
         except:
             self.ni = False
             print "NIDAQ could not be initialized! No frame/sweep data will be output."
-        self.sweepFrame = np.array([1,1,0,0,0,0,0,0], dtype = np.uint8)
-        self.noSweepFrame = np.array([0,1,0,0,0,0,0,0], dtype = np.uint8)
-        self.sweepNoFrame = np.array([1,0,0,0,0,0,0,0], dtype = np.uint8)
-        self.noSweepNoFrame = np.array([0,0,0,0,0,0,0,0], dtype = np.uint8)
+
+        self.sweepBit = 0
+        self.sweepBit = 1
         
         self.quit = False # init quit signal
         self.pause = False # init pause signal
@@ -265,7 +264,8 @@ class Experiment(object):
         # time-critical stuff ends here
 
         if self.ni:
-            self.dOut.Write(self.noSweepNoFrame) #ensure sweep bit is low
+            self.dOut.WriteBit(self.sweepBit, 0) #ensure sweep bit is low
+            self.dOut.WriteBit(self.frameBit, 0) #ensure frame bit is low
             self.dOut.ClearTask() #clear NIDAQ
         
         # Close OpenGL graphics screen (necessary when running from Python interpreter)

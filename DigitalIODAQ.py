@@ -162,7 +162,7 @@ class DigitalOutput(Task):
         #create dev str for various lines
         devStr = str(device) + "/port" + str(port) + "/line0:" + str(self.deviceLines-1)
 
-        self.lastOut = np.zeros(self.deviceLines, dtype = np.uint8) #keep track of last output
+        self.lastOut = np.zeros(self.deviceLines, dtype = np.uint8) #keep track of last output #should be gotten from initial state instead
 
         #create IO channel
         self.CreateDOChan(devStr,"",DAQmx_Val_ChanForAllLines)
