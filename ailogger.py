@@ -3,6 +3,9 @@
 Created on Tue Dec 18 14:07:05 2012
 
 @author: derricw
+
+
+
 """
 
 import numpy as np
@@ -72,5 +75,7 @@ if __name__ == "__main__":
     log.add(balls = [456.7])
     log.comment("#this is a comment that I added a # to")
     log.add('test adding a string arg')
+    dic = {'a':5, 'b':[1,2,3]}
+    log.add(dic = dic)
     log.close()
 
