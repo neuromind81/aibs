@@ -33,7 +33,7 @@ s.gamma = None
 # starting y position of terrain
 s.ypos = 500
 # set up wheel encoder (NIDAQ Device, Vin channel, Vsig channel)
-s.encoder = Encoder(1,1,2)
+s.encoder = Encoder('Dev1',1,2)
 
 # set up terrain? [trainingtypes] for example ["color"]
 s.terrain = Terrain(["color", "orientation"])
@@ -50,7 +50,7 @@ s.terrain.colorcorrect = s.terrain.black #what is the correct color
 s.terrain.objectwidthDeg = 20 #width of the object in degrees
 
 #set up reward (NIDAQ device, port for Digital Out, number of lines, rewardline)
-s.reward = Reward(1,1,4,0)
+s.reward = Reward('Dev1',1,0)
 #define reward paramters
 s.reward.rewardtime = 0.04
 

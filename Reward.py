@@ -31,6 +31,9 @@ class Reward(object):
     def __init__(self, device = 'Dev1', port = 1, rewardline = 0):
         '''Construct reward '''
         ##TODO:  Update to only write specific line using do.WriteBit()
+        self.device = device
+        self.port = port
+        self.rewardline = rewardline
         self.dout = do(device,port)
         deviceLines = len(GetDOLines(device))
         self.on = np.ones(deviceLines,dtype = np.uint8)
@@ -38,6 +41,9 @@ class Reward(object):
         self.off = np.ones(deviceLines,dtype = np.uint8)
         self.rewardtime = 1
         self.rewardcount = 0
+        
+    def __repr__(self):
+        return 'Reward(' + self.device + ',' + str(self.port) + ',' + str(self.rewardline) + ')'
         
     def start(self):
         '''Starts IO task '''

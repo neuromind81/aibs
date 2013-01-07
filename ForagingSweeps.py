@@ -29,7 +29,9 @@ try:
     from dimstim.Core import DT # only importable if DT board is installed
 except ImportError:
     pass
+
 from Experiment_AIBS import Experiment
+from aibs.ailogger import ailogger
 
 printer = C.printer # synonym
 info = printer.info
@@ -60,23 +62,16 @@ class ForagingSweeps(Experiment):
         self.framescorrect = 0
         self.static.reward.start()
         
-        #set up lap and reward logs
+        #set up data logs
         self.laps = []
         self.rewards = []
+        self.posx = []
+        self.terrainlog = []
 
     def check(self):
         """Check Grating-specific parameters"""
         super(ForagingSweeps, self).check()
-        '''
-        if self.dynamic.speedDegSe == None:
-            self.dynamic.speedDegSec = 0 # required for self.updateparams()
-        if self.dynamic.speedDegSec == 0: # if speed hasn't been set, make sure position has
-            assert self.dynamic.xposDeg != None, 'speedDegSec is 0, xposDeg can\'t be set to None'
-            assert self.dynamic.yposDeg != None, 'speedDegSec is 0, xposDeg can\'t be set to None'
-        else: # if speed has been set, make sure position hasn't
-            assert self.dynamic.xposDeg == None, 'speedDegSec is non-zero, xposDeg must be set to None'
-            assert self.dynamic.yposDeg == None, 'speedDegSec is non-zero, yposDeg must be set to None'
-        '''
+
     def build(self):
         """Builds the SweepTable and the Header for this Experiment"""
         # Build the sweep table
@@ -137,6 +132,7 @@ class ForagingSweeps(Experiment):
         self.tp.position = self.x, self.y
         self.tp.size = deg2pix(self.terrain.objectwidthDeg),deg2pix(self.terrain.objectwidthDeg)
         self.tp.orientation = self.terrain.orientation
+        self.updateTerrain()
         
         
         # Set stimuli tuple
@@ -198,6 +194,7 @@ class ForagingSweeps(Experiment):
         self.offscreen = self.off_screen_distance(self.static.terrain.orientation)
         self.tp.orientation = self.static.terrain.orientation
         self.tp.color = (self.brightness, self.brightness, self.brightness, 1.0)
+        self.terrainlog.append((self.tp.orientation, self.tp.color))
     
     def checkEncoder(self):
         '''Gets any input that can change terrain'''
@@ -223,6 +220,8 @@ class ForagingSweeps(Experiment):
         elif self.x < 0-self.offscreen:
             self.x = self.static.terrain.lapdistance + self.offscreen
             #perhaps do something here so that something happens when they go backwards
+            
+        self.posx.append(self.x)
 
     def off_screen_distance(self, orientation = 0):
         '''Gets off screen distance using formula to compensate for orientation of object '''
@@ -259,7 +258,7 @@ class ForagingSweeps(Experiment):
                 
                 self.checkEncoder()
                 self.checkTerrain()
-                self.updateTerrain()
+                #self.updateTerrain()
                 
                 self.screen.clear()
                 self.viewport.draw()
@@ -348,33 +347,39 @@ class ForagingSweeps(Experiment):
         else:
             info('dimstim completed successfully\n')
             '''
-        
+        '''
         printf2log('SWEEP ORDER: \n' + str(self.sweeptable.i) + '\n')
         printf2log('SWEEP TABLE: \n' + self.sweeptable._pprint(None) + '\n')
         printf2log('\n' + '-'*80 + '\n') # add minuses to end of log to space it out between sessions
-        
+        '''
         self.logmeta()
         
     def logmeta(self):
         """Logs some stuff to C:\MouseData\ """
-        meta = ""
-        dir = "C:\\MouseData\\" + self.static.mouseid
-        if not os.path.exists(dir): os.makedirs(dir)
-        filename = self.static.mouseid + "-" + self.startdatetime.strftime('%y%m%d%H%M%S') + ".log"
-        path = os.path.join(dir, filename)
-        f = open(path, 'w+')
-        meta = "Mouse ID: " + self.static.mouseid + "\nStart Time: " + \
-            str(self.startdatetime) + "\nStop Time: " + str(self.stopdatetime) + \
-            '\nLaps: '
-        for l in self.laps: meta += str(l) + ','
-        meta = meta[:-1] + '\nRewards: '
-        for r in self.rewards: meta += str(r) + ','
-        meta = meta[:-1] + '\nSweep Order: '
-        for s in self.sweeptable.i: meta += str(s) + ','
-        meta = meta[:-1] + '\nSweep Table:\n'
-        meta += self.sweeptable._pprint(None)
-        f.write(meta)
-        f.close()
+        dir = "C:\\MouseData\\" + self.static.mouseid + "\\"
+        file = "sweep.log"
+        path = os.path.join(dir, file)
+        log = ailogger(path)
+        log.add(script = self.script)
+        log.add(starttime = self.startdatetime)
+        log.add(stoptime = self.stopdatetime)
+        log.comment(' Parameters ')
+        log.add(staticparams = self.static)
+        log.add(dynamicparams = self.dynamic)
+        log.add(variables = self.variables)  #needs _repr_ methon in Core.Variables class
+        log.add(sweeporder = str(self.sweeptable.i))
+        log.add(sweeptable = self.sweeptable._pprint())
+        log.comment( ' Mouse Performance Data ')
+        log.add(laps = self.laps)
+        log.add(rewards = self.rewards)
+        log.add(posx = self.posx)
+        log.add(terrain = self.terrain.__dict__)
+        log.add(terrainlog = self.terrainlog)
+        log.comment( ' Dimstim Performance Data ')
+        log.add(vsynctable = self.vsynctimer.pprint())
+        log.add(droppedframes = self.vsynctimer.drops)
+        log.close()
+
         
     def staticscreen(self, nvsyncs, postval=C.MAXPOSTABLEINT):
         """Display whatever's defined in the viewport on-screen for nvsyncs,

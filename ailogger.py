@@ -18,7 +18,7 @@ class ailogger(object):
     def __init__(self,path, timestamp = True):
         self.dir = os.path.dirname(path)
         self.filename = os.path.basename(path)
-        if timestamp: self.filename = datetime.datetime.now().strftime('%y%m%d%H%M%S') + self.filename
+        if timestamp: self.filename = datetime.datetime.now().strftime('%y%m%d%H%M%S') + '-' + self.filename
         self.path = os.path.join(self.dir,self.filename)
         if not os.path.exists(self.dir): os.makedirs(self.dir)
         self.f = open(self.path,'w+')

@@ -42,6 +42,8 @@ class Terrain(object):
     """Terrain Setup"""
     def __init__(self, training = ["color", "orientation"]):
         """Initializes defaults.  All can be adjusted after construction."""
+        self.training = training
+        
         #set up color states
         self.black = 0
         self.white = 1
@@ -76,6 +78,9 @@ class Terrain(object):
         self.objectwidthDeg = 20 #width of stimulus object
         
         self.iscorrect = False #state variable for whether or not current stimulus is correct
+        
+    def __repr__(self):
+        return "Terrain(" + str(self.training) + ')'
         
     def new(self):
         """Gets new terrain settings"""

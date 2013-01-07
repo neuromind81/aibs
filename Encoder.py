@@ -17,7 +17,7 @@ numpy (http://www.scipy.org/Download)
 
 Example usage:
 #------------------------------------------------------------------------------ 
-    e = Encoder.Encoder(1,0,1,'analog',500)
+    e = Encoder.Encoder('Dev1',0,1,'analog',500)
     e.start()
     e.accumulateData()
     time.sleep(1) #collect some data
@@ -65,10 +65,16 @@ class Encoder():
     Currently no support for PWM encoders, only analog.
 
     '''
-    def __init__(self, device = 1, vin = 0, vsig = 1, type = 'analog', buffer = 500):
+    def __init__(self, device = 'Dev1', vin = 0, vsig = 1, type = 'analog', buffer = 500):
         '''
         Constructor
         '''
+        self.device = device
+        self.vin = vin
+        self.vsig = vsig
+        self.type = type
+        self.buffer = buffer
+        
         self.noEObject = 'No valid encoder object has been created.'
         
         if type == 'analog':
@@ -76,6 +82,9 @@ class Encoder():
         else:
             print 'No support for ' + type + 'encoders.'
             self.AISignal = None
+            
+    def __repr__(self):
+        return "Encoder(" + self.device + ',' + str(self.vin) + ',' + str(self.vsig) + ',' + self.type + ',' + str(self.buffer) + ')'
     
      
     def start(self):
@@ -157,6 +166,7 @@ class Encoder():
         if self.AISignal is not None:
             data = self.AISignal.dataArray
         return data    
+    
         
             
         
