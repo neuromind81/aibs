@@ -2,7 +2,7 @@
 
 from dimstim.Constants import dc # dimstim config
 from dimstim.Core import StaticParams, DynamicParams, Variable, Variables, Runs, BlankSweeps
-from aibs.ForagingSweeps_AIBS import Grating
+from aibs.ForagingSweeps import ForagingSweeps
 from aibs.Terrain import Terrain
 from aibs.Encoder import Encoder
 from aibs.Reward import Reward
@@ -23,9 +23,9 @@ s.postexpSec = 1
 # bar orientation offset (deg)
 s.orioff = 0 #dc.get('Manbar0', 'orioff')
 # grating width (deg)
-s.widthDeg = 90 #dc.get('Manbar0', 'widthDeg')
+s.widthDeg = 150 #dc.get('Manbar0', 'widthDeg')
 # grating height (deg)
-s.heightDeg = 90 #dc.get('Manbar0', 'heightDeg')
+s.heightDeg = 120 #dc.get('Manbar0', 'heightDeg')
 # mask, one of:  None, 'gaussian', or 'circle'
 s.mask = None #'gaussian'
 # screen gamma: None, or single value, or 3-tuple
@@ -109,7 +109,7 @@ runs = Runs(n=4, reshuffle=False)
 
 bs = BlankSweeps(T=2000, sec=2, shuffle=False) # blank sweep every T sweeps for sec seconds
 
-e = Grating(script=__file__, # this script's file name
+e = ForagingSweeps(script=__file__, # this script's file name
             static=s, dynamic=d, variables=vs,
             runs=runs, blanksweeps=bs) # create a Grating experiment
 e.run() # run it

@@ -395,10 +395,14 @@ class ForagingSweeps(Experiment):
                 pass
             else: # post value to port
                 self.nvsyncsdisplayed += 1 # increment. Count this as a vsync that Surf has seen
+            self.tp.position = self.x,self.y
+                
+            self.checkEncoder()
+            self.checkTerrain()
+            
             self.screen.clear()
             self.viewport.draw()
             ve.Core.swap_buffers() # returns immediately
             gl.glFlush() # waits for next vsync pulse from video card
             self.vsynctimer.tick()
             vsynci += int(not self.pause) # don't increment if in pause mode
-        if I.DTBOARDINSTALLED: DT.clearBits(SWEEP) # be tidy, clear sweep bit low, delay to make sure Surf sees the end of this sweep
