@@ -339,23 +339,12 @@ class ForagingSweeps(Experiment):
         info('%d vsyncs displayed, %d sweeps completed' % (self.nvsyncsdisplayed, self.ii))
         info('Experiment duration: %s expected, %s actual' % (isotime(self.sec, 6), isotime(self.stoptime-self.starttime, 6)))
         
-        '''    #something is wonky here idk what.  Throws excepthook error
-        if self.paused:
-            warning('dimstim was paused at some point')
-        if self.quit:
-            warning('dimstim was interrupted before completion')
-        else:
-            info('dimstim completed successfully\n')
-            '''
-        '''
-        printf2log('SWEEP ORDER: \n' + str(self.sweeptable.i) + '\n')
-        printf2log('SWEEP TABLE: \n' + self.sweeptable._pprint(None) + '\n')
-        printf2log('\n' + '-'*80 + '\n') # add minuses to end of log to space it out between sessions
-        '''
+        print "Logging Data..."
         self.logmeta()
+        print "Logging Completed."
         
     def logmeta(self):
-        """Logs some stuff to C:\MouseData\ """
+        """Logs everything important to C:\MouseData\ """
         dir = "C:\\MouseData\\" + self.static.mouseid + "\\"
         file = "sweep.log"
         path = os.path.join(dir, file)
@@ -368,7 +357,8 @@ class ForagingSweeps(Experiment):
         log.add(dynamicparams = self.dynamic)
         log.add(variables = self.variables)  #needs _repr_ methon in Core.Variables class
         log.add(sweeporder = str(self.sweeptable.i))
-        log.add(sweeptable = self.sweeptable._pprint())
+        log.add(sweeptable = self.sweeptable.data)
+        log.add(sweeptableformatted = self.sweeptable._pprint())
         log.comment( ' Mouse Performance Data ')
         log.add(laps = self.laps)
         log.add(rewards = self.rewards)
@@ -377,6 +367,8 @@ class ForagingSweeps(Experiment):
         log.add(terrainlog = self.terrainlog)
         log.comment( ' Dimstim Performance Data ')
         log.add(vsynctable = self.vsynctimer.pprint())
+        log.add(vsyncsdisplayed = self.nvsyncsdisplayed)
+        log.add(sweepscompleted = self.ii)
         log.add(droppedframes = self.vsynctimer.drops)
         log.close()
 
