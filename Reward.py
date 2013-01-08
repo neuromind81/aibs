@@ -43,7 +43,7 @@ class Reward(object):
         self.rewardcount = 0
         
     def __repr__(self):
-        return 'Reward(' + self.device + ',' + str(self.port) + ',' + str(self.rewardline) + ')'
+        return "Reward('" + self.device + "'," + str(self.port) + ',' + str(self.rewardline) + ')'
         
     def start(self):
         '''Starts IO task '''

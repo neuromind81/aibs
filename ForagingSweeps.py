@@ -53,7 +53,6 @@ class ForagingSweeps(Experiment):
         
         #set up encoder
         self.static.encoder.start()
-        self.encDeg = self.static.encoder.getDegrees()
         self.lastDx = 0
         if self.static.encoder.getVin() < 1:
             print 'Encoder not connected or powered on.'
@@ -66,7 +65,9 @@ class ForagingSweeps(Experiment):
         self.laps = []
         self.rewards = []
         self.posx = []
+        self.dx = []
         self.terrainlog = []
+        
 
     def check(self):
         """Check Grating-specific parameters"""
@@ -85,7 +86,8 @@ class ForagingSweeps(Experiment):
         self.y = self.static.ypos
         self.x = self.xorig
         self.offscreen = self.off_screen_distance(self.static.terrain.orientation)
-
+        self.encDeg = self.static.encoder.getDegrees()
+        
         # Calculate Experiment duration
         self.sec = self.calcduration()
         info('Expected experiment duration: %s' % isotime(self.sec, 6), tolog=False)
@@ -199,19 +201,20 @@ class ForagingSweeps(Experiment):
     def checkEncoder(self):
         '''Gets any input that can change terrain'''
         ##TODO: Put this all in Terrain class
+        print self.encDeg
         if self.static.encoder.getVin() > 1: #ensure that encoder voltage is on
             deg = self.static.encoder.getDegrees()
             dx = deg-self.encDeg
             self.encDeg = deg
-            if 100 > dx > -100:
+            if 180 > dx > -180:
                 self.x += dx*self.terrain.speedgain
                 self.lastDx = dx
-            elif dx >= 100:
+            elif dx >= 180:
                 self.x += self.lastDx*self.terrain.speedgain
-            elif dx <=-100:
+            elif dx <=-180:
                 self.x -= 0-self.lastDx*self.terrain.speedgain
         
-        #prevents object from blinking when the lapdistance is short  
+        #prevents object from blinking when the lapdistance is short
         if self.x > (self.static.terrain.lapdistance + self.offscreen):
             self.static.terrain.new() # gets new object
             self.updateTerrain()
@@ -222,6 +225,8 @@ class ForagingSweeps(Experiment):
             #perhaps do something here so that something happens when they go backwards
             
         self.posx.append(self.x)
+        self.dx.append(self.lastDx)
+        
 
     def off_screen_distance(self, orientation = 0):
         '''Gets off screen distance using formula to compensate for orientation of object '''
@@ -258,7 +263,6 @@ class ForagingSweeps(Experiment):
                 
                 self.checkEncoder()
                 self.checkTerrain()
-                #self.updateTerrain()
                 
                 self.screen.clear()
                 self.viewport.draw()
@@ -355,7 +359,7 @@ class ForagingSweeps(Experiment):
         log.comment(' Parameters ')
         log.add(staticparams = self.static)
         log.add(dynamicparams = self.dynamic)
-        log.add(variables = self.variables)  #needs _repr_ methon in Core.Variables class
+        #log.add(variables = self.variables)  #needs _repr_ methon in Core.Variables class
         log.add(sweeporder = str(self.sweeptable.i))
         log.add(sweeptable = self.sweeptable.data)
         log.add(sweeptableformatted = self.sweeptable._pprint())
@@ -363,6 +367,7 @@ class ForagingSweeps(Experiment):
         log.add(laps = self.laps)
         log.add(rewards = self.rewards)
         log.add(posx = self.posx)
+        log.add(dx = self.dx)
         log.add(terrain = self.terrain.__dict__)
         log.add(terrainlog = self.terrainlog)
         log.comment( ' Dimstim Performance Data ')

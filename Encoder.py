@@ -65,7 +65,7 @@ class Encoder():
     Currently no support for PWM encoders, only analog.
 
     '''
-    def __init__(self, device = 'Dev1', vin = 0, vsig = 1, type = 'analog', buffer = 500):
+    def __init__(self, device = 'Dev1', vin = 0, vsig = 1, type = 'analog', buffer = 100):
         '''
         Constructor
         '''
@@ -84,7 +84,7 @@ class Encoder():
             self.AISignal = None
             
     def __repr__(self):
-        return "Encoder(" + self.device + ',' + str(self.vin) + ',' + str(self.vsig) + ',' + self.type + ',' + str(self.buffer) + ')'
+        return "Encoder('" + self.device + "'," + str(self.vin) + ',' + str(self.vsig) + ",'" + self.type + "'," + str(self.buffer) + ')'
     
      
     def start(self):
@@ -115,7 +115,7 @@ class Encoder():
     def getVin(self):
         '''Gets most current Vin'''
         if self.AISignal is not None: 
-            vin = self.AISignal.data[499][1]
+            vin = self.AISignal.data[self.buffer-1][1]
         else:
             vin = 0
         return vin
@@ -124,24 +124,24 @@ class Encoder():
     def getVsig(self):
         '''Gets most current Vsig'''
         if self.AISignal is not None: 
-            vsig = self.AISignal.data[499][0]
+            vsig = self.AISignal.data[self.buffer-1][0]
         else:
             vsig = 0
         return vsig
     
 
-    def getDegrees(self, precision = 2, data = []):
-        '''Gets most current degrees with optional precision
+    def getDegrees(self, data = []):
+        '''Gets most current degrees
             Can also be used to convert an array of data to an array of degrees'''
         vsig = self.getVsig()
         vin = self.getVin()
         if data == []:
-            return round(Degrees(vin,vsig),precision)
+            return Degrees(vin,vsig)
         else:
             try:
                 degArray = []
                 for d in data:
-                    degArray.append(round(Degrees(d[1],d[0]),precision))
+                    degArray.append(Degrees(d[1],d[0]))
                 return degArray
             except:
                 print 'Data incorrectly formatted.'
