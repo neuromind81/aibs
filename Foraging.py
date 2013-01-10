@@ -32,6 +32,8 @@ from dimstim.Core import sec2intvsync, deg2pix, pix2deg, iterable, isotime, intr
 from dimstim.Window import Window
 from dimstim.Experiment import Experiment, info, printf2log
 
+from aibs.ailogger import ailogger
+
 STATUSBARHEIGHT = 12 # height of upper and lower status bars (pix)
 
 def invramp(gamma):
@@ -87,6 +89,7 @@ class Foraging(Experiment):
         
         #set up encoder
         self.encoder.start()
+        time.sleep(0.2) #give NIDAQ chance to take a buffer of data
         self.encDeg = self.encoder.getDegrees()
         self.lastDx = 0
         if self.encoder.getVin() < 1:
@@ -99,6 +102,11 @@ class Foraging(Experiment):
         
         #set up session clock
         self.sc = SessionClock()
+        
+        #set up logs
+        self.posx = []
+        self.dx = []
+        self.terrainlog = []
 
     def build(self):
         """Builds the SweepTable and the Header, not required for ManBar experiment"""
@@ -213,6 +221,7 @@ class Foraging(Experiment):
         self.sfreqmultiplier = 1.01
         self.tfreqmultiplier = 1.01
         self.contrastmultiplier = 1.01
+
         
 
     def saveManbar(self, n):
@@ -415,21 +424,25 @@ class Foraging(Experiment):
         self.logmeta()
 
     def logmeta(self):
-        """Logs some stuff to C:\MouseData\ """
-        meta = ""
-        dir = "C:\\MouseData\\" + self.mouseid
-        if not os.path.exists(dir): os.makedirs(dir)
-        filename = self.mouseid + "-" + self.startdatetime.strftime('%y%m%d%H%M%S') + ".log"
-        path = os.path.join(dir, filename)
-        f = open(path, 'w+')
-        meta = "Mouse ID: " + self.mouseid + "\nStart Time: " + \
-            str(self.startdatetime) + "\nStop Time: " + str(self.stopdatetime) + '\nLaps: '
-        for l in self.laps: meta += str(l) + ','
-        meta = meta[:-1] + '\nRewards: '
-        for r in self.rewards: meta += str(r) + ','
-        meta = meta[:-1] + '\n'
-        f.write(meta)
-        f.close()        
+        """Logs everything important to C:\MouseData\ """
+        dir = "C:\\MouseData\\" + self.mouseid + "\\"
+        file = "manual.log"
+        path = os.path.join(dir, file)
+        log = ailogger(path)
+        log.add(script = self.script)
+        log.add(starttime = self.startdatetime)
+        log.add(stoptime = self.stopdatetime)
+        log.comment(' Parameters ')
+        log.add(staticparams = self.params)
+        log.comment( ' Mouse Performance Data ')
+        log.add(laps = self.laps)
+        log.add(rewards = self.rewards)
+        log.add(posx = self.posx)
+        log.add(dx = self.dx)
+        log.add(terrain = self.terrain.__dict__)
+        log.add(terrainlog = self.terrainlog)
+        log.close()
+        
 
     def on_mouse_motion(self, x, y, dx, dy):
         """Update target position""" #Turned off (no mouse control in foraging)
@@ -543,9 +556,13 @@ class Foraging(Experiment):
             self.offscreen = self.off_screen_distance(self.terrain.orientation)
             self.x = 0-self.offscreen
             self.laps.append(time.clock())
+            self.terrainlog.append((self.ori, self.brightness))
         elif self.x < 0-self.offscreen:
             self.x = self.terrain.lapdistance + self.offscreen
             #perhaps do something here so that something happens when they go backwards
+            
+        self.posx.append(self.x)
+        self.dx.append(self.lastDx)
         
     def off_screen_distance(self, orientation = 0):
         '''Gets off screen distance using formula to compensate for orientation of object '''
