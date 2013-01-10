@@ -13,6 +13,12 @@ from numpy import *
 import os
 import datetime
 
+def npdict2listdict(npdict):
+    listdict = {}
+    for k,v in npdict.iteritems():
+        listdict[k] = v.tolist()
+    return listdict
+
 class ailogger(object):
     """ Creates a logger that writes objects and their values to a file. """
     def __init__(self,path, timestamp = True):
@@ -68,8 +74,10 @@ class ailogger(object):
 if __name__ == "__main__":
     path = r'C:\Herp\Derp\log1.dat'
     log = ailogger(path)
-    test = np.array(['a','b','c'])
-    log.add(t = test)
+    list = range(10000)
+    test = np.array(list)
+    testdict = {'test':test}
+    log.add(t = npdict2listdict(testdict))
     log.add(1)
     log.comment("this is a comment that i haven't added a # to")
     log.add(balls = [456.7])
