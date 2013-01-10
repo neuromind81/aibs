@@ -359,8 +359,7 @@ class ForagingSweeps(Experiment):
         log.add(staticparams = self.static)
         log.add(dynamicparams = self.dynamic)
         #log.add(variables = self.variables)  #needs _repr_ methon in Core.Variables class
-        log.add(sweeporder = str(self.sweeptable.i))
-        log.add(sweeptable = self.sweeptable.data)
+        log.add(sweeporder = self.sweeptable.i.tolist())
         log.add(sweeptableformatted = self.sweeptable._pprint())
         log.comment( ' Mouse Performance Data ')
         log.add(laps = self.laps)

@@ -24,6 +24,7 @@ try:
     from dimstim.Core import DT # only importable if DT board is installed
 except ImportError:
     pass
+from aibs.ailogger import ailogger
 
 printer = C.printer # synonym
 info = printer.info
@@ -284,3 +285,27 @@ class Experiment(object):
         printf2log('SWEEP ORDER: \n' + str(self.sweeptable.i.tolist()) + '\n')
         printf2log('SWEEP TABLE: \n' + self.sweeptable._pprint(None) + '\n')
         printf2log('\n' + '-'*80 + '\n') # add minuses to end of log to space it out between sessions
+        
+        self.logmeta()
+        
+    def logmeta(self):
+        """Logs everything important to C:\MouseData\ """
+        dir = "C:\\ExperimentData\\" + self.static.expid + "\\"
+        file = "sweep.log"
+        path = os.path.join(dir, file)
+        log = ailogger(path)
+        log.add(script = self.script)
+        log.add(starttime = self.startdatetime)
+        log.add(stoptime = self.stopdatetime)
+        log.comment(' Parameters ')
+        log.add(staticparams = self.static)
+        log.add(dynamicparams = self.dynamic)
+        #log.add(variables = self.variables)  #needs _repr_ methon in Core.Variables class
+        log.add(sweeporder = self.sweeptable.i.tolist())
+        log.add(sweeptableformatted = self.sweeptable._pprint())
+        log.comment( ' Dimstim Performance Data ')
+        log.add(vsynctable = self.vsynctimer.pprint())
+        log.add(vsyncsdisplayed = self.nvsyncsdisplayed)
+        log.add(sweepscompleted = self.ii)
+        log.add(droppedframes = self.vsynctimer.drops)
+        log.close()

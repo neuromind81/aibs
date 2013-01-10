@@ -84,13 +84,7 @@ class Grating(Experiment):
                                     max_alpha=1.0, # opaque
                                     on=False) # keep it off until first sweep starts
         self.gp = self.grating.parameters
-        '''
-        self.fixationspot = ve.Core.FixationSpot(position=(self.xorig, self.yorig),
-                                                 anchor='center',
-                                                 color=(255, 0, 0, 0),
-                                                 size=(1, 1),
-                                                 on=True)
-        '''
+
         self.stimuli = (self.background, self.grating) # last entry will be topmost layer in viewport
 
     def updateparams(self, i):
