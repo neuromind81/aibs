@@ -201,7 +201,6 @@ class ForagingSweeps(Experiment):
     def checkEncoder(self):
         '''Gets any input that can change terrain'''
         ##TODO: Put this all in Terrain class
-        print self.encDeg
         if self.static.encoder.getVin() > 1: #ensure that encoder voltage is on
             deg = self.static.encoder.getDegrees()
             dx = deg-self.encDeg
