@@ -24,7 +24,7 @@ try:
     from dimstim.Core import DT # only importable if DT board is installed
 except ImportError:
     pass
-from aibs.ailogger import ailogger
+from aibs.ailogger import ailogger, npdict2listdict
 
 printer = C.printer # synonym
 info = printer.info
@@ -302,6 +302,7 @@ class Experiment(object):
         log.add(dynamicparams = self.dynamic)
         #log.add(variables = self.variables)  #needs _repr_ methon in Core.Variables class
         log.add(sweeporder = self.sweeptable.i.tolist())
+        log.add(sweeptable = log.npdict2listdict(self.sweeptable.data))
         log.add(sweeptableformatted = self.sweeptable._pprint())
         log.comment( ' Dimstim Performance Data ')
         log.add(vsynctable = self.vsynctimer.pprint())
