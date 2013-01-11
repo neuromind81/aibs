@@ -4,6 +4,11 @@ Created on Tue Dec 18 14:07:05 2012
 
 @author: derricw
 
+Logs objects and their code representation to a file.
+
+Example useage:
+
+see main() for an example.
 
 
 """

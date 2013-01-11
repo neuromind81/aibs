@@ -84,8 +84,19 @@ class Grating(Experiment):
                                     max_alpha=1.0, # opaque
                                     on=False) # keep it off until first sweep starts
         self.gp = self.grating.parameters
+        if self.static.syncsq:
+            self.sync = Target2D(anchor='center',
+                                   anti_aliasing=False,
+                                   color=(0.0, 0.0, 0.0, 1.0),
+                                   position = (100,100),
+                                   on = True,
+                                   size = (100,100))
+            self.sp = self.sync.parameters
 
-        self.stimuli = (self.background, self.grating) # last entry will be topmost layer in viewport
+        if self.static.syncsq: 
+            self.stimuli = (self.background, self.grating, self.sync) # last entry will be topmost layer in viewport
+        else:
+            self.stimuli = (self.background, self.grating) # last entry will be topmost layer in viewport
 
     def updateparams(self, i):
         """Updates stimulus parameters, given sweep table index i"""
@@ -159,6 +170,13 @@ class Grating(Experiment):
                 if self.gp.on: # not a blank sweep
                     self.gp.phase_at_t0 = self.phase[vsynci] # update grating phase
                     if self.st.contrastreverse[i]: self.gp.contrast = self.contrast[vsynci] #if phase reversal is on
+                
+                if self.static.syncsq:
+                    if self.sp.color == (1.0,1.0,1.0,1.0): 
+                        self.sp.color = (0.0,0.0,0.0,1.0)
+                    else: 
+                        self.sp.color = (1.0,1.0,1.0,1.0)
+
                 if self.ni: self.dOut.WriteBit(self.frameBit, 1) #set frame bit high
                 self.screen.clear()
                 self.viewport.draw()
@@ -181,5 +199,41 @@ class Grating(Experiment):
 
         self.ii = ii + 1 # nsweeps successfully displayed
         
+    def staticscreen(self, nvsyncs, postval=C.MAXPOSTABLEINT):
+        """Display whatever's defined in the viewport on-screen for nvsyncs,
+        and posts postval to the port. Adds ticks to self.vsynctimer"""
+        #assert nvsyncs >= 1 # nah, let it take nvsyncs=0 and do nothing and return right away
+        vsynci = 0
 
+        if self.pause and nvsyncs == 0:
+            nvsyncs = 1 # need at least one vsync to get into the while loop and pause the stimulus indefinitely
+        while vsynci < nvsyncs: # need a while loop for pause to work
+            for event in pygame.event.get(): # for all events in the event queue
+                if event.type == pygame.locals.KEYDOWN:
+                    if event.key == pygame.locals.K_ESCAPE:
+                        self.quit = True
+                    if event.key == pygame.locals.K_PAUSE:
+                        self.pause = not self.pause # toggle pause
+                        self.paused = True
+            if self.quit:
+                break # out of vsync loop
+            if self.pause: # indicate pause to Surf
+                pass
+            else: # post value to port
+                self.nvsyncsdisplayed += 1 # increment. Count this as a vsync that Surf has seen
+            if self.ni: self.dOut.WriteBit(self.frameBit, 1)  #---------------------------------
+
+            if self.static.syncsq:
+                if self.sp.color == (1.0,1.0,1.0,1.0): 
+                    self.sp.color = (0.0,0.0,0.0,1.0)
+                else: 
+                    self.sp.color = (1.0,1.0,1.0,1.0)
+
+            self.screen.clear()
+            self.viewport.draw()
+            ve.Core.swap_buffers() # returns immediately
+            gl.glFlush() # waits for next vsync pulse from video card
+            if self.ni: self.dOut.WriteBit(self.frameBit, 0)  #---------------------------------
+            self.vsynctimer.tick()
+            vsynci += int(not self.pause) # don't increment if in pause mode
 
