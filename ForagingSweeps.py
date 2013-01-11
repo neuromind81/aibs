@@ -129,6 +129,13 @@ class ForagingSweeps(Experiment):
                                anti_aliasing=False,
                                color=(self.brightness, self.brightness, self.brightness, 1.0))
         self.tp = self.target.parameters
+        self.sync = Target2D(anchor='center',
+                               anti_aliasing=False,
+                               color=(0.0, 0.0, 0.0, 1.0),
+                               position = (100,100),
+                               on = True,
+                               size = (100,100))
+        self.sp = self.sync.parameters
         
         # Update target stimulus with initial values
         self.tp.position = self.x, self.y
@@ -138,7 +145,7 @@ class ForagingSweeps(Experiment):
         
         
         # Set stimuli tuple
-        self.stimuli = (self.background, self.grating, self.target) # last entry will be topmost layer in viewport
+        self.stimuli = (self.background, self.grating, self.target, self.sync) # last entry will be topmost layer in viewport
 
     def updateparams(self, i):
         """Updates stimulus parameters, given sweep table index i"""
@@ -259,6 +266,12 @@ class ForagingSweeps(Experiment):
                     self.gp.phase_at_t0 = self.phase[vsynci] # update grating phase
                     if self.st.contrastreverse[i]: self.gp.contrast = self.contrast[vsynci] #if phase reversal is on
                 self.tp.position = self.x,self.y
+                
+                if self.sp.color == (1.0,1.0,1.0,1.0): 
+                    self.sp.color = (0.0,0.0,0.0,1.0)
+                else: 
+                    self.sp.color = (1.0,1.0,1.0,1.0)
+                
                 
                 self.checkEncoder()
                 self.checkTerrain()
@@ -399,6 +412,11 @@ class ForagingSweeps(Experiment):
             else: # post value to port
                 self.nvsyncsdisplayed += 1 # increment. Count this as a vsync that Surf has seen
             self.tp.position = self.x,self.y
+                
+            if self.sp.color == (1.0,1.0,1.0,1.0): 
+                self.sp.color = (0.0,0.0,0.0,1.0)
+            else: 
+                self.sp.color = (1.0,1.0,1.0,1.0)
                 
             self.checkEncoder()
             self.checkTerrain()
