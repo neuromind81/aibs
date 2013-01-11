@@ -31,7 +31,7 @@ except ImportError:
     pass
 
 from Experiment_AIBS import Experiment
-from aibs.ailogger import ailogger
+from aibs.ailogger import ailogger, npdict2listdict
 
 printer = C.printer # synonym
 info = printer.info
@@ -373,6 +373,7 @@ class ForagingSweeps(Experiment):
         log.add(dynamicparams = self.dynamic)
         #log.add(variables = self.variables)  #needs _repr_ methon in Core.Variables class
         log.add(sweeporder = self.sweeptable.i.tolist())
+        log.add(sweeptable = npdict2listdict(self.sweeptable.data))
         log.add(sweeptableformatted = self.sweeptable._pprint())
         log.comment( ' Mouse Performance Data ')
         log.add(laps = self.laps)
