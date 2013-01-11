@@ -305,7 +305,7 @@ class Experiment(object):
         log.add(dynamicparams = self.dynamic)
         #log.add(variables = self.variables)  #needs _repr_ methon in Core.Variables class
         log.add(sweeporder = self.sweeptable.i.tolist())
-        log.add(sweeptable = log.npdict2listdict(self.sweeptable.data))
+        log.add(sweeptable = npdict2listdict(self.sweeptable.data))
         log.add(sweeptableformatted = self.sweeptable._pprint())
         log.comment( ' -------------------Dimstim Performance Data-------- ')
         log.add(vsynctable = self.vsynctimer.pprint())

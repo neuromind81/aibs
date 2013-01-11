@@ -16,6 +16,7 @@ import VisionEgg as ve
 import VisionEgg.Core
 from VisionEgg.Gratings import SinGrating2D
 from VisionEgg.Textures import Mask2D
+from VisionEgg.MoreStimuli import Target2D
 
 import dimstim.Constants as C
 from dimstim.Constants import I, SWEEP
@@ -88,7 +89,7 @@ class Grating(Experiment):
             self.sync = Target2D(anchor='center',
                                    anti_aliasing=False,
                                    color=(0.0, 0.0, 0.0, 1.0),
-                                   position = (100,100),
+                                   position = self.static.syncsqloc,
                                    on = True,
                                    size = (100,100))
             self.sp = self.sync.parameters
