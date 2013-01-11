@@ -16,7 +16,10 @@ import datetime
 def npdict2listdict(npdict):
     listdict = {}
     for k,v in npdict.iteritems():
-        listdict[k] = v.tolist()
+        try:
+            listdict[k] = v.tolist()
+        except:
+            listdict[k] = v
     return listdict
 
 class ailogger(object):
