@@ -133,7 +133,7 @@ class ForagingSweeps(Experiment):
             self.sync = Target2D(anchor='center',
                                    anti_aliasing=False,
                                    color=(0.0, 0.0, 0.0, 1.0),
-                                   position = (100,100),
+                                   position = self.static.syncsqloc,
                                    on = True,
                                    size = (100,100))
             self.sp = self.sync.parameters
