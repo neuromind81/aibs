@@ -133,7 +133,7 @@ class ForagingSweeps(Experiment):
             self.sync = Target2D(anchor='center',
                                    anti_aliasing=False,
                                    color=(0.0, 0.0, 0.0, 1.0),
-                                   position = self.static.syncsqloc,
+                                   position = (100,100),
                                    on = True,
                                    size = (100,100))
             self.sp = self.sync.parameters
@@ -367,7 +367,7 @@ class ForagingSweeps(Experiment):
     def logmeta(self):
         """Logs everything important to C:\MouseData\ """
         dir = "C:\\MouseData\\" + self.static.mouseid + "\\"
-        file = "sweep.log"
+        file = "sweep.log" #also appends timestamp to 
         path = os.path.join(dir, file)
         log = ailogger(path)
         log.add(script = self.script)

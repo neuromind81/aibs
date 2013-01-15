@@ -17,6 +17,8 @@ import numpy as np
 from numpy import *
 import os
 import datetime
+import shutil
+import stat
 
 def npdict2listdict(npdict):
     listdict = {}
@@ -37,6 +39,9 @@ class ailogger(object):
         if not os.path.exists(self.dir): os.makedirs(self.dir)
         self.f = open(self.path,'w+')
         self.objnames = []
+
+        self.backupFileDir = None
+        self.readOnly = True
         
     def add(self,*args, **kwargs):
         """ Adds the object to the file. """
@@ -75,13 +80,25 @@ class ailogger(object):
         self.f.write(string)
 
     def close(self):
-        """ Closes the logger. """
+        """ Closes the logger. [Sets read only status. Backs up the file.] """
         self.f.close()
+        if self.readOnly: os.chmod(self.path,stat.S_IREAD)
+        if self.backupFilePath is not None: self.backup()
+
+    def backup(self):
+        """ Saves a copy of the file to another directory. """
+        try:
+            directory = os.path.dirname(self.backupFilePath)
+            if not os.path.exists(directory): os.makedirs(directory)
+            shutil.copy(self.path, directory)
+        except:
+            print "BACKUP COULD NOT BE PERFORMED!  Ensure that the directory is accessible!"
         
         
 if __name__ == "__main__":
-    path = r'C:\Herp\Derp\log1.dat'
+    path = 'C:\\Herp\\Derp\\log2.dat'
     log = ailogger(path)
+    log.backupFilePath = 'C:\\Herp\\Backup\\'
     list = range(10000)
     test = np.array(list)
     testdict = {'test':test}
