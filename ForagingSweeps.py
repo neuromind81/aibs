@@ -366,7 +366,7 @@ class ForagingSweeps(Experiment):
         
     def logmeta(self):
         """Logs everything important to C:\MouseData\ """
-        dir = "C:\\MouseData\\" + self.static.mouseid + "\\"
+        dir = "C:\\ExperimentData\\" + self.static.mouseid + "\\"
         file = "sweep.log" #also appends timestamp to 
         path = os.path.join(dir, file)
         log = ailogger(path)
