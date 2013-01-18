@@ -4,7 +4,9 @@ Created on Tue Dec 18 14:07:05 2012
 
 @author: derricw
 
-Logs objects and their code representation to a file.
+Logs objects and their python code representation to a file.
+
+##TODO: Matlab output mode.
 
 Example useage:
 
@@ -21,6 +23,7 @@ import shutil
 import stat
 
 def npdict2listdict(npdict):
+    """ Converts a dictionary with numpy arrays to a dictionary with lists """
     listdict = {}
     for k,v in npdict.iteritems():
         try:
@@ -32,12 +35,14 @@ def npdict2listdict(npdict):
 class ailogger(object):
     """ Creates a logger that writes objects and their values to a file. """
     def __init__(self,path, timestamp = True):
+        self.path = path
         self.dir = os.path.dirname(path)
         self.filename = os.path.basename(path)
-        if timestamp: self.filename = datetime.datetime.now().strftime('%y%m%d%H%M%S') + '-' + self.filename
-        self.path = os.path.join(self.dir,self.filename)
+        self.timestamp = timestamp
+        if self.timestamp: self.filename = datetime.datetime.now().strftime('%y%m%d%H%M%S') + '-' + self.filename
+        self.fullPath = os.path.join(self.dir,self.filename)
         if not os.path.exists(self.dir): os.makedirs(self.dir)
-        self.f = open(self.path,'w+')
+        self.f = open(self.fullPath,'w+')
         self.objnames = []
 
         self.backupFileDir = None
@@ -82,7 +87,7 @@ class ailogger(object):
     def close(self):
         """ Closes the logger. [Sets read only status. Backs up the file.] """
         self.f.close()
-        if self.readOnly: os.chmod(self.path,stat.S_IREAD)
+        if self.readOnly: os.chmod(self.fullPath,stat.S_IREAD)
         if self.backupFilePath is not None: self.backup()
 
     def backup(self):
@@ -90,17 +95,20 @@ class ailogger(object):
         try:
             directory = os.path.dirname(self.backupFilePath)
             if not os.path.exists(directory): os.makedirs(directory)
-            shutil.copy(self.path, directory)
+            shutil.copy(self.fullPath, directory)
         except:
             print "BACKUP COULD NOT BE PERFORMED!  Ensure that the directory is accessible!"
         
+    def __repr__(self):
+        """ Returns string representation of object """
+        return "ailogger(path = " + repr(self.path) + ", " + "timestamp = " + repr(self.timestamp) + ")"
         
 if __name__ == "__main__":
-    path = 'C:\\Herp\\Derp\\log2.dat'
+    path = 'C:\\ExperimentData\\test3\\'
     log = ailogger(path)
     log.backupFilePath = 'C:\\Herp\\Backup\\'
-    list = range(10000)
-    test = np.array(list)
+    testlist = range(1000)
+    test = np.array(testlist)
     testdict = {'test':test}
     log.add(t = npdict2listdict(testdict))
     log.add(1)
