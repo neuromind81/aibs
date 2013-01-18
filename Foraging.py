@@ -424,8 +424,8 @@ class Foraging(Experiment):
         self.logmeta()
 
     def logmeta(self):
-        """Logs everything important to C:\MouseData\ """
-        dir = "C:\\MouseData\\" + self.mouseid + "\\"
+        """Logs everything important to C:\ExperimentData\ """
+        dir = "C:\\ExperimentData\\" + self.mouseid + "\\"
         file = "manual.log"
         path = os.path.join(dir, file)
         log = ailogger(path)

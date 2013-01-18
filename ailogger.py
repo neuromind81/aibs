@@ -87,13 +87,18 @@ class ailogger(object):
     def close(self):
         """ Closes the logger. [Sets read only status. Backs up the file.] """
         self.f.close()
+<<<<<<< HEAD
         if self.readOnly: os.chmod(self.fullPath,stat.S_IREAD)
         if self.backupFilePath is not None: self.backup()
+=======
+        if self.readOnly: os.chmod(self.path,stat.S_IREAD)
+        if self.backupFileDir is not None: self.backup()
+>>>>>>> 0428491f9a367d2fadc47d84c74862e3f2dd738c
 
     def backup(self):
         """ Saves a copy of the file to another directory. """
         try:
-            directory = os.path.dirname(self.backupFilePath)
+            directory = os.path.dirname(self.backupFileDir)
             if not os.path.exists(directory): os.makedirs(directory)
             shutil.copy(self.fullPath, directory)
         except:
@@ -106,9 +111,15 @@ class ailogger(object):
 if __name__ == "__main__":
     path = 'C:\\ExperimentData\\test3\\'
     log = ailogger(path)
+<<<<<<< HEAD
     log.backupFilePath = 'C:\\Herp\\Backup\\'
     testlist = range(1000)
     test = np.array(testlist)
+=======
+    log.backupFileDir = 'C:\\Herp\\Backup\\'
+    list = range(10000)
+    test = np.array(list)
+>>>>>>> 0428491f9a367d2fadc47d84c74862e3f2dd738c
     testdict = {'test':test}
     log.add(t = npdict2listdict(testdict))
     log.add(1)
