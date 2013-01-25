@@ -48,6 +48,8 @@ class ailogger(object):
         self.backupFileDir = None
         self.readOnly = True
         
+        self.addstr("import datetime")
+        
     def add(self,*args, **kwargs):
         """ Adds the object to the file. """
         for a in args:
@@ -87,7 +89,7 @@ class ailogger(object):
     def close(self):
         """ Closes the logger. [Sets read only status. Backs up the file.] """
         self.f.close()
-        if self.readOnly: os.chmod(self.path,stat.S_IREAD)
+        if self.readOnly: os.chmod(self.fullPath,stat.S_IREAD)
         if self.backupFileDir is not None: self.backup()
 
     def backup(self):

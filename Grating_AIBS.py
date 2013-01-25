@@ -39,16 +39,7 @@ class Grating(Experiment):
     def check(self):
         """Check Grating-specific parameters"""
         super(Grating, self).check()
-        '''
-        if self.dynamic.speedDegSe == None:
-            self.dynamic.speedDegSec = 0 # required for self.updateparams()
-        if self.dynamic.speedDegSec == 0: # if speed hasn't been set, make sure position has
-            assert self.dynamic.xposDeg != None, 'speedDegSec is 0, xposDeg can\'t be set to None'
-            assert self.dynamic.yposDeg != None, 'speedDegSec is 0, xposDeg can\'t be set to None'
-        else: # if speed has been set, make sure position hasn't
-            assert self.dynamic.xposDeg == None, 'speedDegSec is non-zero, xposDeg must be set to None'
-            assert self.dynamic.yposDeg == None, 'speedDegSec is non-zero, yposDeg must be set to None'
-        '''
+
     def build(self):
         """Builds the SweepTable and the Header for this Experiment"""
         super(Grating, self).build()
@@ -147,7 +138,7 @@ class Grating(Experiment):
     def main(self):
         """Run the main stimulus loop for this Experiment subclass
 
-        make screen.get_framebuffer_as_array for all Experiment classes more easily
+        ##TODO:make screen.get_framebuffer_as_array for all Experiment classes more easily
         available from outside of dimstim (for analysis in neuropy) so you can
         grab the frame buffer data at any timepoint (and use for, say, revcorr)
 
@@ -203,7 +194,7 @@ class Grating(Experiment):
     def staticscreen(self, nvsyncs, postval=C.MAXPOSTABLEINT):
         """Display whatever's defined in the viewport on-screen for nvsyncs,
         and posts postval to the port. Adds ticks to self.vsynctimer"""
-        #assert nvsyncs >= 1 # nah, let it take nvsyncs=0 and do nothing and return right away
+
         vsynci = 0
 
         if self.pause and nvsyncs == 0:
@@ -222,7 +213,7 @@ class Grating(Experiment):
                 pass
             else: # post value to port
                 self.nvsyncsdisplayed += 1 # increment. Count this as a vsync that Surf has seen
-            if self.ni: self.dOut.WriteBit(self.frameBit, 1)  #---------------------------------
+
 
             if self.static.syncsq:
                 if self.sp.color == (1.0,1.0,1.0,1.0): 
@@ -230,11 +221,12 @@ class Grating(Experiment):
                 else: 
                     self.sp.color = (1.0,1.0,1.0,1.0)
 
+            if self.ni: self.dOut.WriteBit(self.frameBit, 1)  #set frame bit high
             self.screen.clear()
             self.viewport.draw()
             ve.Core.swap_buffers() # returns immediately
             gl.glFlush() # waits for next vsync pulse from video card
-            if self.ni: self.dOut.WriteBit(self.frameBit, 0)  #---------------------------------
+            if self.ni: self.dOut.WriteBit(self.frameBit, 0)  #set frame bit low
             self.vsynctimer.tick()
             vsynci += int(not self.pause) # don't increment if in pause mode
 

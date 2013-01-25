@@ -113,9 +113,7 @@ class ForagingSparseNoise(Experiment):
 
         self.tp = self.target.parameters # synonym
         self.tp.size = self.barWidth, self.barHeight # static, only needs to be done once
-        
 
-        
 
     def updateparams(self, i):
         """Updates stimulus parameters, given sweep table index i"""
@@ -204,7 +202,7 @@ class ForagingSparseNoise(Experiment):
     def staticscreen(self, nvsyncs, postval=C.MAXPOSTABLEINT):
         """Display whatever's defined in the viewport on-screen for nvsyncs,
         and posts postval to the port. Adds ticks to self.vsynctimer"""
-        #assert nvsyncs >= 1 # nah, let it take nvsyncs=0 and do nothing and return right away
+
         vsynci = 0
 
         if self.pause and nvsyncs == 0:

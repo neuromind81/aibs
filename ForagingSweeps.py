@@ -203,6 +203,7 @@ class ForagingSweeps(Experiment):
                 self.framescorrect = 0
         
     def updateTerrain(self):
+        """ Updates terrain variables and logs current instance """
         self.brightness = self.static.terrain.color
         self.offscreen = self.off_screen_distance(self.static.terrain.orientation)
         self.tp.orientation = self.static.terrain.orientation
@@ -211,7 +212,7 @@ class ForagingSweeps(Experiment):
     
     def checkEncoder(self):
         '''Gets any input that can change terrain'''
-        ##TODO: Put this all in Terrain class
+        ##TODO: Put this all in Terrain class?
         if self.static.encoder.getVin() > 1: #ensure that encoder voltage is on
             deg = self.static.encoder.getDegrees()
             dx = deg-self.encDeg
