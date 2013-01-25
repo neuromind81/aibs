@@ -44,8 +44,8 @@ class Experiment(object):
         self.blanksweeps = blanksweeps # BlankSweeps object
         # no need to set these in the script, set them here instead:
         # TODO: BUG: but xorigDeg and yorigDeg need to be written to the textheader at some point!
-        self.static.xorigDeg = C.dc.get('Manbar0', 'xorigDeg') # x coord of stimulus center anchor from screen center (deg)
-        self.static.yorigDeg = C.dc.get('Manbar0', 'yorigDeg') # y coord of stimulus center anchor from screen center (deg)
+        self.static.xorigDeg = 0 # x coord of stimulus center anchor from screen center (deg)
+        self.static.yorigDeg = 0 # y coord of stimulus center anchor from screen center (deg)
 
     def check(self):
         """Check various Experiment attributes"""
@@ -228,9 +228,9 @@ class Experiment(object):
         # Create the VsyncTimer
         self.vsynctimer = Core.VsyncTimer()
 
-        #Prepare IODAQ
+        # Prepare IODAQ
         try:
-            self.dOut = DigitalOutput('Dev1',0)
+            self.dOut = DigitalOutput('Dev1')  # device should be read from a config file
             self.dOut.StartTask()
             self.ni = True
         except:
@@ -240,6 +240,7 @@ class Experiment(object):
         self.sweepBit = 0
         self.frameBit = 1
         
+        # Events (quit/pause etc)
         self.quit = False # init quit signal
         self.pause = False # init pause signal
         self.paused = False # remembers whether this experiment has been paused
@@ -286,10 +287,11 @@ class Experiment(object):
         printf2log('SWEEP TABLE: \n' + self.sweeptable._pprint(None) + '\n')
         printf2log('\n' + '-'*80 + '\n') # add minuses to end of log to space it out between sessions
         
+        # Log relevent objects to file.
         self.logmeta()
         
     def logmeta(self):
-        """Logs everything important to C:\MouseData\ """
+        """Logs everything important to C:\ExperimentData\ """
         dir = "C:\\ExperimentData\\" + self.static.expid + "\\"
         file = "sweep.log"
         path = os.path.join(dir, file)
@@ -299,8 +301,10 @@ class Experiment(object):
         log.comment(' --------------------Header-------------------------- ')
         log.add(header = str(self.header.text))
         log.comment(' --------------------Timestamps---------------------- ')
-        log.add(starttime = self.startdatetime)
-        log.add(stoptime = self.stopdatetime)
+        log.add(startdatetime = self.startdatetime)
+        log.add(stoptdateime = self.stopdatetime)
+        log.add(starttime = self.starttime)
+        log.add(stoptime = self.stoptime)
         log.add(durationexpected = isotime(self.sec, 6))
         log.add(durationactual = isotime(self.stoptime-self.starttime,6))
         log.comment(' --------------------Parameters---------------------- ')

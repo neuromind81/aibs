@@ -110,9 +110,13 @@ class DigitalInput(Task):
         Different devices have different number of lines.  Tested on a
         device with 4 input lines
     '''
-    def __init__(self,device = 'Dev1',port = 0):
-        """Constructor for DI Object"""
-        ##TODO: Get dault port automatically if none are specified instead of using 0
+    def __init__(self, device = GetDevices()[0] ,port = GetDIPorts(GetDevices()[0])[0][-1]):
+        
+        """
+        Constructor for DI Object
+            Will get default device and port if none are specified.
+        """
+
         Task.__init__(self)
         
         lines = GetDILines(device)
@@ -150,9 +154,12 @@ class DigitalOutput(Task):
     Sets the current output state of all digital lines.  Input is device name, output port #.
         Tested on a device with 4 output lines.
     '''
-    def __init__(self, device = 'Dev1', port = 0):
-        """Constructor for DO object """
-        ##TODO: Get port value automatically if one is not specified instead of using port 0
+    def __init__(self, device = GetDevices()[0], port = GetDOPorts(GetDevices()[0])[0][-1]):
+        """
+        Constructor for DO object
+            If no port is specified, gets default port from default device.
+        """
+        
         Task.__init__(self)
         
         lines = GetDOLines(device)
@@ -196,17 +203,13 @@ def main():
         print d
         print GetDILines(d) #get all DI lines
         print GetDOLines(d) #get all DO lines
+        
+        print GetDOPorts(d)
     
     #Digital Input Example
-    task = DigitalInput(dev[0],0) #device 1, port 0
+    task = DigitalOutput() #device 1, port 0
     task.StartTask()
-    
-    print task.deviceLines    
-    
-    data = task.Read()
-    
-    print data
-    
+
     task.StopTask()
     task.ClearTask()
     
