@@ -235,8 +235,8 @@ class ForagingSweeps(Experiment):
             self.x = self.static.terrain.lapdistance + self.offscreen
             #perhaps do something here so that something happens when they go backwards
             
-        self.posx.append(self.x)
-        self.dx.append(self.lastDx)
+        self.posx.append(int(self.x))
+        self.dx.append(round(self.lastDx,4))
         
 
     def off_screen_distance(self, orientation = 0):
