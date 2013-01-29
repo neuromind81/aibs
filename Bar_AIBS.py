@@ -79,7 +79,7 @@ class Bar(Experiment):
             # Update non-positional target parameters
             self.tp.orientation = self.static.orioff + self.st.ori[i]
             self.tp.size = deg2pix(self.st.widthDeg[i]), deg2pix(self.st.heightDeg[i])
-            self.tp.color = self.st.brightness[i], self.st.brightness[i], self.st.brightness[i], 1.0
+            self.tp.color = self.st.rbrightness[i], self.st.gbrightness[i], self.st.bbrightness[i], 1.0
             self.tp.anti_aliasing = self.st.antialiase[i]
 
             # Update background parameters
