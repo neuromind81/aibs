@@ -115,7 +115,7 @@ class Encoder():
     def getVin(self):
         '''Gets most current Vin'''
         if self.AISignal is not None: 
-            vin = self.AISignal.data[self.buffer-1][1]
+            vin = self.AISignal.data[0][1]
         else:
             vin = 0
         return vin
@@ -124,7 +124,7 @@ class Encoder():
     def getVsig(self):
         '''Gets most current Vsig'''
         if self.AISignal is not None: 
-            vsig = self.AISignal.data[self.buffer-1][0]
+            vsig = self.AISignal.data[0][0]
         else:
             vsig = 0
         return vsig

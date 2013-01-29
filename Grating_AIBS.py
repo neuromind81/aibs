@@ -163,6 +163,7 @@ class Grating(Experiment):
                     self.gp.phase_at_t0 = self.phase[vsynci] # update grating phase
                     if self.st.contrastreverse[i]: self.gp.contrast = self.contrast[vsynci] #if phase reversal is on
                 
+                # flip sync square
                 if self.static.syncsq:
                     if self.sp.color == (1.0,1.0,1.0,1.0): 
                         self.sp.color = (0.0,0.0,0.0,1.0)
