@@ -8,6 +8,7 @@ s = StaticParams()
 d = DynamicParams()
 
 """Static parameters always remain constant during the entire experiment"""
+s.expid = "GAMMATEST"
 
 # pre-experiment duration to display blank screen (sec)
 s.preexpSec = 5
