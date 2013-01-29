@@ -200,11 +200,11 @@ def main():
     
     dev = GetDevices() #get all devices
     for d in dev:
-        print d
-        print GetDILines(d) #get all DI lines
-        print GetDOLines(d) #get all DO lines
-        
-        print GetDOPorts(d)
+        print "Device:", d
+        print "Input lines:", GetDILines(d) #get all DI lines
+        print "Output lines:", GetDOLines(d) #get all DO lines
+        print "Input ports:", GetDIPorts(d)
+        print "Output ports:",GetDOPorts(d)
     
     #Digital Input Example
     task = DigitalOutput() #device 1, port 0
