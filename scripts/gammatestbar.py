@@ -33,25 +33,27 @@ d.widthDeg = 60
 # bar height (deg)
 d.heightDeg = 60
 # bar brightness (0-1)
-d.rbrightness = [0,1]
+d.rbrightness = [x/100.0 for x in range(0,100,5)]
 # bar brightness (0-1)
-d.gbrightness = 0
+d.gbrightness = [x/100.0 for x in range(0,100,5)]
 # bar brightness (0-1)
-d.bbrightness = 0
+d.bbrightness = [x/100.0 for x in range(0,100,5)]
 # background brightness (0-1)
 d.bgbrightness = 0
 # antialiase the bar?
 d.antialiase = True
 # sweep duration (sec)
-d.sweepSec = 0.020
+d.sweepSec = 5
 # post-sweep duration to display blank screen (sec)
 d.postsweepSec = 0
 
 vs = Variables()
 vs.rbrightness = Variable(vals=d.rbrightness, dim=0, shuffle=False) # kwargs: vals, dim, shuffle, random
+vs.gbrightness = Variable(vals=d.gbrightness, dim=1, shuffle=False) # kwargs: vals, dim, shuffle, random
+vs.bbrightness = Variable(vals=d.bbrightness, dim=2, shuffle=False) # kwargs: vals, dim, shuffle, random
 #vs.bgbrightness = Variable(vals=d.bgbrightness, dim=1, shuffle=True)
 
-runs = Runs(n=1000, reshuffle=False)
+runs = Runs(n=5, reshuffle=False)
 
 #bs = BlankSweeps(T=7, sec=2, shuffle=False) # blank sweep every T sweeps for sec seconds
 
