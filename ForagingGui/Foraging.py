@@ -350,8 +350,8 @@ if __name__ == "__main__":
     
     #CREATE FOREGROUND STIMULUS
     monitor = monitors.Monitor('testMonitor')
-    #box = visual.Rect(window,width = misc.deg2pix(terrain.objectwidthDeg,monitor), height = misc.deg2pix(terrain.objectwidthDeg,monitor), units = 'pix', fillColor = 'black', lineColor = 'black', autoLog=False)
-    img = visual.ImageStim(window, image = "C:\Users\derricw\Pictures\shatner.jpg", size = [450,416], units = 'pix', autoLog=False) #creates an image from an image in specified directory
+    box = visual.Rect(window,width = misc.deg2pix(terrain.objectwidthDeg,monitor), height = misc.deg2pix(terrain.objectwidthDeg,monitor), units = 'pix', fillColor = 'black', lineColor = 'black', autoLog=False)
+    #img = visual.ImageStim(window, image = "C:\Users\derricw\Pictures\shatner.jpg", size = [450,416], units = 'pix', autoLog=False) #creates an image from an image in specified directory
     
     #CREATE FOREGROUND STIMULUS FRAME PARAMETERS (what changes between frames and how much (BESIDES POSITITON WHICH IS AUTOMATIC FOR THIS EXPERIMENT)
     fgFrame = {}
@@ -360,6 +360,6 @@ if __name__ == "__main__":
     fgSweep = {}
 
     #CREATE FORAGING CLASS INSTANCE
-    f = Foraging(window = window, terrain = terrain, params = params, bgStim = grating, bgFrame = bgFrame, bgSweep = bgSweep, fgStim = img)
+    f = Foraging(window = window, terrain = terrain, params = params, bgStim = grating, bgFrame = bgFrame, bgSweep = bgSweep, fgStim = box)
     #RUN IT
     f.run()
