@@ -18,6 +18,7 @@ import time
 class Foraging(object):
 
     def __init__(self, window, params, terrain = None, bgSweep = None, fgSweep = None, bgStim = None, fgStim = None, fgFrame = None, bgFrame = None):
+        
         """ Constructor.  Builds Foraging experiment and prepares for run() """
         # generic parameters
         self.params = params
@@ -103,9 +104,11 @@ class Foraging(object):
                     
                 
     def updateForeground(self, sweep):
+        """ Updates the foreground stimulus based on its sweep number.  UNIMPLIMENTED."""
         pass
         
     def updateFrame(self, vsync):
+        """ Updates frame with any item that is to be modulated per frame. """
         if self.bgStim is not None:
             for k,v in self.bgFrame.iteritems():
                 try: #parameter is a proper stimulus property
@@ -115,13 +118,13 @@ class Foraging(object):
                         self.bgStim.setPhase(v*vsync/60.0)
         
     def checkTerrain(self):
+        """ Determines if a reward should be given """
         if self.terrain.iscorrect:
             if self.terrain.windowwidth > self.x > -self.terrain.windowwidth:
                 if self.framescorrect > self.terrain.selectiontime:
                     self.reward.reward()
                     self.rewards.append(time.clock())
                     self.terrain.iscorrect = False
-                    print "REWARD"
                 self.framescorrect += 1
             else:
                 self.framescorrect = 0
