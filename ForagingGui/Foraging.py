@@ -18,13 +18,14 @@ Other dependencies:
 
 Example use:
     
-    
     See main() below.
 
 
 
 '''
 from psychopy import core, visual, event, logging, misc, monitors
+import time
+import datetime
 import scipy
 import numpy
 import itertools
@@ -36,7 +37,7 @@ try:
     from aibs.Reward import Reward
 except:
     pass
-import time
+
 
 class Foraging(object):
 
@@ -49,6 +50,7 @@ class Foraging(object):
             setattr(self,k,v)
             
         #MONITOR INFO
+        ##TODO: Get monitor/screen from script
         self.wwidth = window.size[0]
         self.wheight = window.size[1]
         self.monitor = monitors.Monitor('testMonitor')
@@ -139,6 +141,7 @@ class Foraging(object):
                 except: #paramter is not a proper stimulus property
                     if k == "TF": #special case for temporal freqency
                         self.bgFrame[k] = v
+                    else: print "Sweep parameter is incorrectly formatted:", k, v
                     
                 
     def updateForeground(self, sweepi):
@@ -154,6 +157,7 @@ class Foraging(object):
                 except: #parameter is not a proper stimulus property
                     if k == "TF": #special case for temporal frequency
                         self.bgStim.setPhase(v*vsync/60.0)
+                    else: print "No parameter called: ", k
         
     def checkTerrain(self):
         """ Determines if a reward should be given """
@@ -161,7 +165,7 @@ class Foraging(object):
             if self.terrain.windowwidth > self.x > -self.terrain.windowwidth:
                 if self.framescorrect > self.terrain.selectiontime:
                     if self.ni: self.reward.reward()
-                    self.rewards.append(time.clock())
+                    self.rewards.append((time.clock(), self.vsynccount))
                     self.terrain.iscorrect = False
                 self.framescorrect += 1
             else:
@@ -170,7 +174,7 @@ class Foraging(object):
     def updateTerrain(self):
         """ Updates terrain variables and logs current instance """
         ##TODO: update terrain to allow for discrimination besides color and orientation
-        try:
+        try: #because some types of stimulus won't let you change color.  I don't like how this works.
             if self.terrain.color == self.terrain.white: 
                 self.fgStim.setLineColor('white')
                 self.fgStim.setFillColor('white')
@@ -184,7 +188,7 @@ class Foraging(object):
         self.terrainlog.append((self.terrain.orientation, self.terrain.color))
                 
     def checkEncoder(self):
-        """ Checks encoder values and tweaks foreground object position. """
+        """ Checks encoder values and tweaks foreground object position based on speedgain. """
         if self.ni: deg = self.encoder.getDegrees() 
         else: deg = 0
         dx = deg-self.encDeg
@@ -204,7 +208,6 @@ class Foraging(object):
                 self.laps.append((time.clock(), self.vsynccount))
                 self.crossedZero = False
             self.x = -self.wwidth/2-self.offscreen
-            print self.x, self.terrain.objectwidthDeg, self.offscreen
         elif self.x < -self.wwidth/2-self.offscreen:
             self.x = -self.wwidth/2 + self.terrain.lapdistance + self.offscreen
             #perhaps do something here so that something happens when they go backwards
@@ -233,9 +236,9 @@ class Foraging(object):
         print "Frame interval statistics:", distString
         print "Drop statistics:", droppedString
         
-        
     def cleanup(self):
         """ Destructor """
+        print self.sweepsdisplayed, "sweeps completed."
         self.printFrameInfo()
         self.logMeta()
         if self.ni:
@@ -249,10 +252,10 @@ class Foraging(object):
         pass
 
     def run(self):
-        """ Main stimuilus loop """
-        #CLOCK SETUP
-        sweepClock = core.Clock()
-        blankClock = core.Clock()
+        """ Main stimuilus setup and loop """
+        #START CLOCKS
+        self.startdatetime = datetime.datetime.now()
+        self.starttime = time.clock()
         self.vsynccount = 0
         
         window.setRecordFrameIntervals() #start checking frame intervals
@@ -267,7 +270,6 @@ class Foraging(object):
             self.updateForeground(sweep) #update foreground sweep parameters (not implemented)
             
             #MAIN DISPLAY LOOP
-            sweepClock.reset() #reset clock every sweep
             for vsync in range(int(self.sweeplength*60)):
                 if self.bgStim is not None:
                     self.bgStim.draw()
@@ -285,7 +287,6 @@ class Foraging(object):
             self.sweepsdisplayed += 1
             
             #POST SWEEP DISPLAY LOOP
-            blankClock.reset() #reset clock 
             if self.bgStim is not None: self.bgStim.setOpacity(0.0)
             for vsync in range(int(self.postsweepsec*60)):
                 if self.bgStim is not None: self.bgStim.draw()
@@ -300,7 +301,6 @@ class Foraging(object):
             
             
         #POST EXPERIMENT LOOP
-        blankClock.reset() #reset clock
         if self.bgStim is not None: self.bgStim.setOpacity(0.0)
         if self.fgStim is not None: self.fgStim.setOpacity(0.0)
         for vsync in range(int(self.postexpsec*60)):
@@ -311,10 +311,19 @@ class Foraging(object):
         if self.bgStim is not None: self.bgStim.setOpacity(1.0)
         window.setRecordFrameIntervals(False) #stop recording frame intervals
         
+        #STOP CLOCKS
+        self.stoptime = time.clock()
+        self.stopdatetime = datetime.datetime.now()
+        
         #POST EXP CLEANUP
         self.cleanup()
     
 if __name__ == "__main__":
+    
+    """
+    This is a sample script that sets up a basic experiment.  This should be performed by the GUI.
+    """
+    
     
     #GENERIC PARAMETERS
     params = {}
@@ -323,8 +332,15 @@ if __name__ == "__main__":
     params['sweeplength'] = 2 #length of sweeps
     params['postsweepsec'] = 1 #black period after sweeps (foreground remains)
     params['rewardtime'] = 0.03 #length of reward for mouse
+    params['logdir'] = "C:\\ForagingLogs\\" #where to put the log
+    params['mousename'] = "Spock" #name of the mouse
+    params['userid'] = "derricw" #name of the user
+    params['task'] = "Virtual Foraging"
+    params['Stage'] = "idkwhatthismeans"
+    params['protocol'] = None
     
-    #TERRAIN CREATION AND PARAMETERS
+    
+    #TERRAIN CREATION AND PARAMETERS (see Terrain for additional parameters)
     terrain = Terrain(['color','orientation'])
     terrain.objectwidthDeg = 10
     terrain.colormatters = False
@@ -335,25 +351,35 @@ if __name__ == "__main__":
     window = visual.Window(units='norm',monitor='testMonitor', fullscr = True, screen = 0)
     
     #CREATE BACKGROUND STIMULUS
+    
     grating = visual.GratingStim(window,tex="sin",mask="None",texRes=64,
            size=[80,80], sf=1, ori = 0, name='grating', autoLog=False, units = 'deg')
+    
+    '''
+    noiseTexture = scipy.random.rand(16,16)*2.0-1
+    noise = visual.GratingStim(window, tex=noiseTexture, 
+        units='pix', size = [1280,1024],
+        interpolate=False,
+        autoLog=False)
+    '''
            
     #CREATE BACKGROUND FRAME PARAMETERS (what changes between frames and how much)
     bgFrame = {}
     
-    #CREATE BACKGROUND SWEEP PARAMETERS (what changes between sweeps)
+    #CREATE BACKGROUND SWEEP PARAMETERS (what changes between sweeps, and in what order)  
     bgSweep = {}
+    
     bgSweep['Ori'] = ([0,15,30,45],1)
-    bgSweep['SF'] = ([1],3)
-    bgSweep['Contrast'] = ([1],0)
+    bgSweep['SF'] = ([1,2],3)
+    bgSweep['Contrast'] = ([0.5,1],0)
     bgSweep['TF'] = ([1],2)
     
     #CREATE FOREGROUND STIMULUS
     monitor = monitors.Monitor('testMonitor')
     box = visual.Rect(window,width = misc.deg2pix(terrain.objectwidthDeg,monitor), height = misc.deg2pix(terrain.objectwidthDeg,monitor), units = 'pix', fillColor = 'black', lineColor = 'black', autoLog=False)
-    #img = visual.ImageStim(window, image = "C:\Users\derricw\Pictures\shatner.jpg", size = [450,416], units = 'pix', autoLog=False) #creates an image from an image in specified directory
+    #img = visual.ImageStim(window, image = "C:\\Users\\derricw\\Pictures\\facepalm.jpg", size = [450,300], units = 'pix', autoLog=False) #creates an image from an image in specified directory
     
-    #CREATE FOREGROUND STIMULUS FRAME PARAMETERS (what changes between frames and how much (BESIDES POSITITON WHICH IS AUTOMATIC FOR THIS EXPERIMENT)
+    #CREATE FOREGROUND STIMULUS FRAME PARAMETERS (what changes between frames and how much (BESIDES XPOSITITON WHICH IS AUTOMATIC FOR THIS EXPERIMENT)
     fgFrame = {}
     
     #CREATE FOREGROUND SWEEP PARAMETERS (what changes between sweeps)
