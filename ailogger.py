@@ -48,8 +48,6 @@ class ailogger(object):
         self.backupFileDir = None
         self.readOnly = True
         
-        self.addstr("import datetime\n")
-        
     def add(self,*args, **kwargs):
         """ Adds the object to the file. """
         for a in args:

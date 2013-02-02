@@ -45,7 +45,7 @@ except:
 class prettyfloat(float):
     """ Prettier format for float text output. """
     def __repr__(self):
-        return "%0.3f" % self
+        return "%0.4f" % self
 
 
 class Foraging(object):
@@ -82,7 +82,7 @@ class Foraging(object):
         
         #BUILD SWEEP TABLES
         self.bgsweeptable, self.bgsweeporder, self.bgdimnames = self.buildSweepTable(self.bgSweep)
-        self.fgsweeptable, self.fgsweeporder, self.fgdimnames = None, None, None #foreground sweeps not implemented yet
+        self.fgsweeptable, self.fgsweeporder, self.fgdimnames = None,None,None #foreground sweeps not implemented yet
         
         #STIMULUS OBJECTS
         self.bgStim = bgStim
@@ -242,7 +242,7 @@ class Foraging(object):
         nTotal=len(intervalsMS)
         nDropped=sum(intervalsMS>(1.5*m))
         self.droppedframes = ([x for x in intervalsMS if x > (1.5*m)],[x for x in range(len(intervalsMS)) if intervalsMS[x]>(1.5*m)])
-        droppedString = "Dropped/Frames = %i/%i = %.3f%%" %(nDropped,nTotal,nDropped/float(nTotal))
+        droppedString = "Dropped/Frames = %i/%i = %.3f%%" %(nDropped,nTotal,nDropped/float(nTotal)*100)
         #calculate some values
         print "Vsyncs displayed:",self.vsynccount
         print "Frame interval statistics:", distString
@@ -278,8 +278,8 @@ class Foraging(object):
         log.add(protocol = self.protocol)
         log.add(logdir = self.logdir)
         log.add(backupdir = self.backupdir)
-        log.add(startdatetime = self.startdatetime)
-        log.add(stopdatetime = self.stopdatetime)
+        log.add(startdatetime = str(self.startdatetime))
+        log.add(stopdatetime = str(self.stopdatetime))
         log.add(starttime = self.starttime)
         log.add(stoptime = self.stoptime)
         log.add(vsynccount = self.vsynccount)
@@ -392,7 +392,7 @@ if __name__ == "__main__":
     params['userid'] = "derricw" #name of the user
     params['task'] = "Virtual Foraging" #task type
     params['stage'] = "idkwhatthismeans" #stage
-    params['protocol'] = None #implemented later
+    params['protocol'] = "" #implemented later
     
     
     #TERRAIN CREATION AND PARAMETERS (see Terrain for additional parameters)
