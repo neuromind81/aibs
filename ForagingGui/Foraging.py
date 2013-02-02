@@ -30,6 +30,8 @@ import scipy
 import numpy
 import itertools
 import pylab
+import os
+from decimal import Decimal
 from aibs.Terrain import Terrain
 from aibs.ailogger import ailogger
 try:
@@ -37,6 +39,13 @@ try:
     from aibs.Reward import Reward
 except:
     pass
+
+
+
+class prettyfloat(float):
+    """ Prettier format for float text output. """
+    def __repr__(self):
+        return "%0.3f" % self
 
 
 class Foraging(object):
@@ -73,6 +82,7 @@ class Foraging(object):
         
         #BUILD SWEEP TABLES
         self.bgsweeptable, self.bgsweeporder, self.bgdimnames = self.buildSweepTable(self.bgSweep)
+        self.fgsweeptable, self.fgsweeporder, self.fgdimnames = None, None, None #foreground sweeps not implemented yet
         
         #STIMULUS OBJECTS
         self.bgStim = bgStim
@@ -85,7 +95,7 @@ class Foraging(object):
         self.updateTerrain()
         
         
-        #SET UP ENCODER
+        #INITIALIZE ENCODER
         ##TODO: read args from config file
         try:
             self.encoder = Encoder('Dev1',1,2)
@@ -100,7 +110,7 @@ class Foraging(object):
         self.lastDx = 0
         self.crossedZero = True
         
-        #SET UP REWARD
+        #INITIALIZE REWARD
         ##TODO: read args from config file
         try:
             self.reward = Reward('Dev1',1,0) 
@@ -202,7 +212,7 @@ class Foraging(object):
             self.x -= 0-self.lastDx*self.terrain.speedgain
         
         if self.x > (-self.wwidth/2 + self.terrain.lapdistance + self.offscreen):
-            if self.crossedZero == True:
+            if self.crossedZero == True: #ensures that the mouse has crossed zero
                 self.terrain.new() # gets new object
                 self.updateTerrain()
                 self.laps.append((time.clock(), self.vsynccount))
@@ -214,7 +224,7 @@ class Foraging(object):
         if -100 < self.x < 100:
             self.crossedZero = True
         self.posx.append(int(self.x))
-        self.dx.append(round(self.lastDx,4))
+        self.dx.append(self.lastDx)
         
     def off_screen_distance(self, orientation = 0):
         """Gets off screen distance using formula to compensate for orientation of object """
@@ -225,11 +235,13 @@ class Foraging(object):
     def printFrameInfo(self):
         """ Prints data about frame times """
         intervalsMS = numpy.array(window.frameIntervals)*1000
+        self.intervalsms = intervalsMS
         m=pylab.mean(intervalsMS)
         sd=pylab.std(intervalsMS)
         distString= "Mean=%.1fms,    s.d.=%.1f,    99%%CI=%.1f-%.1f" %(m,sd,m-3*sd,m+3*sd)
         nTotal=len(intervalsMS)
         nDropped=sum(intervalsMS>(1.5*m))
+        self.droppedframes = ([x for x in intervalsMS if x > (1.5*m)],[x for x in range(len(intervalsMS)) if intervalsMS[x]>(1.5*m)])
         droppedString = "Dropped/Frames = %i/%i = %.3f%%" %(nDropped,nTotal,nDropped/float(nTotal))
         #calculate some values
         print "Vsyncs displayed:",self.vsynccount
@@ -238,9 +250,15 @@ class Foraging(object):
         
     def cleanup(self):
         """ Destructor """
+        #STOP CLOCKS
+        self.stoptime = time.clock()
+        self.stopdatetime = datetime.datetime.now()
+        #DISPLAY SOME STUFF
         print self.sweepsdisplayed, "sweeps completed."
         self.printFrameInfo()
+        #LOG INFORMATION
         self.logMeta()
+        #CLOSE EVERYTHING
         if self.ni:
             self.encoder.clear()
             self.reward.clear()
@@ -248,8 +266,48 @@ class Foraging(object):
         core.quit()
         
     def logMeta(self):
-        """ Log all relevent data """
-        pass
+        """ Writes all important information to log. """
+        dir = self.logdir
+        file = self.mousename + ".log" #logger automatically appends timestamp
+        path = os.path.join(dir,file)
+        log = ailogger(path)
+        log.add(mousename = self.mousename)
+        log.add(userid = self.userid)
+        log.add(task = self.task)
+        log.add(stage = self.stage)
+        log.add(protocol = self.protocol)
+        log.add(logdir = self.logdir)
+        log.add(backupdir = self.backupdir)
+        log.add(startdatetime = self.startdatetime)
+        log.add(stopdatetime = self.stopdatetime)
+        log.add(starttime = self.starttime)
+        log.add(stoptime = self.stoptime)
+        log.add(vsynccount = self.vsynccount)
+        log.add(sweeps = self.sweepsdisplayed)
+        log.add(laps = self.laps)
+        log.add(rewards = self.rewards)
+        log.add(terrainlog = self.terrainlog)
+        log.add(genericparams = self.params)
+        log.add(bgsweep = self.bgSweep)
+        log.add(fgsweep = self.fgSweep)
+        log.add(bgframe = self.bgFrame)
+        log.add(fgframe = self.fgFrame)
+        log.add(bgsweeptable = self.bgsweeptable)
+        log.add(bgsweeporder = self.bgsweeporder)
+        log.add(bgdimnames = self.bgdimnames)
+        log.add(fgsweeptable = self.fgsweeptable)
+        log.add(fgsweeporder = self.fgsweeporder)
+        log.add(fgdimnames = self.fgdimnames)
+        log.add(terrain = self.terrain.__dict__)
+        log.add(reward = repr(self.reward))
+        log.add(encoder = repr(self.encoder))
+        log.add(posx = self.posx)
+        log.add(dx = map(prettyfloat,self.dx))
+        log.add(vsyncintervals = map(prettyfloat,self.intervalsms.tolist()))
+        log.add(droppedframes = self.droppedframes)
+        log.close()
+        
+        
 
     def run(self):
         """ Main stimuilus setup and loop """
@@ -311,11 +369,7 @@ class Foraging(object):
         if self.bgStim is not None: self.bgStim.setOpacity(1.0)
         window.setRecordFrameIntervals(False) #stop recording frame intervals
         
-        #STOP CLOCKS
-        self.stoptime = time.clock()
-        self.stopdatetime = datetime.datetime.now()
-        
-        #POST EXP CLEANUP
+        #POST EXP CLEANUP (stops clocks, cleans up windows, etc)
         self.cleanup()
     
 if __name__ == "__main__":
@@ -333,11 +387,12 @@ if __name__ == "__main__":
     params['postsweepsec'] = 1 #black period after sweeps (foreground remains)
     params['rewardtime'] = 0.03 #length of reward for mouse
     params['logdir'] = "C:\\ForagingLogs\\" #where to put the log
+    params['backupdir'] = "" #backup to network
     params['mousename'] = "Spock" #name of the mouse
     params['userid'] = "derricw" #name of the user
-    params['task'] = "Virtual Foraging"
-    params['Stage'] = "idkwhatthismeans"
-    params['protocol'] = None
+    params['task'] = "Virtual Foraging" #task type
+    params['stage'] = "idkwhatthismeans" #stage
+    params['protocol'] = None #implemented later
     
     
     #TERRAIN CREATION AND PARAMETERS (see Terrain for additional parameters)
@@ -378,7 +433,6 @@ if __name__ == "__main__":
     monitor = monitors.Monitor('testMonitor')
     box = visual.Rect(window,width = misc.deg2pix(terrain.objectwidthDeg,monitor), height = misc.deg2pix(terrain.objectwidthDeg,monitor), units = 'pix', fillColor = 'black', lineColor = 'black', autoLog=False)
     #img = visual.ImageStim(window, image = "C:\\Users\\derricw\\Pictures\\facepalm.jpg", size = [450,300], units = 'pix', autoLog=False) #creates an image from an image in specified directory
-    
     #CREATE FOREGROUND STIMULUS FRAME PARAMETERS (what changes between frames and how much (BESIDES XPOSITITON WHICH IS AUTOMATIC FOR THIS EXPERIMENT)
     fgFrame = {}
     
