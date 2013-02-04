@@ -21,6 +21,7 @@ import os
 import datetime
 import shutil
 import stat
+import scipy.io as sio
 
 def npdict2listdict(npdict):
     """ Converts a dictionary with numpy arrays to a dictionary with lists """
@@ -34,11 +35,12 @@ def npdict2listdict(npdict):
 
 class ailogger(object):
     """ Creates a logger that writes objects and their values to a file. """
-    def __init__(self,path, timestamp = True):
+    def __init__(self,path, timestamp = True, genmatfile = True):
         self.path = path
         self.dir = os.path.dirname(path)
         self.filename = os.path.basename(path)
         self.timestamp = timestamp
+        self.genmatfile = genmatfile
         if self.timestamp: self.filename = datetime.datetime.now().strftime('%y%m%d%H%M%S') + '-' + self.filename
         self.fullPath = os.path.join(self.dir,self.filename)
         if not os.path.exists(self.dir): os.makedirs(self.dir)
@@ -89,6 +91,9 @@ class ailogger(object):
         self.f.close()
         if self.readOnly: os.chmod(self.fullPath,stat.S_IREAD)
         if self.backupFileDir is not None: self.backup()
+        if self.genmatfile:
+            self.generateMatFile()
+            print "Mat file generated successfully."
 
     def backup(self):
         """ Saves a copy of the file to another directory. """
@@ -98,6 +103,21 @@ class ailogger(object):
             shutil.copy(self.fullPath, directory)
         except:
             print "BACKUP COULD NOT BE PERFORMED!  Ensure that the directory is accessible!"
+
+    def generateMatFile(self):
+        """ Saves a copy of the file as a .mat file. """
+        data = {}
+        for rl in open(self.fullPath).readlines():
+            try:
+                kvpair = rl.split(" = ")
+                data[kvpair[0]] = eval(kvpair[1]) #create dictionary
+            except:
+                print "Could not parse: ", rl, "It will not be included in .mat file."
+        for k,v in data.iteritems():
+            if v == None:
+                data[k]=[] #replace None with [] (matlab can't read "None")
+        filename, fileext = os.path.splitext(self.fullPath) #remove file ext
+        sio.savemat(filename + ".mat", data) #save .mat file
         
     def __repr__(self):
         """ Returns string representation of object """
