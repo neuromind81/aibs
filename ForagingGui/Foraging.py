@@ -38,7 +38,7 @@ try:
     from aibs.Encoder import Encoder
     from aibs.Reward import Reward
 except:
-    pass
+    print "Could not import Encoder or Reward objects."
 
 
 
@@ -57,6 +57,7 @@ class Foraging(object):
         self.params = params
         for k,v in self.params.iteritems():
             setattr(self,k,v)
+            
             
         #MONITOR INFO
         ##TODO: Get monitor/screen from script
@@ -87,13 +88,11 @@ class Foraging(object):
         #STIMULUS OBJECTS
         self.bgStim = bgStim
         self.fgStim = fgStim
-        #self.fgStim.setPos([0,0])  #or variable?
         
         #INITIALIZE TERRAIN
         self.terrain = terrain
         self.offscreen = self.off_screen_distance(self.terrain.orientation)
         self.updateTerrain()
-        
         
         #INITIALIZE ENCODER
         ##TODO: read args from config file
@@ -140,19 +139,28 @@ class Foraging(object):
         dimlist = [sweep[k][0] for k in dimnames] # get ordered value array
         sweeptable = list(itertools.product(*dimlist)) # get full ordered table
         sweeporder = range(sweepcount)
+        if self.blanksweeps is not 0:
+            blanksweepcount = len(sweeporder)/(self.blanksweeps+1)
+            blanksweepindexes = [x+self.blanksweeps for x in range(len(sweeporder)+blanksweepcount) if x % (self.blanksweeps+1)==0]
+            print blanksweepindexes
+            for i in blanksweepindexes:
+                sweeporder.insert(i,-1)
+            print sweeporder
         return sweeptable, sweeporder, dimnames
         
     def updateBackground(self, sweepi):
         """ Updates the background stimulus based on its sweep number. """
         if self.bgStim is not None:
-            for k,v in zip(self.bgdimnames, self.bgsweeptable[sweepi]):
-                try: #parameter is a proper stimulus property
-                    exec("self.bgStim.set" + k + "(" + str(v) + ")")
-                except: #paramter is not a proper stimulus property
-                    if k == "TF": #special case for temporal freqency
-                        self.bgFrame[k] = v
-                    else: print "Sweep parameter is incorrectly formatted:", k, v
-                    
+            if sweepi is not -1: #regular sweep
+                self.bgStim.setOpacity(1.0)
+                for k,v in zip(self.bgdimnames, self.bgsweeptable[sweepi]):
+                    try: #parameter is a proper stimulus property
+                        exec("self.bgStim.set" + k + "(" + str(v) + ")")
+                    except: #paramter is not a proper stimulus property
+                        if k == "TF": #special case for temporal freqency
+                            self.bgFrame[k] = v
+                        else: print "Sweep parameter is incorrectly formatted:", k, v
+            else: self.bgStim.setOpacity(0.0) #blank sweep
                 
     def updateForeground(self, sweepi):
         """ Updates the foreground stimulus based on its sweep number.  UNIMPLIMENTED."""
@@ -359,11 +367,8 @@ class Foraging(object):
             
             
         #POST EXPERIMENT LOOP
-        if self.bgStim is not None: self.bgStim.setOpacity(0.0)
-        if self.fgStim is not None: self.fgStim.setOpacity(0.0)
+        window.clearBuffer()
         for vsync in range(int(self.postexpsec*60)):
-            if self.bgStim is not None: self.bgStim.draw()
-            if self.fgStim is not None: self.fgStim.draw()
             window.flip()
             self.vsynccount += 1
         if self.bgStim is not None: self.bgStim.setOpacity(1.0)
@@ -379,7 +384,7 @@ if __name__ == "__main__":
     """
     
     
-    #GENERIC PARAMETERS
+    #GENERIC PARAMETERS (should be passed by GUI, some of which have been read from config file)
     params = {}
     params['preexpsec'] = 2 #seconds at the start of the experiment
     params['postexpsec'] = 2 #seconds at the end of the experiment
@@ -393,7 +398,13 @@ if __name__ == "__main__":
     params['task'] = "Virtual Foraging" #task type
     params['stage'] = "idkwhatthismeans" #stage
     params['protocol'] = "" #implemented later
-    
+    params['nidevice']='Dev1' #NI device name
+    params['rewardline']=0 #NI DO line
+    params['rewardport']=1 #NI DO port
+    params['encodervinchannel']=1 #NI Vin channel
+    params['encodervsigchannel']=2 #NI Vsig channel
+    params['blanksweeps']=3 #blank sweep every x sweeps
+    params['bgcolor']='gray'
     
     #TERRAIN CREATION AND PARAMETERS (see Terrain for additional parameters)
     terrain = Terrain(['color','orientation'])
@@ -404,6 +415,7 @@ if __name__ == "__main__":
     #SET CONSOLE OUTPUT LEVEL, INITIALIZE WINDOWS
     logging.console.setLevel(logging.DEBUG) #uncommet for diagnostics
     window = visual.Window(units='norm',monitor='testMonitor', fullscr = True, screen = 0)
+    window.setColor(params['bgcolor'])
     
     #CREATE BACKGROUND STIMULUS
     
@@ -424,7 +436,7 @@ if __name__ == "__main__":
     #CREATE BACKGROUND SWEEP PARAMETERS (what changes between sweeps, and in what order)  
     bgSweep = {}
     
-    bgSweep['Ori'] = ([0,15,30,45],1)
+    bgSweep['Ori'] = ([0,45],1)
     bgSweep['SF'] = ([1,2],3)
     bgSweep['Contrast'] = ([0.5,1],0)
     bgSweep['TF'] = ([1],2)
