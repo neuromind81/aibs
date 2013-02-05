@@ -30,6 +30,7 @@ import scipy
 import numpy
 import pylab
 import os
+import random
 from decimal import Decimal
 from aibs.Terrain import Terrain
 from aibs.ailogger import ailogger
@@ -58,14 +59,20 @@ class Foraging(object):
         for k,v in self.params.iteritems():
             setattr(self,k,v)
             
-            
         #MONITOR INFO
         ##TODO: Get monitor from script
+        self.window = window
         self.wwidth = window.size[0]
         self.wheight = window.size[1]
         self.monitor = monitors.Monitor('testMonitor')
         self.ni = True
         
+        #CREATE SYNCRONIZATION SQUARE (used for precise frame time measurement via photodiode)
+        if self.syncsqr:
+            self.textureblack = numpy.zeros((2,2))-1
+            self.texturewhite = numpy.ones((2,2))
+            self.sync = visual.GratingStim(self.window, tex=self.textureblack, size = (75,75), pos = self.syncsqrloc, units = 'pix', autoLog=False)
+            self.syncsqrcolor = -1
         
         #SOME STUFF WE WANT TO TRACK AND RECORD
         self.sweepsdisplayed = 0
@@ -84,7 +91,8 @@ class Foraging(object):
         #BUILD SWEEP TABLES
         self.bgsweeptable, self.bgsweeporder, self.bgdimnames = buildSweepTable(self.bgSweep, self.runs, self.blanksweeps)
         self.fgsweeptable, self.fgsweeporder, self.fgdimnames = None,None,None #foreground sweeps not implemented yet
-        print self.bgsweeporder
+        if self.shuffle: random.shuffle(self.bgsweeporder)
+        print "BG sweep order: ", self.bgsweeporder
         
         #STIMULUS OBJECTS
         self.bgStim = bgStim
@@ -122,8 +130,6 @@ class Foraging(object):
             self.reward = None
         self.framescorrect = 0
         
-
-        
     def updateBackground(self, sweepi):
         """ Updates the background stimulus based on its sweep number. """
         if self.bgStim is not None:
@@ -152,6 +158,16 @@ class Foraging(object):
                     if k == "TF": #special case for temporal frequency
                         self.bgStim.setPhase(v*vsync/60.0)
                     else: print "No parameter called: ", k
+                    
+    def flipSyncSqr(self):
+        """ Flips the sync square. """
+        if self.syncsqrcolor == -1:
+            self.syncsqrcolor = 1
+            self.sync.setTex(self.texturewhite)
+        else:
+            self.syncsqrcolor = -1
+            self.sync.setTex(self.textureblack)
+        self.sync.draw()
         
     def checkTerrain(self):
         """ Determines if a reward should be given """
@@ -218,7 +234,7 @@ class Foraging(object):
         
     def printFrameInfo(self):
         """ Prints data about frame times """
-        intervalsMS = numpy.array(window.frameIntervals)*1000
+        intervalsMS = numpy.array(self.window.frameIntervals)*1000
         self.intervalsms = intervalsMS
         m=pylab.mean(intervalsMS)
         sd=pylab.std(intervalsMS)
@@ -246,7 +262,7 @@ class Foraging(object):
         if self.ni:
             self.encoder.clear()
             self.reward.clear()
-        window.close()
+        self.window.close()
         core.quit()
         
     def logMeta(self):
@@ -272,6 +288,8 @@ class Foraging(object):
         log.add(rewards = self.rewards)
         log.add(terrainlog = self.terrainlog)
         log.add(genericparams = self.params)
+        log.add(runs = self.runs)
+        log.add(blanksweeps = self.blanksweeps)
         log.add(bgsweep = self.bgSweep)
         log.add(fgsweep = self.fgSweep)
         log.add(bgframe = self.bgFrame)
@@ -295,15 +313,19 @@ class Foraging(object):
 
     def run(self):
         """ Main stimuilus setup and loop """
+        #FLIP TO GET READY FOR FIRST FRAME
+        self.window.flip()
+        
         #START CLOCKS
         self.startdatetime = datetime.datetime.now()
         self.starttime = time.clock()
         self.vsynccount = 0
         
-        window.setRecordFrameIntervals() #start checking frame intervals
+        self.window.setRecordFrameIntervals() #start checking frame intervals
         #PRE EXPERIMENT LOOP
         for vsync in range(int(self.preexpsec*60)):
-            window.flip()
+            if self.syncsqr: self.flipSyncSqr()
+            self.window.flip()
             self.vsynccount += 1
         
         #SWEEP LOOPS
@@ -317,14 +339,15 @@ class Foraging(object):
                     self.bgStim.draw()
                     self.updateFrame(vsync)
                 if self.fgStim is not None: 
-                    self.fgStim.draw()
                     self.checkTerrain()
                     self.checkEncoder()
                     self.fgStim.setPos([self.x,0]) #set fgStim position every frame
+                    self.fgStim.draw()
                 for keys in event.getKeys(timeStamped=True):
                     if keys[0]in ['escape','q']:
                         self.cleanup()
-                window.flip()
+                if self.syncsqr: self.flipSyncSqr()
+                self.window.flip()
                 self.vsynccount += 1
             self.sweepsdisplayed += 1
             
@@ -332,23 +355,25 @@ class Foraging(object):
             if self.bgStim is not None: self.bgStim.setOpacity(0.0)
             for vsync in range(int(self.postsweepsec*60)):
                 if self.bgStim is not None: self.bgStim.draw()
-                if self.fgStim is not None: 
-                    self.fgStim.draw()
+                if self.fgStim is not None:
                     self.checkTerrain()
                     self.checkEncoder()
                     self.fgStim.setPos([self.x,0])
-                window.flip()
+                    self.fgStim.draw()
+                if self.syncsqr: self.flipSyncSqr()
+                self.window.flip()
                 self.vsynccount += 1
             if self.bgStim is not None: self.bgStim.setOpacity(1.0)
             
             
         #POST EXPERIMENT LOOP
-        window.clearBuffer()
+        self.window.clearBuffer()
         for vsync in range(int(self.postexpsec*60)):
-            window.flip()
+            if self.syncsqr: self.flipSyncSqr()
+            self.window.flip()
             self.vsynccount += 1
         if self.bgStim is not None: self.bgStim.setOpacity(1.0)
-        window.setRecordFrameIntervals(False) #stop recording frame intervals
+        self.window.setRecordFrameIntervals(False) #stop recording frame intervals
         
         #POST EXP CLEANUP (stops clocks, cleans up windows, etc)
         self.cleanup()
@@ -362,7 +387,7 @@ if __name__ == "__main__":
     
     #GENERIC PARAMETERS (should be passed by GUI, some of which have been read from config file)
     params = {}
-    params['runs'] = 1 #number of runs
+    params['runs'] = 2 #number of runs
     params['shuffle'] = False #shuffle sweep tables
     params['preexpsec'] = 2 #seconds at the start of the experiment
     params['postexpsec'] = 2 #seconds at the end of the experiment
@@ -383,6 +408,8 @@ if __name__ == "__main__":
     params['encodervsigchannel']=2 #NI Vsig channel
     params['blanksweeps']=3 #blank sweep every x sweeps
     params['bgcolor']='gray' #background color
+    params['syncsqr']=True
+    params['syncsqrloc']=(-600,-350)
     
     #TERRAIN CREATION AND PARAMETERS (see Terrain for additional parameters)
     terrain = Terrain(['color','orientation'])
@@ -392,30 +419,22 @@ if __name__ == "__main__":
     
     #SET CONSOLE OUTPUT LEVEL, INITIALIZE WINDOWS
     logging.console.setLevel(logging.DEBUG) #uncommet for diagnostics
-    window = visual.Window(units='norm',monitor='testMonitor', fullscr = True, screen = 0)
+    window = visual.Window(units='norm',monitor='testMonitor', fullscr = True, screen = 0, waitBlanking=False)
     window.setColor(params['bgcolor'])
     
     #CREATE BACKGROUND STIMULUS
     
     grating = visual.GratingStim(window,tex="sin",mask="None",texRes=64,
            size=[80,80], sf=1, ori = 0, name='grating', autoLog=False, units = 'deg')
-    
-    '''
-    noiseTexture = scipy.random.rand(16,16)*2.0-1
-    noise = visual.GratingStim(window, tex=noiseTexture, 
-        units='pix', size = [1280,1024],
-        interpolate=False,
-        autoLog=False)
-    '''
            
     #CREATE BACKGROUND FRAME PARAMETERS (what changes between frames and how much)
     bgFrame = {}
     
-    #CREATE BACKGROUND SWEEP PARAMETERS (what changes between sweeps, and in what order)  
+    #CREATE BACKGROUND SWEEP PARAMETERS (what changes between sweeps, and in what order)
     bgSweep = {}
     
     bgSweep['Ori'] = ([0,45],1)
-    bgSweep['SF'] = ([1,2],3)
+    bgSweep['SF'] = ([0.5,1],3)
     bgSweep['Contrast'] = ([0.5,1],0)
     bgSweep['TF'] = ([1],2)
     
