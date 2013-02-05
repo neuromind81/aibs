@@ -60,7 +60,7 @@ class Foraging(object):
             
             
         #MONITOR INFO
-        ##TODO: Get monitor/screen from script
+        ##TODO: Get monitor from script
         self.wwidth = window.size[0]
         self.wheight = window.size[1]
         self.monitor = monitors.Monitor('testMonitor')
@@ -84,6 +84,7 @@ class Foraging(object):
         #BUILD SWEEP TABLES
         self.bgsweeptable, self.bgsweeporder, self.bgdimnames = buildSweepTable(self.bgSweep, self.runs, self.blanksweeps)
         self.fgsweeptable, self.fgsweeporder, self.fgdimnames = None,None,None #foreground sweeps not implemented yet
+        print self.bgsweeporder
         
         #STIMULUS OBJECTS
         self.bgStim = bgStim
