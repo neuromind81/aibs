@@ -5,8 +5,9 @@ author: derricw
 core.py
 
 """
+import itertools
 
-def buildSweepTable(sweep, blanksweeps = 0, runs = 1):
+def buildSweepTable(sweep, runs = 1, blanksweeps = 0):
     """ Builds an ordered table of every permutation of input dictionary of tuples. """
     sweepcount = 1
     dimensions = len(sweep)
