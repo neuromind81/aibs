@@ -7,9 +7,7 @@ Created on Jan 27, 2013
 
 Foraging.py
 
-This class is designed to run a foraging behavior experiment which a background and foreground stimulus.
-    The animal runs "laps" through a virtual track and until it finds the correct object and puts that
-    that object in the center of the screen for a certain amount of frames.
+This class is designed to display a grating stimulus in sweeps, based on passed parameters.
 
 Designed for the psychopy stimulus library.  http://www.psychopy.org/
 Other dependencies:
@@ -32,15 +30,8 @@ import pylab
 import os
 import random
 from decimal import Decimal
-from aibs.Terrain import Terrain
 from aibs.ailogger import ailogger
 from aibs.Core import buildSweepTable
-try:
-    from aibs.Encoder import Encoder
-    from aibs.Reward import Reward
-except:
-    print "Could not import Encoder or Reward objects."
-
 
 
 class prettyfloat(float):
@@ -49,12 +40,12 @@ class prettyfloat(float):
         return "%0.4f" % self
 
 
-class Foraging(object):
+class Gratings(object):
 
-    def __init__(self, window, params, terrain = None, bgSweep = None, fgSweep = None, bgStim = None, fgStim = None, fgFrame = None, bgFrame = None):
+    def __init__(self, window, params, bgSweep = None, fgSweep = None, bgStim = None, fgStim = None, fgFrame = None, bgFrame = None):
         
-        """ Constructor.  Builds Foraging experiment and prepares for run() """
-        # GENERIC PARAMETERS (generate them as properties of this instance of Foraging; they don't change)
+        """ Constructor.  Builds Gratings experiment and prepares for run() """
+        # GENERIC PARAMETERS (generate them as properties of this instance of Gratings; they don't change)
         self.params = params
         for k,v in self.params.iteritems():
             setattr(self,k,v)
@@ -76,11 +67,6 @@ class Foraging(object):
         
         #SOME STUFF WE WANT TO TRACK AND RECORD
         self.sweepsdisplayed = 0
-        self.laps = []
-        self.rewards = []
-        self.posx = []
-        self.dx = []
-        self.terrainlog = []
         
         #SWEEP AND FRAME PARAMETERS PASSED IN
         self.bgSweep = bgSweep
@@ -98,37 +84,7 @@ class Foraging(object):
         self.bgStim = bgStim
         self.fgStim = fgStim
         
-        #INITIALIZE TERRAIN
-        self.terrain = terrain
-        self.offscreen = self.off_screen_distance(self.terrain.orientation)
-        self.updateTerrain()
-        
-        #INITIALIZE ENCODER
-        ##TODO: read args from config file
-        try:
-            self.encoder = Encoder('Dev1',1,2)
-            self.encoder.start()
-            time.sleep(0.1)
-            self.encDeg = self.encoder.getDegrees()
-        except:
-            print "Could not initialize Encoder.  Ensure that NI is connected properly."
-            self.encDeg = 0
-            self.ni = False
-            self.encoder = None
-        self.x = 0
-        self.lastDx = 0
-        self.crossedZero = True
-        
-        #INITIALIZE REWARD
-        ##TODO: read args from config file
-        try:
-            self.reward = Reward('Dev1',1,0) 
-            self.reward.start()
-        except:
-            print "Could not initialize Reward.  Ensure that NI is connected properly."
-            self.ni = False
-            self.reward = None
-        self.framescorrect = 0
+        #INITIALIZE NIDAQ
         
     def updateBackground(self, sweepi):
         """ Updates the background stimulus based on its sweep number. """
@@ -169,68 +125,6 @@ class Foraging(object):
             self.sync.setTex(self.textureblack)
         self.sync.draw()
         
-    def checkTerrain(self):
-        """ Determines if a reward should be given """
-        if self.terrain.iscorrect:
-            if self.terrain.windowwidth > self.x > -self.terrain.windowwidth:
-                if self.framescorrect > self.terrain.selectiontime:
-                    if self.ni: self.reward.reward()
-                    self.rewards.append((time.clock(), self.vsynccount))
-                    self.terrain.iscorrect = False
-                self.framescorrect += 1
-            else:
-                self.framescorrect = 0
-                
-    def updateTerrain(self):
-        """ Updates terrain variables and logs current instance """
-        ##TODO: update terrain to allow for discrimination besides color and orientation
-        try: #because some types of stimulus won't let you change color.  I don't like how this works.
-            if self.terrain.color == self.terrain.white: 
-                self.fgStim.setLineColor('white')
-                self.fgStim.setFillColor('white')
-            elif self.terrain.color == self.terrain.black:
-                self.fgStim.setLineColor('black')
-                self.fgStim.setFillColor('black')
-        except:
-            pass
-        self.fgStim.setOri(self.terrain.orientation)
-        self.offscreen = self.off_screen_distance(self.terrain.orientation)
-        self.terrainlog.append((self.terrain.orientation, self.terrain.color))
-                
-    def checkEncoder(self):
-        """ Checks encoder values and tweaks foreground object position based on speedgain. """
-        if self.ni: deg = self.encoder.getDegrees() 
-        else: deg = 0
-        dx = deg-self.encDeg
-        self.encDeg = deg
-        if 180 > dx > -180: #encoder hasn't looped
-            self.x += dx*self.terrain.speedgain
-            self.lastDx = dx
-        elif dx >= 180: #encoder has looped forward
-            self.x += self.lastDx*self.terrain.speedgain
-        elif dx <=-180: #encoder has looped backward
-            self.x -= 0-self.lastDx*self.terrain.speedgain
-        
-        if self.x > (-self.wwidth/2 + self.terrain.lapdistance + self.offscreen):
-            if self.crossedZero == True: #ensures that the mouse has crossed zero
-                self.terrain.new() # gets new object
-                self.updateTerrain()
-                self.laps.append((time.clock(), self.vsynccount))
-                self.crossedZero = False
-            self.x = -self.wwidth/2-self.offscreen
-        elif self.x < -self.wwidth/2-self.offscreen:
-            self.x = -self.wwidth/2 + self.terrain.lapdistance + self.offscreen
-            #perhaps do something here so that something happens when they go backwards
-        if -100 < self.x < 100:
-            self.crossedZero = True
-        self.posx.append(int(self.x))
-        self.dx.append(self.lastDx)
-        
-    def off_screen_distance(self, orientation = 0):
-        """Gets off screen distance using formula to compensate for orientation of object """
-        x = misc.deg2pix(self.terrain.objectwidthDeg, self.monitor) # converts width of object to pixels from degrees
-        dist = orientation/45*(numpy.sqrt(2*(x)**2)-x) + x #pythagorean theorem
-        return dist/2 #float divide by two because measurement is from center of object
         
     def printFrameInfo(self):
         """ Prints data about frame times """
@@ -259,9 +153,6 @@ class Foraging(object):
         #LOG INFORMATION
         self.logMeta()
         #CLOSE EVERYTHING
-        if self.ni:
-            self.encoder.clear()
-            self.reward.clear()
         self.window.close()
         core.quit()
         
@@ -284,9 +175,6 @@ class Foraging(object):
         log.add(stoptime = self.stoptime)
         log.add(vsynccount = self.vsynccount)
         log.add(sweeps = self.sweepsdisplayed)
-        log.add(laps = self.laps)
-        log.add(rewards = self.rewards)
-        log.add(terrainlog = self.terrainlog)
         log.add(genericparams = self.params)
         log.add(runs = self.runs)
         log.add(blanksweeps = self.blanksweeps)
@@ -300,11 +188,6 @@ class Foraging(object):
         log.add(fgsweeptable = self.fgsweeptable)
         log.add(fgsweeporder = self.fgsweeporder)
         log.add(fgdimnames = self.fgdimnames)
-        log.add(terrain = self.terrain.__dict__)
-        log.add(reward = repr(self.reward))
-        log.add(encoder = repr(self.encoder))
-        log.add(posx = self.posx)
-        log.add(dx = map(prettyfloat,self.dx))
         log.add(vsyncintervals = map(prettyfloat,self.intervalsms.tolist()))
         log.add(droppedframes = self.droppedframes)
         log.close()
@@ -320,8 +203,8 @@ class Foraging(object):
         self.startdatetime = datetime.datetime.now()
         self.starttime = time.clock()
         self.vsynccount = 0
-        
         self.window.setRecordFrameIntervals() #start checking frame intervals
+        
         #PRE EXPERIMENT LOOP
         for vsync in range(int(self.preexpsec*60)):
             if self.syncsqr: self.flipSyncSqr()
@@ -338,11 +221,7 @@ class Foraging(object):
                 if self.bgStim is not None:
                     self.bgStim.draw()
                     self.updateFrame(vsync)
-                if self.fgStim is not None: 
-                    self.checkTerrain()
-                    self.checkEncoder()
-                    self.fgStim.setPos([self.x,0]) #set fgStim position every frame
-                    self.fgStim.draw()
+                if self.fgStim is not None: self.fgStim.draw()
                 for keys in event.getKeys(timeStamped=True):
                     if keys[0]in ['escape','q']:
                         self.cleanup()
@@ -353,15 +232,9 @@ class Foraging(object):
             
             #POST SWEEP DISPLAY LOOP
             for vsync in range(int(self.postsweepsec*60)):
-                if self.fgStim is not None:
-                    self.checkTerrain()
-                    self.checkEncoder()
-                    self.fgStim.setPos([self.x,0])
-                    self.fgStim.draw()
                 if self.syncsqr: self.flipSyncSqr()
                 self.window.flip()
                 self.vsynccount += 1
-
             
             
         #POST EXPERIMENT LOOP
@@ -389,29 +262,19 @@ if __name__ == "__main__":
     params['postexpsec'] = 2 #seconds at the end of the experiment
     params['sweeplength'] = 2 #length of sweeps
     params['postsweepsec'] = 1 #black period after sweeps (foreground remains)
-    params['rewardtime'] = 0.03 #length of reward for mouse
-    params['logdir'] = "C:\\ForagingLogs\\" #where to put the log
+    params['logdir'] = "C:\\ExperimentLogs\\" #where to put the log
     params['backupdir'] = "" #backup to network
     params['mousename'] = "Spock" #name of the mouse
     params['userid'] = "derricw" #name of the user
-    params['task'] = "Virtual Foraging" #task type
+    params['task'] = "" #task type
     params['stage'] = "idkwhatthismeans" #stage
     params['protocol'] = "" #implemented later
     params['nidevice']='Dev1' #NI device name
-    params['rewardline']=0 #NI DO line
-    params['rewardport']=1 #NI DO port
-    params['encodervinchannel']=1 #NI Vin channel
-    params['encodervsigchannel']=2 #NI Vsig channel
-    params['blanksweeps']=5 #blank sweep every x sweeps
+    params['blanksweeps']=3 #blank sweep every x sweeps
     params['bgcolor']='gray' #background color
     params['syncsqr']=True
     params['syncsqrloc']=(-600,-350)
     
-    #TERRAIN CREATION AND PARAMETERS (see Terrain for additional parameters)
-    terrain = Terrain(['color','orientation'])
-    terrain.objectwidthDeg = 10
-    terrain.colormatters = False
-    terrain.orientation = 45
     
     #SET CONSOLE OUTPUT LEVEL, INITIALIZE WINDOWS
     logging.console.setLevel(logging.DEBUG) #uncommet for diagnostics
@@ -434,10 +297,9 @@ if __name__ == "__main__":
     bgSweep['Contrast'] = ([0.5,1],0)
     bgSweep['TF'] = ([1],2)
     
-    #CREATE FOREGROUND STIMULUS
-    monitor = monitors.Monitor('testMonitor')
-    box = visual.Rect(window,width = misc.deg2pix(terrain.objectwidthDeg,monitor), height = misc.deg2pix(terrain.objectwidthDeg,monitor), units = 'pix', fillColor = 'black', lineColor = 'black', autoLog=False)
-    #img = visual.ImageStim(window, image = "C:\\Users\\derricw\\Pictures\\facepalm.jpg", size = [450,300], units = 'pix', autoLog=False) #creates an image from an image in specified directory
+    #CREATE FOREGROUND STIMULUS (none for basic gratings experiment)
+    
+    
     #CREATE FOREGROUND STIMULUS FRAME PARAMETERS (what changes between frames and how much (BESIDES XPOSITITON WHICH IS AUTOMATIC FOR THIS EXPERIMENT)
     fgFrame = {}
     
@@ -445,6 +307,6 @@ if __name__ == "__main__":
     fgSweep = {}
 
     #CREATE FORAGING CLASS INSTANCE
-    f = Foraging(window = window, terrain = terrain, params = params, bgStim = grating, bgFrame = bgFrame, bgSweep = bgSweep, fgStim = box)
+    g = Gratings(window = window, params = params, bgStim = grating, bgFrame = bgFrame, bgSweep = bgSweep, fgStim = None)
     #RUN IT
-    f.run()
+    g.run()
