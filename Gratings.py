@@ -5,7 +5,7 @@ Created on Jan 27, 2013
 
 @author: derricw
 
-Foraging.py
+Gratings.py
 
 This class is designed to display a grating stimulus in sweeps, based on passed parameters.
 
