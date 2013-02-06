@@ -109,7 +109,7 @@ class ailogger(object):
         data = {}
         for rl in open(self.fullPath).readlines():
             try:
-                kvpair = rl.split(" = ")
+                kvpair = rl.split(" = ",1)
                 data[kvpair[0]] = eval(kvpair[1]) #create dictionary
             except:
                 print "Could not parse: ", rl, "It will not be included in .mat file."
@@ -118,6 +118,12 @@ class ailogger(object):
                 data[k]=[] #replace None with [] (matlab can't read "None")
         filename, fileext = os.path.splitext(self.fullPath) #remove file ext
         sio.savemat(filename + ".mat", data) #save .mat file
+
+    def removeNone(self, dic):
+        ##TODO: GET THIS TO WORK RECURSIVELY
+        for k,v in dic.iteritems():
+            pass
+
         
     def __repr__(self):
         """ Returns string representation of object """
