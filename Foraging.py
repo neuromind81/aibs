@@ -33,7 +33,7 @@ import os
 import random
 from decimal import Decimal
 from aibs.Terrain import Terrain
-from aibs.ailogger import ailogger
+from aibs.ailogger import ailogger, npdict2listdict
 from aibs.Core import buildSweepTable
 try:
     from aibs.Encoder import Encoder
@@ -276,6 +276,7 @@ class Foraging(object):
         log.add(task = self.task)
         log.add(stage = self.stage)
         log.add(protocol = self.protocol)
+        log.add(monitor = npdict2listdict(self.monitor.currentCalib))
         log.add(logdir = self.logdir)
         log.add(backupdir = self.backupdir)
         log.add(startdatetime = str(self.startdatetime))
@@ -361,8 +362,6 @@ class Foraging(object):
                 if self.syncsqr: self.flipSyncSqr()
                 self.window.flip()
                 self.vsynccount += 1
-
-            
             
         #POST EXPERIMENT LOOP
         for vsync in range(int(self.postexpsec*60)):

@@ -122,8 +122,8 @@ class ailogger(object):
             try:
                 kvpair = rl.split(" = ",1)
                 data[kvpair[0]] = eval(kvpair[1]) #create dictionary
-            except:
-                print "Could not parse: ", rl, "It will not be included in .mat file."
+            except Exception,e:
+                print "Could not parse: ", rl, "It will not be included in .mat file.", e
         data = removeNone(data)
         filename, fileext = os.path.splitext(self.fullPath) #remove file ext
         try:
