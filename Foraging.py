@@ -71,8 +71,8 @@ class Foraging(object):
         if self.syncsqr:
             self.textureblack = numpy.zeros((2,2))-1
             self.texturewhite = numpy.ones((2,2))
-            self.sync = visual.GratingStim(self.window, tex=self.textureblack, size = (75,75), pos = self.syncsqrloc, units = 'pix', autoLog=False)
-            self.syncsqrcolor = -1
+            self.sync = visual.GratingStim(self.window, tex=None, color = 1, size = (75,75), pos = self.syncsqrloc, units = 'pix', autoLog=False)
+            self.syncsqrcolor = 1
         
         #SOME STUFF WE WANT TO TRACK AND RECORD
         self.sweepsdisplayed = 0
@@ -163,10 +163,10 @@ class Foraging(object):
         """ Flips the sync square. """
         if self.syncsqrcolor == -1:
             self.syncsqrcolor = 1
-            self.sync.setTex(self.texturewhite)
+            self.sync.setColor(1)
         else:
             self.syncsqrcolor = -1
-            self.sync.setTex(self.textureblack)
+            self.sync.setColor(-1)
         self.sync.draw()
         
     def checkTerrain(self):
@@ -414,7 +414,7 @@ if __name__ == "__main__":
     terrain.orientation = 45
     
     #SET CONSOLE OUTPUT LEVEL, INITIALIZE WINDOWS
-    logging.console.setLevel(logging.DEBUG) #uncommet for diagnostics
+    #logging.console.setLevel(logging.DEBUG) #uncommet for diagnostics
     window = visual.Window(units='norm',monitor='testMonitor', fullscr = True, screen = 0, waitBlanking=False)
     window.setColor(params['bgcolor'])
     

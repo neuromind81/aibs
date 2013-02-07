@@ -17,7 +17,7 @@ params['postsweepsec'] = 1 #black period after sweeps (foreground remains)
 params['rewardtime'] = 0.03 #length of reward for mouse
 params['logdir'] = "C:\\ForagingLogs\\" #where to put the log
 params['backupdir'] = "" #backup to network
-params['mousename'] = "Spock" #name of the mouse
+params['mousename'] = "Spock" #id of mouse
 params['userid'] = "derricw" #name of the user
 params['task'] = "Virtual Foraging" #task type
 params['stage'] = "idkwhatthismeans" #stage
@@ -58,6 +58,7 @@ bgSweep['Ori'] = ([0,45],1)
 bgSweep['SF'] = ([1,2],3)
 bgSweep['Contrast'] = ([0.5,1],0)
 bgSweep['TF'] = ([1],2)
+bgSweep['Phase'] = ([0],4)
 
 #CREATE FOREGROUND STIMULUS
 monitor = monitors.Monitor('testMonitor')
