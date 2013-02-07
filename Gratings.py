@@ -60,10 +60,8 @@ class Gratings(object):
         
         #CREATE SYNCRONIZATION SQUARE (used for precise frame time measurement via photodiode)
         if self.syncsqr:
-            self.textureblack = numpy.zeros((2,2))-1
-            self.texturewhite = numpy.ones((2,2))
-            self.sync = visual.GratingStim(self.window, tex=self.textureblack, size = (75,75), pos = self.syncsqrloc, units = 'pix', autoLog=False)
-            self.syncsqrcolor = -1
+            self.sync = visual.GratingStim(self.window, color = 1, tex=None, size = (75,75), pos = self.syncsqrloc, units = 'pix', autoLog=False)
+            self.syncsqrcolor = 1
         
         #SOME STUFF WE WANT TO TRACK AND RECORD
         self.sweepsdisplayed = 0
@@ -85,6 +83,13 @@ class Gratings(object):
         self.fgStim = fgStim
         
         #INITIALIZE NIDAQ
+        try:
+            self.dOut = DigitalOutput('Dev1')  # device should be read from a config file
+            self.dOut.StartTask()
+            self.ni = True
+        except:
+            self.ni = False
+            print "NIDAQ could not be initialized! No frame/sweep data will be output."
         
     def updateBackground(self, sweepi):
         """ Updates the background stimulus based on its sweep number. """
@@ -119,10 +124,10 @@ class Gratings(object):
         """ Flips the sync square. """
         if self.syncsqrcolor == -1:
             self.syncsqrcolor = 1
-            self.sync.setTex(self.texturewhite)
+            self.sync.setColor(1)
         else:
             self.syncsqrcolor = -1
-            self.sync.setTex(self.textureblack)
+            self.sync.setColor(-1)
         self.sync.draw()
         
         
@@ -142,6 +147,9 @@ class Gratings(object):
         print "Frame interval statistics:", distString
         print "Drop statistics:", droppedString
         
+    def printExperimentInfo(self):
+        pass
+
     def cleanup(self):
         """ Destructor """
         #STOP CLOCKS
@@ -197,8 +205,12 @@ class Gratings(object):
     def run(self):
         """ Main stimuilus setup and loop """
         #FLIP TO GET READY FOR FIRST FRAME
-        self.window.flip()
+        for i in range(30):
+            self.window.flip()
         
+        #PRE EXPERIMENT INFO PRINT
+
+
         #START CLOCKS
         self.startdatetime = datetime.datetime.now()
         self.starttime = time.clock()
@@ -277,7 +289,7 @@ if __name__ == "__main__":
     
     
     #SET CONSOLE OUTPUT LEVEL, INITIALIZE WINDOWS
-    logging.console.setLevel(logging.DEBUG) #uncommet for diagnostics
+    #logging.console.setLevel(logging.DEBUG) #uncommet for diagnostics
     window = visual.Window(units='norm',monitor='testMonitor', fullscr = True, screen = 0, waitBlanking=False)
     window.setColor(params['bgcolor'])
     

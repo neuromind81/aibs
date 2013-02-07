@@ -4,9 +4,8 @@ Created on Tue Dec 18 14:07:05 2012
 
 @author: derricw
 
-Logs objects and their python code representation to a file.
-
-##TODO: Matlab output mode.
+Logs objects and their python code representation to a file.  Also generates .mat files unless
+    explicitly told not to.
 
 Example useage:
 
@@ -32,6 +31,18 @@ def npdict2listdict(npdict):
         except:
             listdict[k] = v
     return listdict
+
+def removeNone(dic, replaceWith = []):
+    """ Removes the "None" type from a dictionary and all of its elements recursively.  Replaces with [] by default """
+    for k,v in dic.iteritems():
+        if type(v) is list:
+            for x in range(len(v)):
+                if v[x] is None: dic[k][x] = replaceWith
+        if type(v) is dict:
+            dic[k] = removeNone(v)
+        if v is None:
+            dic[k] = replaceWith
+    return dic
 
 class ailogger(object):
     """ Creates a logger that writes objects and their values to a file. """
@@ -113,36 +124,23 @@ class ailogger(object):
                 data[kvpair[0]] = eval(kvpair[1]) #create dictionary
             except:
                 print "Could not parse: ", rl, "It will not be included in .mat file."
-        for k,v in data.iteritems():
-            if v == None:
-                data[k]=[] #replace None with [] (matlab can't read "None")
+        data = removeNone(data)
         filename, fileext = os.path.splitext(self.fullPath) #remove file ext
-        sio.savemat(filename + ".mat", data) #save .mat file
-
-    def removeNone(self, dic):
-        ##TODO: GET THIS TO WORK RECURSIVELY
-        for k,v in dic.iteritems():
-            pass
-
+        try:
+            sio.savemat(filename + ".mat", data) #save .mat file
+        except:
+            print "Could not save .mat file.  Check input format."
         
     def __repr__(self):
         """ Returns string representation of object """
         return "ailogger(path = " + repr(self.path) + ", " + "timestamp = " + repr(self.timestamp) + ")"
         
 if __name__ == "__main__":
-    path = 'C:\\ExperimentData\\test3\\'
+    dic = {}
+    dic['a'] = [1, 2, 3]
+    dic['b'] = None
+    dic['c'] = {'a': 1, 'b': [1,2,3], 'c': None, 'd': {'a': [1,2]}}
+    path = r"C:\Herp\Derp.log"
     log = ailogger(path)
-    log.backupFileDir = 'C:\\Herp\\Backup\\'
-    list = range(10000)
-    test = np.array(list)
-    testdict = {'test':test}
-    log.add(t = npdict2listdict(testdict))
-    log.add(1)
-    log.comment("this is a comment that i haven't added a # to")
-    log.add(balls = [456.7])
-    log.comment("#this is a comment that I added a # to")
-    log.add('test adding a string arg')
-    dic = {'a':5, 'b':[1,2,3]}
-    log.add(dic = dic)
+    log.add(dic)
     log.close()
-
