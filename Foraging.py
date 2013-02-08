@@ -71,7 +71,7 @@ class Foraging(object):
         if self.syncsqr:
             self.textureblack = numpy.zeros((2,2))-1
             self.texturewhite = numpy.ones((2,2))
-            self.sync = visual.GratingStim(self.window, tex=None, color = 1, size = (75,75), pos = self.syncsqrloc, units = 'pix', autoLog=False)
+            self.sync = visual.GratingStim(self.window, tex=None, color = 1, size = (100,100), pos = self.syncsqrloc, units = 'pix', autoLog=False)
             self.syncsqrcolor = 1
         
         #SOME STUFF WE WANT TO TRACK AND RECORD
@@ -106,12 +106,12 @@ class Foraging(object):
         #INITIALIZE ENCODER
         ##TODO: read args from config file
         try:
-            self.encoder = Encoder('Dev1',1,2)
+            self.encoder = Encoder(self.nidevice,self.encodervinchannel,self.encodervsigchannel)
             self.encoder.start()
             time.sleep(0.1)
             self.encDeg = self.encoder.getDegrees()
-        except:
-            print "Could not initialize Encoder.  Ensure that NI is connected properly."
+        except Exception, e:
+            print "Could not initialize Encoder.  Ensure that NI is connected properly.", e
             self.encDeg = 0
             self.ni = False
             self.encoder = None
@@ -122,7 +122,8 @@ class Foraging(object):
         #INITIALIZE REWARD
         ##TODO: read args from config file
         try:
-            self.reward = Reward('Dev1',1,0) 
+            self.reward = Reward(self.nidevice,self.rewardport,self.rewardline)
+            self.reward.rewardtime = self.rewardtime
             self.reward.start()
         except:
             print "Could not initialize Reward.  Ensure that NI is connected properly."
@@ -263,7 +264,6 @@ class Foraging(object):
             self.encoder.clear()
             self.reward.clear()
         self.window.close()
-        core.quit()
         
     def logMeta(self):
         """ Writes all important information to log. """
@@ -315,7 +315,8 @@ class Foraging(object):
     def run(self):
         """ Main stimuilus setup and loop """
         #FLIP TO GET READY FOR FIRST FRAME
-        self.window.flip()
+        for i in range(30):
+            self.window.flip()
         
         #START CLOCKS
         self.startdatetime = datetime.datetime.now()
@@ -326,6 +327,11 @@ class Foraging(object):
         #PRE EXPERIMENT LOOP
         for vsync in range(int(self.preexpsec*60)):
             if self.syncsqr: self.flipSyncSqr()
+            if self.fgStim is not None: 
+                self.checkTerrain()
+                self.checkEncoder()
+                self.fgStim.setPos([self.x,0]) #set fgStim position every frame
+                self.fgStim.draw()
             self.window.flip()
             self.vsynccount += 1
         
