@@ -5,9 +5,9 @@ Created on Jan 27, 2013
 
 @author: derricw
 
-Gratings.py
+SweepStim.py
 
-This class is designed to display a grating stimulus in sweeps, based on passed parameters.
+This class is designed to display a stimulus in sweeps, based on passed parameters.
 
 Designed for the psychopy stimulus library.  http://www.psychopy.org/
 Other dependencies:
@@ -16,7 +16,7 @@ Other dependencies:
 
 Example use:
     
-    See main() below.
+    See main() below for an example that displays gratings.
 
 
 
@@ -30,8 +30,12 @@ import pylab
 import os
 import random
 from decimal import Decimal
-from aibs.ailogger import ailogger
+from aibs.ailogger import ailogger, npdict2listdict, removenparrays
 from aibs.Core import buildSweepTable
+try:
+    from aibs.DigitalIODAQ import DigitalOutput
+except Exception, e:
+    print "No NI boards found.",e
 
 
 class prettyfloat(float):
@@ -40,11 +44,11 @@ class prettyfloat(float):
         return "%0.4f" % self
 
 
-class Gratings(object):
+class SweepStim(object):
 
     def __init__(self, window, params, bgSweep = None, fgSweep = None, bgStim = None, fgStim = None, fgFrame = None, bgFrame = None):
         
-        """ Constructor.  Builds Gratings experiment and prepares for run() """
+        """ Constructor.  Builds SweepStim experiment and prepares for run() """
         # GENERIC PARAMETERS (generate them as properties of this instance of Gratings; they don't change)
         self.params = params
         for k,v in self.params.iteritems():
@@ -58,7 +62,7 @@ class Gratings(object):
         self.monitor = monitors.Monitor('testMonitor')
         self.ni = True
         
-        #CREATE SYNCRONIZATION SQUARE (used for precise frame time measurement via photodiode)
+        #CREATE SYNC SQUARE (used for frame time measurement via photodiode)
         if self.syncsqr:
             self.sync = visual.GratingStim(self.window, color = 1, tex=None, size = (75,75), pos = self.syncsqrloc, units = 'pix', autoLog=False)
             self.syncsqrcolor = 1
@@ -76,7 +80,7 @@ class Gratings(object):
         self.bgsweeptable, self.bgsweeporder, self.bgdimnames = buildSweepTable(self.bgSweep, self.runs, self.blanksweeps)
         self.fgsweeptable, self.fgsweeporder, self.fgdimnames = None,None,None #foreground sweeps not implemented yet
         if self.shuffle: random.shuffle(self.bgsweeporder)
-        print "BG sweep order: ", self.bgsweeporder
+        #print "BG sweep order: ", self.bgsweeporder
         
         #STIMULUS OBJECTS
         self.bgStim = bgStim
@@ -84,9 +88,11 @@ class Gratings(object):
         
         #INITIALIZE NIDAQ
         try:
-            self.dOut = DigitalOutput('Dev1')  # device should be read from a config file
+            self.dOut = DigitalOutput(self.nidevice)  # device should be read from a config file
             self.dOut.StartTask()
             self.ni = True
+            self.sweepBit = 0
+            self.frameBit = 1
         except:
             self.ni = False
             print "NIDAQ could not be initialized! No frame/sweep data will be output."
@@ -99,10 +105,14 @@ class Gratings(object):
                 for k,v in zip(self.bgdimnames, self.bgsweeptable[sweepi]):
                     try: #parameter is a proper stimulus property
                         exec("self.bgStim.set" + k + "(" + str(v) + ")")
-                    except: #paramter is not a proper stimulus property
+                    except Exception, e: #paramter is not a proper stimulus property
                         if k == "TF": #special case for temporal freqency
                             self.bgFrame[k] = v
-                        else: print "Sweep parameter is incorrectly formatted:", k, v
+                        elif k == "Tex": #special case for textures (fix later)
+                            self.bgStim.setTex(v)
+                        elif k == "Image": #special case for images
+                            self.bgStim.setImage(v)
+                        else: print "Sweep parameter is incorrectly formatted:", k, v, e
             else: self.bgStim.setOpacity(0.0) #blank sweep
                 
     def updateForeground(self, sweepi):
@@ -122,6 +132,7 @@ class Gratings(object):
                     
     def flipSyncSqr(self):
         """ Flips the sync square. """
+        ##TODO: Try "self.syncsqrcolor = -self.synsqrcolor"  should work
         if self.syncsqrcolor == -1:
             self.syncsqrcolor = 1
             self.sync.setColor(1)
@@ -161,6 +172,10 @@ class Gratings(object):
         #LOG INFORMATION
         self.logMeta()
         #CLOSE EVERYTHING
+        if self.ni:
+            self.dOut.WriteBit(self.sweepBit, 0) #ensure sweep bit is low
+            self.dOut.WriteBit(self.frameBit, 0) #ensure frame bit is low
+            self.dOut.ClearTask() #clear NIDAQ
         self.window.close()
         core.quit()
         
@@ -177,6 +192,7 @@ class Gratings(object):
         log.add(protocol = self.protocol)
         log.add(logdir = self.logdir)
         log.add(backupdir = self.backupdir)
+        log.add(monitordistance = self.monitor.getDistance())
         log.add(startdatetime = str(self.startdatetime))
         log.add(stopdatetime = str(self.stopdatetime))
         log.add(starttime = self.starttime)
@@ -186,11 +202,11 @@ class Gratings(object):
         log.add(genericparams = self.params)
         log.add(runs = self.runs)
         log.add(blanksweeps = self.blanksweeps)
-        log.add(bgsweep = self.bgSweep)
+        log.add(bgsweep = npdict2listdict(self.bgSweep))
         log.add(fgsweep = self.fgSweep)
         log.add(bgframe = self.bgFrame)
         log.add(fgframe = self.fgFrame)
-        log.add(bgsweeptable = self.bgsweeptable)
+        log.add(bgsweeptable = removenparrays(self.bgsweeptable))
         log.add(bgsweeporder = self.bgsweeporder)
         log.add(bgdimnames = self.bgdimnames)
         log.add(fgsweeptable = self.fgsweeptable)
@@ -200,11 +216,14 @@ class Gratings(object):
         log.add(droppedframes = self.droppedframes)
         log.close()
         
-        
+    def flip(self):
+        if self.ni: self.dOut.WriteBit(self.frameBit, 1) #set frame bit high
+        self.window.flip() # flips display
+        if self.ni: self.dOut.WriteBit(self.frameBit, 0) #set frame bit low
 
     def run(self):
         """ Main stimuilus setup and loop """
-        #FLIP TO GET READY FOR FIRST FRAME
+        #FLIP FOR A BIT TO GET READY FOR FIRST FRAME
         for i in range(30):
             self.window.flip()
         
@@ -220,13 +239,14 @@ class Gratings(object):
         #PRE EXPERIMENT LOOP
         for vsync in range(int(self.preexpsec*60)):
             if self.syncsqr: self.flipSyncSqr()
-            self.window.flip()
+            self.flip()
             self.vsynccount += 1
         
         #SWEEP LOOPS
         for sweep in self.bgsweeporder:
             self.updateBackground(sweep) #update background sweep parameters
             self.updateForeground(sweep) #update foreground sweep parameters (not implemented)
+            if self.ni: self.dOut.WriteBit(self.sweepBit, 1) # sets sweep bit high on NIDAQ
             
             #MAIN DISPLAY LOOP
             for vsync in range(int(self.sweeplength*60)):
@@ -238,21 +258,22 @@ class Gratings(object):
                     if keys[0]in ['escape','q']:
                         self.cleanup()
                 if self.syncsqr: self.flipSyncSqr()
-                self.window.flip()
+                self.flip()
                 self.vsynccount += 1
             self.sweepsdisplayed += 1
+            if self.ni: self.dOut.WriteBit(self.sweepBit, 0) # sets sweep bit low on NIDAQ
             
             #POST SWEEP DISPLAY LOOP
             for vsync in range(int(self.postsweepsec*60)):
                 if self.syncsqr: self.flipSyncSqr()
-                self.window.flip()
+                self.flip()
                 self.vsynccount += 1
             
             
         #POST EXPERIMENT LOOP
         for vsync in range(int(self.postexpsec*60)):
             if self.syncsqr: self.flipSyncSqr()
-            self.window.flip()
+            self.flip()
             self.vsynccount += 1
         self.window.setRecordFrameIntervals(False) #stop recording frame intervals
         
@@ -284,7 +305,7 @@ if __name__ == "__main__":
     params['nidevice']='Dev1' #NI device name
     params['blanksweeps']=3 #blank sweep every x sweeps
     params['bgcolor']='gray' #background color
-    params['syncsqr']=True
+    params['syncsqr']=True #display a flashing square for synchronization
     params['syncsqrloc']=(-600,-350)
     
     
@@ -319,6 +340,6 @@ if __name__ == "__main__":
     fgSweep = {}
 
     #CREATE FORAGING CLASS INSTANCE
-    g = Gratings(window = window, params = params, bgStim = grating, bgFrame = bgFrame, bgSweep = bgSweep, fgStim = None)
+    g = SweepStim(window = window, params = params, bgStim = grating, bgFrame = bgFrame, bgSweep = bgSweep, fgStim = None)
     #RUN IT
     g.run()

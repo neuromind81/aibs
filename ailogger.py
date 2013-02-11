@@ -22,25 +22,53 @@ import shutil
 import stat
 import scipy.io as sio
 
+
 def npdict2listdict(npdict):
     """ Converts a dictionary with numpy arrays to a dictionary with lists """
     listdict = {}
     for k,v in npdict.iteritems():
-        try:
-            listdict[k] = v.tolist()
-        except:
-            listdict[k] = v
+        if v is dict:
+            listdict[k] = npdict2listdict(v)
+        elif v is list or tuple:
+            listdict[k] = removenparrays(v)
+        else:
+            try:
+                listdict[k] = v.tolist()
+            except:
+                try:
+                    listdict[k] = list(v)
+                except Exception, e:
+                    print e
+                    listdict[k] = v
     return listdict
+    
+def removenparrays(listortuple):
+    ''' Numpy arrays don't write well as strings.  We convert them to lists '''
+    output = []
+    try:
+        for x in listortuple:
+            if x is list or tuple:
+                x = removenparrays(x)
+            else:
+                try:
+                    x = x.tolist()
+                except:
+                    pass
+            output.append(x)
+    except:
+        output = listortuple
+    return output
+
 
 def removeNone(dic, replaceWith = []):
-    """ Removes the "None" type from a dictionary and all of its elements recursively.  Replaces with [] by default """
+    """  Matlab hates the type "None" Removes the "None" type from a dictionary and all of its elements recursively.  Replaces with [] by default """
     for k,v in dic.iteritems():
         if type(v) is list:
             for x in range(len(v)):
                 if v[x] is None: dic[k][x] = replaceWith
-        if type(v) is dict:
+        elif type(v) is dict:
             dic[k] = removeNone(v)
-        if v is None:
+        elif v is None:
             dic[k] = replaceWith
     return dic
 
@@ -104,7 +132,6 @@ class ailogger(object):
         if self.backupFileDir is not None: self.backup()
         if self.genmatfile:
             self.generateMatFile()
-            print "Mat file generated successfully."
 
     def backup(self):
         """ Saves a copy of the file to another directory. """
@@ -116,30 +143,32 @@ class ailogger(object):
             print "BACKUP COULD NOT BE PERFORMED!  Ensure that the directory is accessible!"
 
     def generateMatFile(self):
-        """ Saves a copy of the file as a .mat file. """
+        """ Saves a copy of the data as a .mat file. """
         data = {}
         for rl in open(self.fullPath).readlines():
             try:
                 kvpair = rl.split(" = ",1)
                 data[kvpair[0]] = eval(kvpair[1]) #create dictionary
+                if data[kvpair[0]] == {}: data[kvpair[0]] = [] #matlab hates empty dictionaries
             except Exception,e:
-                print "Could not parse: ", rl, "It will not be included in .mat file.", e
+               print "Could not parse: ", rl, "It will not be included in .mat file.", e
         data = removeNone(data)
         filename, fileext = os.path.splitext(self.fullPath) #remove file ext
         try:
             sio.savemat(filename + ".mat", data) #save .mat file
-        except:
-            print "Could not save .mat file.  Check input format."
+            print ".mat file generated successfully."
+        except Exception, e:
+            print "Could not save .mat file.  Check input format.", e
         
     def __repr__(self):
         """ Returns string representation of object """
-        return "ailogger(path = " + repr(self.path) + ", " + "timestamp = " + repr(self.timestamp) + ")"
+        return "ailogger(path = " + repr(self.path) + ", " + "timestamp = " + repr(self.timestamp) + ", genmatfile = " + repr(self.genmatfile) + ")"
         
 if __name__ == "__main__":
     dic = {}
     dic['a'] = [1, 2, 3]
     dic['b'] = None
-    dic['c'] = {'a': 1, 'b': [1,2,3], 'c': None, 'd': {'a': [1,2]}}
+    dic['c'] = {'a': 1, 'b': [1,2], 'c': None, 'd': {'a': [1,2]}}
     path = r"C:\Herp\Derp.log"
     log = ailogger(path)
     log.add(dic)
