@@ -181,6 +181,7 @@ class SweepStim(object):
         
     def logMeta(self):
         """ Writes all important information to log. """
+        ##TODO: Think of a better way to do this, or move it out of this class somehow.
         dir = self.logdir
         file = self.mousename + ".log" #logger automatically appends timestamp
         path = os.path.join(dir,file)
@@ -217,6 +218,7 @@ class SweepStim(object):
         log.close()
         
     def flip(self):
+        """ Flips display and sets frame bits. """
         if self.ni: self.dOut.WriteBit(self.frameBit, 1) #set frame bit high
         self.window.flip() # flips display
         if self.ni: self.dOut.WriteBit(self.frameBit, 0) #set frame bit low

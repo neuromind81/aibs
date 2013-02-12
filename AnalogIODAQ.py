@@ -80,6 +80,7 @@ class AnalogInput(Task):
     
     '''
     def __init__(self,device = 'Dev1',channels = [0],bufferSize = 500):
+        ##TODO: Allow user to select clock time.
         #construct task
         Task.__init__(self)
         
