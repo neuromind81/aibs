@@ -31,6 +31,7 @@ params['blanksweeps']=7 #blank sweep e                if self.fgStim is not None
 params['bgcolor']='gray' #background color
 params['syncsqr']= True
 params['syncsqrloc']=(900,500) #(900,500) upper right corner
+params['comments']="SOME COMMENTS FROM THE USER"
 
 #TERRAIN CREATION AND PARAMETERS (see Terrain for additional parameters)
 terrain = Terrain(['color','orientation'])
