@@ -31,17 +31,11 @@ import os
 import random
 from decimal import Decimal
 from aibs.ailogger import ailogger, npdict2listdict, removenparrays
-from aibs.Core import buildSweepTable, getMonitorInfo
+from aibs.Core import *
 try:
     from aibs.DigitalIODAQ import DigitalOutput
 except Exception, e:
     print "No NI boards found.",e
-
-
-class prettyfloat(float):
-    """ Prettier format for float text output. """
-    def __repr__(self):
-        return "%0.4f" % self
 
 
 class SweepStim(object):
@@ -96,6 +90,10 @@ class SweepStim(object):
         except:
             self.ni = False
             print "NIDAQ could not be initialized! No frame/sweep data will be output."
+            
+        #TURN OFF MOUSE
+        self.mouse = event.Mouse()
+        self.mouse.setVisible(0)
         
     def updateBackground(self, sweepi):
         """ Updates the background stimulus based on its sweep number. """
@@ -158,11 +156,14 @@ class SweepStim(object):
         
     def printExpInfo(self):
         """ Prints expected experiment duration, frames, etc. """
+        ##TODO: Fix expected vsyncs and times for the case when user enters sweep times that are not multiples of avg frame length
         exptimesec = (self.preexpsec + (self.sweeplength + self.postsweepsec)*len(self.bgsweeporder) + self.postexpsec)
         timestr = str(datetime.timedelta(seconds=exptimesec))
+        endtime = str(datetime.datetime.now() + datetime.timedelta(seconds = exptimesec))
         print "Expected experiment duration:", timestr
+        print "Expected end time:", endtime
         print "Expected sweeps:", str(len(self.bgsweeporder))
-        print "Expected vsyncs:", str(exptimesec*60)
+        print "Expected vsyncs:", str(int(exptimesec*60))
 
     def cleanup(self):
         """ Destructor """

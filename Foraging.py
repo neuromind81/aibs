@@ -20,7 +20,7 @@ Example use:
     
     See main() below.
 
-
+##TODO: Foraging should inherit SweepStim
 
 '''
 from psychopy import core, visual, event, logging, misc, monitors
@@ -34,19 +34,12 @@ import random
 from decimal import Decimal
 from aibs.Terrain import Terrain
 from aibs.ailogger import ailogger, npdict2listdict
-from aibs.Core import buildSweepTable, getMonitorInfo
+from aibs.Core import *
 try:
     from aibs.Encoder import Encoder
     from aibs.Reward import Reward
-except:
-    print "Could not import Encoder or Reward objects."
-
-
-
-class prettyfloat(float):
-    """ Prettier format for float text output. """
-    def __repr__(self):
-        return "%0.4f" % self
+except Exception, e:
+    print "Could not import Encoder or Reward objects.", e
 
 
 class Foraging(object):
@@ -128,6 +121,10 @@ class Foraging(object):
             self.ni = False
             self.reward = None
         self.framescorrect = 0
+        
+        #TURN OFF MOUSE
+        self.mouse = event.Mouse()
+        self.mouse.setVisible(0)        
         
     def updateBackground(self, sweepi):
         """ Updates the background stimulus based on its sweep number. """
@@ -253,11 +250,14 @@ class Foraging(object):
         
     def printExpInfo(self):
         """ Prints expected experiment duration, frames, etc. """
+        ##TODO: Fix expected vsyncs and times for the case when user enters sweep times that are not multiples of avg frame length
         exptimesec = (self.preexpsec + (self.sweeplength + self.postsweepsec)*len(self.bgsweeporder) + self.postexpsec)
         timestr = str(datetime.timedelta(seconds=exptimesec))
+        endtime = str(datetime.datetime.now() + datetime.timedelta(seconds = exptimesec))
         print "Expected experiment duration:", timestr
+        print "Expected end time:", endtime
         print "Expected sweeps:", str(len(self.bgsweeporder))
-        print "Expected vsyncs:", str(exptimesec*60)
+        print "Expected vsyncs:", str(int(exptimesec*60))
         
     def cleanup(self):
         """ Destructor """
@@ -455,6 +455,7 @@ if __name__ == "__main__":
     bgSweep['SF'] = ([0.5,1],3)
     bgSweep['Contrast'] = ([0.5,1],0)
     bgSweep['TF'] = ([1],2)
+    bgSweep['Phase'] = ([0],4)
     
     #CREATE FOREGROUND STIMULUS
     monitor = monitors.Monitor('testMonitor')

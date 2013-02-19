@@ -37,6 +37,7 @@ def buildSweepTable(sweep, runs = 1, blanksweeps = 0):
     return sweeptable, sweeporder*runs, dimnames
     
 def getMonitorInfo(monitor):
+    """ Creates a dictionary fo relevent monitor information. """
     info = {}
     info['gamm'] = monitor.getGamma()
     info['gammagrid'] = monitor.getGammaGrid().tolist()
@@ -46,3 +47,7 @@ def getMonitorInfo(monitor):
     info['calibrationdate'] = str(monitor.getCalibDate())
     return info
     
+class prettyfloat(float):
+    """ Prettier format for float text output. """
+    def __repr__(self):
+        return "%0.4f" % self

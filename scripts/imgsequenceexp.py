@@ -15,11 +15,11 @@ Notes: Drops frames when switching images.  Working on a solution to this.
 
 #GENERIC PARAMETERS (should be passed by GUI, some of which have been read from config file)
 params = {}
-params['runs'] = 1 #number of runs
-params['shuffle'] = True #shuffle sweep tables
+params['runs'] = 100 #number of runs
+params['shuffle'] = False #shuffle sweep tables
 params['preexpsec'] = 2 #seconds at the start of the experiment
 params['postexpsec'] = 2 #seconds at the end of the experiment
-params['sweeplength'] = 0.25 #length of sweeps
+params['sweeplength'] = 0.018 #length of sweeps
 params['postsweepsec'] = 0 #black period after sweeps (foreground remains)
 params['logdir'] = "C:\\ExperimentLogs\\" #where to put the log
 params['backupdir'] = "" #backup to network
@@ -42,11 +42,11 @@ window.setColor(params['bgcolor'])
 
 #CREATE BACKGROUND STIMULUS
 
-stim = visual.ImageStim(window)
+stim = visual.ImageStim(window, size = (2.0,2.0))
 
-path = r"C:\Users\derricw\Pictures\faces"
+path = r"C:\Users\derricw\Pictures\tifseq"
 
-imagefiles = [os.path.join(path,f) for f in os.listdir(path) if len(f) > 4 and f[-4:] in ['.jpg','.png']]
+imagefiles = [os.path.join(path,f) for f in os.listdir(path) if len(f) > 4 and f[-4:] in ['.jpg','.png','.tif']]
 print imagefiles
 images = [Image.open(f) for f in imagefiles]
 
