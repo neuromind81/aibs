@@ -65,4 +65,4 @@ if __name__ == "__main__":
     ylabel('Output (intensity, converted from V')
     title('Photodiode waveform')
     legend(('diode','data frame','stimulus frame'))
-    show()
+    show(False)

@@ -31,7 +31,7 @@ import os
 import random
 from decimal import Decimal
 from aibs.ailogger import ailogger, npdict2listdict, removenparrays
-from aibs.Core import buildSweepTable
+from aibs.Core import buildSweepTable, getMonitorInfo
 try:
     from aibs.DigitalIODAQ import DigitalOutput
 except Exception, e:
@@ -65,7 +65,7 @@ class SweepStim(object):
         #CREATE SYNC SQUARE (used for frame time measurement via photodiode)
         if self.syncsqr:
             self.sync = visual.GratingStim(self.window, color = 1, tex=None, size = (75,75), pos = self.syncsqrloc, units = 'pix', autoLog=False)
-            self.syncsqrcolor = 1
+            self.syncsqrcolor = 1 # STARTS WHITE
         
         #SOME STUFF WE WANT TO TRACK AND RECORD
         self.sweepsdisplayed = 0
@@ -112,6 +112,10 @@ class SweepStim(object):
                             self.bgStim.setTex(v)
                         elif k == "Image": #special case for images
                             self.bgStim.setImage(v)
+                        elif k == "PosX": #special case for x position
+                            self.bgStim.setPos((v,self.bgStim.pos[1]))
+                        elif k == "PosY": #special case for y position
+                            self.bgStim.setPos((self.bgStim.pos[0],v))
                         else: print "Sweep parameter is incorrectly formatted:", k, v, e
             else: self.bgStim.setOpacity(0.0) #blank sweep
                 
@@ -132,15 +136,9 @@ class SweepStim(object):
                     
     def flipSyncSqr(self):
         """ Flips the sync square. """
-        ##TODO: Try "self.syncsqrcolor = -self.synsqrcolor"  should work
-        if self.syncsqrcolor == -1:
-            self.syncsqrcolor = 1
-            self.sync.setColor(1)
-        else:
-            self.syncsqrcolor = -1
-            self.sync.setColor(-1)
+        self.sync.setColor(self.syncsqrcolor)
         self.sync.draw()
-        
+        self.syncsqrcolor = -self.syncsqrcolor
         
     def printFrameInfo(self):
         """ Prints data about frame times """
@@ -154,20 +152,27 @@ class SweepStim(object):
         self.droppedframes = ([x for x in intervalsMS if x > (1.5*m)],[x for x in range(len(intervalsMS)) if intervalsMS[x]>(1.5*m)])
         droppedString = "Dropped/Frames = %i/%i = %.3f%%" %(nDropped,nTotal,nDropped/float(nTotal)*100)
         #calculate some values
-        print "Vsyncs displayed:",self.vsynccount
+        print "Actual vsyncs displayed:",self.vsynccount
         print "Frame interval statistics:", distString
         print "Drop statistics:", droppedString
         
-    def printExperimentInfo(self):
-        pass
+    def printExpInfo(self):
+        """ Prints expected experiment duration, frames, etc. """
+        exptimesec = (self.preexpsec + (self.sweeplength + self.postsweepsec)*len(self.bgsweeporder) + self.postexpsec)
+        timestr = str(datetime.timedelta(seconds=exptimesec))
+        print "Expected experiment duration:", timestr
+        print "Expected sweeps:", str(len(self.bgsweeporder))
+        print "Expected vsyncs:", str(exptimesec*60)
 
     def cleanup(self):
         """ Destructor """
         #STOP CLOCKS
         self.stoptime = time.clock()
+        timestr = str(datetime.timedelta(seconds = (self.stoptime-self.starttime)))
+        print "Actual experiment duration:", timestr
         self.stopdatetime = datetime.datetime.now()
         #DISPLAY SOME STUFF
-        print self.sweepsdisplayed, "sweeps completed."
+        print "Actual sweeps completed:", str(self.sweepsdisplayed)
         self.printFrameInfo()
         #LOG INFORMATION
         self.logMeta()
@@ -193,7 +198,7 @@ class SweepStim(object):
         log.add(protocol = self.protocol)
         log.add(logdir = self.logdir)
         log.add(backupdir = self.backupdir)
-        log.add(monitordistance = self.monitor.getDistance())
+        log.add(monitor = getMonitorInfo(self.monitor))
         log.add(startdatetime = str(self.startdatetime))
         log.add(stopdatetime = str(self.stopdatetime))
         log.add(starttime = self.starttime)
@@ -230,7 +235,7 @@ class SweepStim(object):
             self.window.flip()
         
         #PRE EXPERIMENT INFO PRINT
-
+        self.printExpInfo()
 
         #START CLOCKS
         self.startdatetime = datetime.datetime.now()
@@ -318,7 +323,7 @@ if __name__ == "__main__":
     
     #CREATE BACKGROUND STIMULUS
     
-    grating = visual.GratingStim(window,tex="sin",mask="None",texRes=64,
+    grating = visual.GratingStim(window,tex="sin",mask="None",texRes=512,
            size=[80,80], sf=1, ori = 0, name='grating', autoLog=False, units = 'deg')
            
     #CREATE BACKGROUND FRAME PARAMETERS (what changes between frames and how much)

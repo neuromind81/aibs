@@ -35,3 +35,14 @@ def buildSweepTable(sweep, runs = 1, blanksweeps = 0):
     		if len(x) == blanksweeps:
     			sweeporder.append(-1)
     return sweeptable, sweeporder*runs, dimnames
+    
+def getMonitorInfo(monitor):
+    info = {}
+    info['gamm'] = monitor.getGamma()
+    info['gammagrid'] = monitor.getGammaGrid().tolist()
+    info['distancecm'] = monitor.getDistance()
+    info['sizepix'] = monitor.getSizePix()
+    info['widthcm'] = monitor.getWidth()
+    info['calibrationdate'] = str(monitor.getCalibDate())
+    return info
+    

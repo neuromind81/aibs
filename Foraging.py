@@ -34,7 +34,7 @@ import random
 from decimal import Decimal
 from aibs.Terrain import Terrain
 from aibs.ailogger import ailogger, npdict2listdict
-from aibs.Core import buildSweepTable
+from aibs.Core import buildSweepTable, getMonitorInfo
 try:
     from aibs.Encoder import Encoder
     from aibs.Reward import Reward
@@ -69,10 +69,8 @@ class Foraging(object):
         
         #CREATE SYNCRONIZATION SQUARE (used for precise frame time measurement via photodiode)
         if self.syncsqr:
-            self.textureblack = numpy.zeros((2,2))-1
-            self.texturewhite = numpy.ones((2,2))
             self.sync = visual.GratingStim(self.window, tex=None, color = 1, size = (100,100), pos = self.syncsqrloc, units = 'pix', autoLog=False)
-            self.syncsqrcolor = 1
+            self.syncsqrcolor = 1 #STARTS WHITE
         
         #SOME STUFF WE WANT TO TRACK AND RECORD
         self.sweepsdisplayed = 0
@@ -139,10 +137,18 @@ class Foraging(object):
                 for k,v in zip(self.bgdimnames, self.bgsweeptable[sweepi]):
                     try: #parameter is a proper stimulus property
                         exec("self.bgStim.set" + k + "(" + str(v) + ")")
-                    except: #paramter is not a proper stimulus property
+                    except Exception, e: #paramter is not a proper stimulus property
                         if k == "TF": #special case for temporal freqency
                             self.bgFrame[k] = v
-                        else: print "Sweep parameter is incorrectly formatted:", k, v
+                        elif k == "Tex": #special case for textures (fix later)
+                            self.bgStim.setTex(v)
+                        elif k == "Image": #special case for images
+                            self.bgStim.setImage(v)
+                        elif k == "PosX": #special case for x position
+                            self.bgStim.setPos((v,self.bgStim.pos[1]))
+                        elif k == "PosY": #special case for y position
+                            self.bgStim.setPos((self.bgStim.pos[0],v))
+                        else: print "Sweep parameter is incorrectly formatted:", k, v, e
             else: self.bgStim.setOpacity(0.0) #blank sweep
                 
     def updateForeground(self, sweepi):
@@ -162,13 +168,9 @@ class Foraging(object):
                     
     def flipSyncSqr(self):
         """ Flips the sync square. """
-        if self.syncsqrcolor == -1:
-            self.syncsqrcolor = 1
-            self.sync.setColor(1)
-        else:
-            self.syncsqrcolor = -1
-            self.sync.setColor(-1)
+        self.sync.setColor(self.syncsqrcolor)
         self.sync.draw()
+        self.syncsqrcolor = -self.syncsqrcolor
         
     def checkTerrain(self):
         """ Determines if a reward should be given """
@@ -245,17 +247,27 @@ class Foraging(object):
         self.droppedframes = ([x for x in intervalsMS if x > (1.5*m)],[x for x in range(len(intervalsMS)) if intervalsMS[x]>(1.5*m)])
         droppedString = "Dropped/Frames = %i/%i = %.3f%%" %(nDropped,nTotal,nDropped/float(nTotal)*100)
         #calculate some values
-        print "Vsyncs displayed:",self.vsynccount
+        print "Actual vsyncs displayed:",self.vsynccount
         print "Frame interval statistics:", distString
         print "Drop statistics:", droppedString
+        
+    def printExpInfo(self):
+        """ Prints expected experiment duration, frames, etc. """
+        exptimesec = (self.preexpsec + (self.sweeplength + self.postsweepsec)*len(self.bgsweeporder) + self.postexpsec)
+        timestr = str(datetime.timedelta(seconds=exptimesec))
+        print "Expected experiment duration:", timestr
+        print "Expected sweeps:", str(len(self.bgsweeporder))
+        print "Expected vsyncs:", str(exptimesec*60)
         
     def cleanup(self):
         """ Destructor """
         #STOP CLOCKS
         self.stoptime = time.clock()
+        timestr = str(datetime.timedelta(seconds = (self.stoptime-self.starttime)))
+        print "Actual experiment duration:", timestr
         self.stopdatetime = datetime.datetime.now()
         #DISPLAY SOME STUFF
-        print self.sweepsdisplayed, "sweeps completed."
+        print "Actual sweeps completed:", str(self.sweepsdisplayed)
         self.printFrameInfo()
         #LOG INFORMATION
         self.logMeta()
@@ -276,7 +288,7 @@ class Foraging(object):
         log.add(task = self.task)
         log.add(stage = self.stage)
         log.add(protocol = self.protocol)
-        log.add(monitor = npdict2listdict(self.monitor.currentCalib))
+        log.add(monitor = getMonitorInfo(self.monitor))
         log.add(logdir = self.logdir)
         log.add(backupdir = self.backupdir)
         log.add(startdatetime = str(self.startdatetime))
@@ -310,13 +322,18 @@ class Foraging(object):
         log.add(droppedframes = self.droppedframes)
         log.close()
         
-        
+    def flip(self):
+        """ Flips display and sets frame bits. """
+        self.window.flip() # flips display
 
     def run(self):
         """ Main stimuilus setup and loop """
         #FLIP TO GET READY FOR FIRST FRAME
         for i in range(30):
             self.window.flip()
+        
+        #PRE EXPERIMENT INFO PRINT
+        self.printExpInfo()        
         
         #START CLOCKS
         self.startdatetime = datetime.datetime.now()
@@ -332,7 +349,7 @@ class Foraging(object):
                 self.checkEncoder()
                 self.fgStim.setPos([self.x,0]) #set fgStim position every frame
                 self.fgStim.draw()
-            self.window.flip()
+            self.flip()
             self.vsynccount += 1
         
         #SWEEP LOOPS
@@ -354,7 +371,7 @@ class Foraging(object):
                     if keys[0]in ['escape','q']:
                         self.cleanup()
                 if self.syncsqr: self.flipSyncSqr()
-                self.window.flip()
+                self.flip()
                 self.vsynccount += 1
             self.sweepsdisplayed += 1
             
@@ -366,13 +383,13 @@ class Foraging(object):
                     self.fgStim.setPos([self.x,0])
                     self.fgStim.draw()
                 if self.syncsqr: self.flipSyncSqr()
-                self.window.flip()
+                self.flip()
                 self.vsynccount += 1
             
         #POST EXPERIMENT LOOP
         for vsync in range(int(self.postexpsec*60)):
             if self.syncsqr: self.flipSyncSqr()
-            self.window.flip()
+            self.flip()
             self.vsynccount += 1
         self.window.setRecordFrameIntervals(False) #stop recording frame intervals
         

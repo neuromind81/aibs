@@ -10,10 +10,10 @@ This is a sample script that sets up a basic experiment.  This should be perform
 #GENERIC PARAMETERS (should be passed by GUI, some of which have been read from config file)
 params = {}
 params['runs'] = 1 #number of runs
-params['shuffle'] = True #shuffle sweep tables
+params['shuffle'] = False #shuffle sweep tables
 params['preexpsec'] = 2 #seconds at the start of the experiment
 params['postexpsec'] = 2 #seconds at the end of the experiment
-params['sweeplength'] = 0.25 #length of sweeps
+params['sweeplength'] = 0.1 #length of sweeps
 params['postsweepsec'] = 0 #black period after sweeps (foreground remains)
 params['logdir'] = "C:\\ExperimentLogs\\" #where to put the log
 params['backupdir'] = "" #backup to network
@@ -47,11 +47,12 @@ bgSweep = {}
 
 xpos = range(-16,16,2)  #grid is 16 degrees wide, centered at 0, 2 degree spacing
 ypos = range(-16,16,2)  #grid is 16 degrees tall, centered at 0, 2 degree spacing
-positions = [[x,y] for x in xpos for y in ypos] #gets every permutation of these positions
+#positions = [[x,y] for x in xpos for y in ypos] #gets every permutation of these positions
 
-bgSweep['Ori'] = ([0,45],1) #two different orientations
+bgSweep['Ori'] = ([0],1) #two different orientations
 bgSweep['Color'] = ([-1,1],0) #black and white
-bgSweep['Pos'] = (positions,2) #each position in the list we just generated
+bgSweep['PosX'] = (xpos,2) #each position in the list we just generated
+bgSweep['PosY'] = (ypos,3) #each position in the list we just generated
 
 #CREATE FOREGROUND STIMULUS (none for basic sparse noise experiment)
 
