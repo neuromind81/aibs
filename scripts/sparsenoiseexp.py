@@ -1,6 +1,5 @@
 from aibs.SweepStim import SweepStim
 from psychopy import visual, core, event, logging, misc, monitors
-import itertools
 
 """
 This is a sample script that sets up a basic experiment.  This should be performed by the GUI eventually.
@@ -27,6 +26,7 @@ params['blanksweeps']=0 #blank sweep every x sweeps
 params['bgcolor']='gray' #background color
 params['syncsqr']=True #display a flashing square for synchronization
 params['syncsqrloc']=(-600,-350)
+params['script']=__file__
 
 
 #SET CONSOLE OUTPUT LEVEL, INITIALIZE WINDOWS

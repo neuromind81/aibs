@@ -192,6 +192,8 @@ class SweepStim(object):
         file = self.mousename + ".log" #logger automatically appends timestamp
         path = os.path.join(dir,file)
         log = ailogger(path)
+        log.add(script = self.script)
+        log.add(scripttext = open(self.script,'r').read())
         log.add(mousename = self.mousename)
         log.add(userid = self.userid)
         log.add(task = self.task)
@@ -315,6 +317,7 @@ if __name__ == "__main__":
     params['bgcolor']='gray' #background color
     params['syncsqr']=True #display a flashing square for synchronization
     params['syncsqrloc']=(-600,-350)
+    params['script']=__file__
     
     
     #SET CONSOLE OUTPUT LEVEL, INITIALIZE WINDOWS
@@ -337,6 +340,7 @@ if __name__ == "__main__":
     bgSweep['SF'] = ([0.5,1],3)
     bgSweep['Contrast'] = ([0.5,1],0)
     bgSweep['TF'] = ([1],2)
+    
     
     #CREATE FOREGROUND STIMULUS (none for basic gratings experiment)
     

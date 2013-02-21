@@ -32,6 +32,7 @@ params['bgcolor']='gray' #background color
 params['syncsqr']= True
 params['syncsqrloc']=(900,500) #(900,500) upper right corner
 params['comments']="SOME COMMENTS FROM THE USER"
+params['script']=__file__
 
 #TERRAIN CREATION AND PARAMETERS (see Terrain for additional parameters)
 terrain = Terrain(['color','orientation'])

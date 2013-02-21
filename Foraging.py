@@ -283,6 +283,8 @@ class Foraging(object):
         file = self.mousename + ".log" #logger automatically appends timestamp
         path = os.path.join(dir,file)
         log = ailogger(path)
+        log.add(script = self.script)
+        log.add(scripttext = open(self.script,'r').read())
         log.add(mousename = self.mousename)
         log.add(userid = self.userid)
         log.add(task = self.task)
@@ -428,12 +430,16 @@ if __name__ == "__main__":
     params['bgcolor']='gray' #background color
     params['syncsqr']=True
     params['syncsqrloc']=(-600,-350)
+    params['script']=__file__
     
     #TERRAIN CREATION AND PARAMETERS (see Terrain for additional parameters)
     terrain = Terrain(['color','orientation'])
     terrain.objectwidthDeg = 10
     terrain.colormatters = False
+    terrain.colorrandom = False
+    terrain.color = 1
     terrain.orientation = 45
+    terrain.speedgain = 0.25
     
     #SET CONSOLE OUTPUT LEVEL, INITIALIZE WINDOWS
     #logging.console.setLevel(logging.DEBUG) #uncommet for diagnostics
@@ -442,8 +448,8 @@ if __name__ == "__main__":
     
     #CREATE BACKGROUND STIMULUS
     
-    grating = visual.GratingStim(window,tex="sin",mask="None",texRes=64,
-           size=[80,80], sf=1, ori = 0, name='grating', autoLog=False, units = 'deg')
+    grating = visual.GratingStim(window,tex="sin",mask="gauss",texRes=512,
+           size=[5,5], sf=1, ori = 0, name='grating', autoLog=False, units = 'deg')
            
     #CREATE BACKGROUND FRAME PARAMETERS (what changes between frames and how much)
     bgFrame = {}
@@ -460,6 +466,7 @@ if __name__ == "__main__":
     #CREATE FOREGROUND STIMULUS
     monitor = monitors.Monitor('testMonitor')
     box = visual.Rect(window,width = misc.deg2pix(terrain.objectwidthDeg,monitor), height = misc.deg2pix(terrain.objectwidthDeg,monitor), units = 'pix', fillColor = 'black', lineColor = 'black', autoLog=False)
+    #fgrating = visual.GratingStim(window,tex="sin",mask="gauss", texRes=64,size=[20,20],units='deg',sf=2)    
     #img = visual.ImageStim(window, image = "C:\\Users\\derricw\\Pictures\\facepalm.jpg", size = [450,300], units = 'pix', autoLog=False) #creates an image from an image in specified directory
     #CREATE FOREGROUND STIMULUS FRAME PARAMETERS (what changes between frames and how much (BESIDES XPOSITITON WHICH IS AUTOMATIC FOR THIS EXPERIMENT)
     fgFrame = {}
