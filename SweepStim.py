@@ -95,6 +95,11 @@ class SweepStim(object):
         self.mouse = event.Mouse()
         self.mouse.setVisible(0)
         
+        #SAVE FRAMES?
+        self.saveframes = False
+        self.framefolder = r"C:\SavedFrames"
+        
+        
     def updateBackground(self, sweepi):
         """ Updates the background stimulus based on its sweep number. """
         if self.bgStim is not None:
@@ -230,6 +235,14 @@ class SweepStim(object):
         if self.ni: self.dOut.WriteBit(self.frameBit, 1) #set frame bit high
         self.window.flip() # flips display
         if self.ni: self.dOut.WriteBit(self.frameBit, 0) #set frame bit low
+        if self.saveframes:
+            self.window.getMovieFrame()
+            filename = os.path.join(self.framefolder,str(self.vsynccount)+'.tif')
+            self.window.saveMovieFrames(fileName=filename)
+
+    def getFrame(self):
+        """ Unneeded at the moment """        
+        pass
 
     def run(self):
         """ Main stimuilus setup and loop """
