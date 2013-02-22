@@ -28,14 +28,12 @@ Example use:
 from psychopy import core, visual, event, logging, misc, monitors
 import time
 import datetime
-import scipy
 import numpy
-import pylab
 import os
 import random
-from decimal import Decimal
+import sys
 from aibs.Terrain import Terrain
-from aibs.ailogger import ailogger, npdict2listdict
+from aibs.ailogger import *
 from aibs.SweepStim import SweepStim
 from aibs.Core import *
 try:
@@ -127,7 +125,13 @@ class Foraging(SweepStim):
         
         #TURN OFF MOUSE
         self.mouse = event.Mouse()
-        self.mouse.setVisible(0)        
+        self.mouse.setVisible(0) 
+        
+        #REPLAY MODE? Modify these values after instantiating but before run()
+        self.replay = False
+        self.saveframes = False
+        self.framelist = []
+        self.framefolder = r"C:\SavedFrames"
 
     def checkTerrain(self):
         """ Determines if a reward should be given """
@@ -203,12 +207,13 @@ class Foraging(SweepStim):
         print "Actual sweeps completed:", str(self.sweepsdisplayed)
         self.printFrameInfo()
         #LOG INFORMATION
-        self.logMeta()
+        if not self.replay: self.logMeta()
         #CLOSE EVERYTHING
         if self.ni:
             self.encoder.clear()
             self.reward.clear()
         self.window.close()
+        sys.exit()
         
     def logMeta(self):
         """ Writes all important information to log. """
@@ -260,6 +265,11 @@ class Foraging(SweepStim):
     def flip(self):
         """ Flips display and sets frame bits. """
         self.window.flip() # flips display
+        if self.saveframes:
+            if self.vsynccount in self.framelist:
+                self.window.getMovieFrame()
+                filename = os.path.join(self.framefolder,str(self.vsynccount)+'.tif')
+                self.window.saveMovieFrames(fileName=filename)
 
     def run(self):
         """ Main stimuilus setup and loop """

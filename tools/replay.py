@@ -8,7 +8,8 @@ Created on Wed Feb 20 21:10:51 2013
 from psychopy import visual
 
 def replay(logstringarray, saveframes = False, framelist = []):
-    
+    """ REPLAYS A FORAGING OR SWEEPSTIM EXPERIMENT.  
+        CAN SAVE FRAMES FROM EXPERIMENT IF PASSED A LIST """
     log = {}
     #get log info
     for rl in logstringarray:
@@ -33,6 +34,7 @@ def replay(logstringarray, saveframes = False, framelist = []):
         
     
 def getFrameInfo(logstringarray):
+    """ UNFINISHED """
     log = {}
     #get log info
     for rl in logstringarray:
