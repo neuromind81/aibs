@@ -7,7 +7,7 @@ Created on Wed Feb 20 21:10:51 2013
 
 from psychopy import visual
 
-def replay(logstringarray, saveframes = False):
+def replay(logstringarray, saveframes = False, framelist = []):
     
     log = {}
     #get log info
@@ -25,6 +25,7 @@ def replay(logstringarray, saveframes = False):
     if saveframes:
         exec(minusrun)
         g.saveframes = True
+        g.framelist = framelist
         g.run()
     #rerun experiment
     exec(scripttext)
@@ -64,8 +65,9 @@ def getFrameInfo(logstringarray):
     
 if __name__=="__main__":
     
-    path = r"C:\ExperimentLogs\130220210939-Spock.log"
+    path = r"C:\ExperimentLogs\130221115635-Spock.log"
     f = open(path,'r').readlines()
-    frame = replay(f,True)
+    frames = [1,100,200]
+    frame = replay(f,True,frames)
 
     

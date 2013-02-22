@@ -29,7 +29,6 @@ import numpy
 import pylab
 import os
 import random
-from decimal import Decimal
 from aibs.ailogger import ailogger, npdict2listdict, removenparrays
 from aibs.Core import *
 try:
@@ -95,8 +94,10 @@ class SweepStim(object):
         self.mouse = event.Mouse()
         self.mouse.setVisible(0)
         
-        #SAVE FRAMES?
+        #REPLAY MODE? Modify these values after instantiating but before run()
+        self.replay = False
         self.saveframes = False
+        self.framelist = []
         self.framefolder = r"C:\SavedFrames"
         
         
@@ -180,8 +181,8 @@ class SweepStim(object):
         #DISPLAY SOME STUFF
         print "Actual sweeps completed:", str(self.sweepsdisplayed)
         self.printFrameInfo()
-        #LOG INFORMATION
-        self.logMeta()
+        #LOG INFORMATION (If not in replay mode)
+        if not self.replay: self.logMeta()
         #CLOSE EVERYTHING
         if self.ni:
             self.dOut.WriteBit(self.sweepBit, 0) #ensure sweep bit is low
@@ -236,9 +237,10 @@ class SweepStim(object):
         self.window.flip() # flips display
         if self.ni: self.dOut.WriteBit(self.frameBit, 0) #set frame bit low
         if self.saveframes:
-            self.window.getMovieFrame()
-            filename = os.path.join(self.framefolder,str(self.vsynccount)+'.tif')
-            self.window.saveMovieFrames(fileName=filename)
+            if self.vsynccount in self.framelist:
+                self.window.getMovieFrame()
+                filename = os.path.join(self.framefolder,str(self.vsynccount)+'.tif')
+                self.window.saveMovieFrames(fileName=filename)
 
     def getFrame(self):
         """ Unneeded at the moment """        

@@ -10,6 +10,8 @@ Foraging.py
 This class is designed to run a foraging behavior experiment which a background and foreground stimulus.
     The animal runs "laps" through a virtual track and until it finds the correct object and puts that
     that object in the center of the screen for a certain amount of frames.
+    
+Foraging shares and inherits some basic functionality from SweepStim.
 
 Designed for the psychopy stimulus library.  http://www.psychopy.org/
 Other dependencies:
@@ -34,6 +36,7 @@ import random
 from decimal import Decimal
 from aibs.Terrain import Terrain
 from aibs.ailogger import ailogger, npdict2listdict
+from aibs.SweepStim import SweepStim
 from aibs.Core import *
 try:
     from aibs.Encoder import Encoder
@@ -42,7 +45,7 @@ except Exception, e:
     print "Could not import Encoder or Reward objects.", e
 
 
-class Foraging(object):
+class Foraging(SweepStim):
 
     def __init__(self, window, params, terrain = None, bgSweep = None, fgSweep = None, bgStim = None, fgStim = None, fgFrame = None, bgFrame = None):
         
@@ -125,50 +128,7 @@ class Foraging(object):
         #TURN OFF MOUSE
         self.mouse = event.Mouse()
         self.mouse.setVisible(0)        
-        
-    def updateBackground(self, sweepi):
-        """ Updates the background stimulus based on its sweep number. """
-        if self.bgStim is not None:
-            if sweepi is not -1: #regular sweep
-                self.bgStim.setOpacity(1.0)
-                for k,v in zip(self.bgdimnames, self.bgsweeptable[sweepi]):
-                    try: #parameter is a proper stimulus property
-                        exec("self.bgStim.set" + k + "(" + str(v) + ")")
-                    except Exception, e: #paramter is not a proper stimulus property
-                        if k == "TF": #special case for temporal freqency
-                            self.bgFrame[k] = v
-                        elif k == "Tex": #special case for textures (fix later)
-                            self.bgStim.setTex(v)
-                        elif k == "Image": #special case for images
-                            self.bgStim.setImage(v)
-                        elif k == "PosX": #special case for x position
-                            self.bgStim.setPos((v,self.bgStim.pos[1]))
-                        elif k == "PosY": #special case for y position
-                            self.bgStim.setPos((self.bgStim.pos[0],v))
-                        else: print "Sweep parameter is incorrectly formatted:", k, v, e
-            else: self.bgStim.setOpacity(0.0) #blank sweep
-                
-    def updateForeground(self, sweepi):
-        """ Updates the foreground stimulus based on its sweep number.  UNIMPLIMENTED."""
-        pass
-        
-    def updateFrame(self, vsync):
-        """ Updates frame with any item that is to be modulated per frame. """
-        if self.bgStim is not None:
-            for k,v in self.bgFrame.iteritems():
-                try: #parameter is a proper stimulus property
-                    exec("self.bgStim.set" + k + "(" + str(v) + ")")
-                except: #parameter is not a proper stimulus property
-                    if k == "TF": #special case for temporal frequency
-                        self.bgStim.setPhase(v*vsync/60.0)
-                    else: print "No parameter called: ", k
-                    
-    def flipSyncSqr(self):
-        """ Flips the sync square. """
-        self.sync.setColor(self.syncsqrcolor)
-        self.sync.draw()
-        self.syncsqrcolor = -self.syncsqrcolor
-        
+
     def checkTerrain(self):
         """ Determines if a reward should be given """
         if self.terrain.iscorrect:
@@ -231,33 +191,6 @@ class Foraging(object):
         x = misc.deg2pix(self.terrain.objectwidthDeg, self.monitor) # converts width of object to pixels from degrees
         dist = orientation/45*(numpy.sqrt(2*(x)**2)-x) + x #pythagorean theorem
         return dist/2 #float divide by two because measurement is from center of object
-        
-    def printFrameInfo(self):
-        """ Prints data about frame times """
-        intervalsMS = numpy.array(self.window.frameIntervals)*1000
-        self.intervalsms = intervalsMS
-        m=pylab.mean(intervalsMS)
-        sd=pylab.std(intervalsMS)
-        distString= "Mean=%.1fms,    s.d.=%.1f,    99%%CI=%.1f-%.1f" %(m,sd,m-3*sd,m+3*sd)
-        nTotal=len(intervalsMS)
-        nDropped=sum(intervalsMS>(1.5*m))
-        self.droppedframes = ([x for x in intervalsMS if x > (1.5*m)],[x for x in range(len(intervalsMS)) if intervalsMS[x]>(1.5*m)])
-        droppedString = "Dropped/Frames = %i/%i = %.3f%%" %(nDropped,nTotal,nDropped/float(nTotal)*100)
-        #calculate some values
-        print "Actual vsyncs displayed:",self.vsynccount
-        print "Frame interval statistics:", distString
-        print "Drop statistics:", droppedString
-        
-    def printExpInfo(self):
-        """ Prints expected experiment duration, frames, etc. """
-        ##TODO: Fix expected vsyncs and times for the case when user enters sweep times that are not multiples of avg frame length
-        exptimesec = (self.preexpsec + (self.sweeplength + self.postsweepsec)*len(self.bgsweeporder) + self.postexpsec)
-        timestr = str(datetime.timedelta(seconds=exptimesec))
-        endtime = str(datetime.datetime.now() + datetime.timedelta(seconds = exptimesec))
-        print "Expected experiment duration:", timestr
-        print "Expected end time:", endtime
-        print "Expected sweeps:", str(len(self.bgsweeporder))
-        print "Expected vsyncs:", str(int(exptimesec*60))
         
     def cleanup(self):
         """ Destructor """
@@ -448,8 +381,8 @@ if __name__ == "__main__":
     
     #CREATE BACKGROUND STIMULUS
     
-    grating = visual.GratingStim(window,tex="sin",mask="gauss",texRes=512,
-           size=[5,5], sf=1, ori = 0, name='grating', autoLog=False, units = 'deg')
+    grating = visual.GratingStim(window,tex="sin",mask="gauss",texRes=64,
+           size=[10,10], sf=1, ori = 0, name='grating', autoLog=False, units = 'deg')
            
     #CREATE BACKGROUND FRAME PARAMETERS (what changes between frames and how much)
     bgFrame = {}

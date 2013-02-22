@@ -84,6 +84,6 @@ fgFrame = {}
 fgSweep = {}
 
 #CREATE FORAGING CLASS INSTANCE
-f = Foraging(window = window, terrain = terrain, params = params, bgStim = grating, bgFrame = bgFrame, bgSweep = bgSweep, fgStim = target)
+g = Foraging(window = window, terrain = terrain, params = params, bgStim = grating, bgFrame = bgFrame, bgSweep = bgSweep, fgStim = target)
 #RUN IT
-f.run()
+g.run()
