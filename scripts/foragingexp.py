@@ -22,7 +22,7 @@ params['userid'] = "derricw" #name of the user
 params['task'] = "Virtual Foraging" #task type
 params['stage'] = "Disk, Plexi" #stage
 params['protocol'] = "" #implemented later
-params['nidevice']='Dev2' #NI device name
+params['nidevice']='Dev1' #NI device name
 params['rewardline']=0 #NI DO line
 params['rewardport']=1 #NI DO port
 params['encodervinchannel']=1 #NI Vin channel
@@ -46,7 +46,7 @@ terrain.speedgain = 4
 terrain.colorrandom = True
 terrain.oriarray = [0,45]
 terrain.oricorrect = 0
-terrain.objectwidthDeg = 23
+terrain.objectwidthDeg = 10
 terrain.colorcorrect = terrain.black
 terrain.color = terrain.white
 
@@ -75,7 +75,7 @@ bgSweep['Phase'] = ([0],4)
 
 #CREATE FOREGROUND STIMULUS
 monitor = monitors.Monitor('testMonitor')
-target = visual.Rect(window,width = misc.deg2pix(terrain.objectwidthDeg,monitor), height = misc.deg2pix(terrain.objectwidthDeg,monitor), units = 'pix', fillColor = 'black', lineColor = 'black', autoLog=False)
+target = visual.GratingStim(window, tex = None, size = (misc.deg2pix(terrain.objectwidthDeg,monitor), misc.deg2pix(terrain.objectwidthDeg,monitor)), units = 'pix', color = -1, autoLog=False)
 #img = visual.ImageStim(window, image = "C:\\Users\\derricw\\Pictures\\facepalm.jpg", size = [450,300], units = 'pix', autoLog=False) #creates an image from an image in specified directory
 #CREATE FOREGROUND STIMULUS FRAME PARAMETERS (what changes between frames and how much (BESIDES XPOSITITON WHICH IS AUTOMATIC FOR THIS EXPERIMENT)
 fgFrame = {}

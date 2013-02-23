@@ -132,6 +132,10 @@ class Foraging(SweepStim):
         self.saveframes = False
         self.framelist = []
         self.framefolder = r"C:\SavedFrames"
+        
+        self.replayx = []
+        self.replayterrain = []
+        self.replaylaps = []
 
     def checkTerrain(self):
         """ Determines if a reward should be given """
@@ -148,18 +152,11 @@ class Foraging(SweepStim):
     def updateTerrain(self):
         """ Updates terrain variables and logs current instance """
         ##TODO: update terrain to allow for discrimination besides color and orientation
-        try: #because some types of stimulus won't let you change color.  I don't like how this works.
-            if self.terrain.color == self.terrain.white: 
-                self.fgStim.setLineColor('white')
-                self.fgStim.setFillColor('white')
-            elif self.terrain.color == self.terrain.black:
-                self.fgStim.setLineColor('black')
-                self.fgStim.setFillColor('black')
-        except:
-            pass
+        self.fgStim.setColor(self.terrain.color)
         self.fgStim.setOri(self.terrain.orientation)
         self.offscreen = self.off_screen_distance(self.terrain.orientation)
         self.terrainlog.append((self.terrain.orientation, self.terrain.color))
+        
                 
     def checkEncoder(self):
         """ Checks encoder values and tweaks foreground object position based on speedgain. """
@@ -175,6 +172,18 @@ class Foraging(SweepStim):
         elif dx <=-180: #encoder has looped backward
             self.x -= 0-self.lastDx*self.terrain.speedgain
         
+        #check to see if this is a replay, if so, make changes
+        if self.replay:
+            if len(self.replayx) > 0: #more frames left
+                self.x = self.replayx[0]
+                del self.replayx[0]
+                if self.replaylaps[0][1]==self.vsynccount:
+                    self.fgStim.setOri(self.replayterrain[0][0])
+                    self.fgStim.setColor(self.replayterrain[0][1])
+                    del self.replayterrain[0]
+            else: self.cleanup() #no more frames in replay.
+        
+        #check for lap completion
         if self.x > (-self.wwidth/2 + self.terrain.lapdistance + self.offscreen):
             if self.crossedZero == True: #ensures that the mouse has crossed zero
                 self.terrain.new() # gets new object
@@ -408,7 +417,7 @@ if __name__ == "__main__":
     
     #CREATE FOREGROUND STIMULUS
     monitor = monitors.Monitor('testMonitor')
-    box = visual.Rect(window,width = misc.deg2pix(terrain.objectwidthDeg,monitor), height = misc.deg2pix(terrain.objectwidthDeg,monitor), units = 'pix', fillColor = 'black', lineColor = 'black', autoLog=False)
+    box = visual.GratingStim(window,size = (misc.deg2pix(terrain.objectwidthDeg,monitor), misc.deg2pix(terrain.objectwidthDeg,monitor)), units = 'pix', color = -1, autoLog=False)
     #fgrating = visual.GratingStim(window,tex="sin",mask="gauss", texRes=64,size=[20,20],units='deg',sf=2)    
     #img = visual.ImageStim(window, image = "C:\\Users\\derricw\\Pictures\\facepalm.jpg", size = [450,300], units = 'pix', autoLog=False) #creates an image from an image in specified directory
     #CREATE FOREGROUND STIMULUS FRAME PARAMETERS (what changes between frames and how much (BESIDES XPOSITITON WHICH IS AUTOMATIC FOR THIS EXPERIMENT)
@@ -418,6 +427,6 @@ if __name__ == "__main__":
     fgSweep = {}
 
     #CREATE FORAGING CLASS INSTANCE
-    f = Foraging(window = window, terrain = terrain, params = params, bgStim = grating, bgFrame = bgFrame, bgSweep = bgSweep, fgStim = box)
+    g = Foraging(window = window, terrain = terrain, params = params, bgStim = grating, bgFrame = bgFrame, bgSweep = bgSweep, fgStim = box)
     #RUN IT
-    f.run()
+    g.run()

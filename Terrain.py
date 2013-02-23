@@ -45,7 +45,7 @@ class Terrain(object):
         self.training = training
         
         #set up color states
-        self.black = 0
+        self.black = -1
         self.white = 1
         self.color = self.black # default color state
         

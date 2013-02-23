@@ -9,7 +9,7 @@ from psychopy import visual
 
 def replay(logstringarray, saveframes = False, framelist = []):
     """ REPLAYS A FORAGING OR SWEEPSTIM EXPERIMENT.  
-        CAN SAVE FRAMES FROM EXPERIMENT IF PASSED A LIST """
+        CAN SAVE FRAMES FROM EXPERIMENT IF PASSED THE INDICES """
     log = {}
     #get log info
     for rl in logstringarray:
@@ -23,15 +23,20 @@ def replay(logstringarray, saveframes = False, framelist = []):
     scripttext = log['scripttext']
     minusrun = scripttext.replace('.run()','.getFrame()') 
     
+    #load experiment
+    exec(minusrun)
+    g.replay = True
+    if hasattr(g,'replayx'):
+        g.replayx = log['posx']
+        g.replayterrain = log['terrainlog'][1:]
+        g.replaylaps = log['laps']
     if saveframes:
-        exec(minusrun)
         g.saveframes = True
         g.framelist = framelist
-        g.run()
+        
     #rerun experiment
-    exec(scripttext)
-        
-        
+    g.run()
+
     
 def getFrameInfo(logstringarray):
     """ UNFINISHED """
@@ -57,6 +62,7 @@ def getFrameInfo(logstringarray):
     sweepframes = int(params['sweeplength']*60)
     postsweepframes = int(params['postsweepsec']*60)
     
+    #build frame matrix
     
     
             
@@ -67,7 +73,7 @@ def getFrameInfo(logstringarray):
     
 if __name__=="__main__":
     
-    path = r"C:\ExperimentLogs\130221115635-Spock.log"
+    path = r"C:\ForagingLogs\130222135300-test.log"
     f = open(path,'r').readlines()
     frames = [1,100,200]
     frame = replay(f,True,frames)
