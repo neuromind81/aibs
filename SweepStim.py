@@ -355,6 +355,7 @@ if __name__ == "__main__":
     bgSweep['SF'] = ([0.5,1],3)
     bgSweep['Contrast'] = ([0.5,1],0)
     bgSweep['TF'] = ([1],2)
+    bgSweep['Phase']=([0],4)
     
     
     #CREATE FOREGROUND STIMULUS (none for basic gratings experiment)

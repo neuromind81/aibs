@@ -177,7 +177,7 @@ class Foraging(SweepStim):
             if len(self.replayx) > 0: #more frames left
                 self.x = self.replayx[0]
                 del self.replayx[0]
-                if self.replaylaps[0][1]==self.vsynccount:
+                if self.replaylaps[0][1]==self.vsynccount: #lap completed
                     self.fgStim.setOri(self.replayterrain[0][0])
                     self.fgStim.setColor(self.replayterrain[0][1])
                     del self.replayterrain[0]

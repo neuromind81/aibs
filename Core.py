@@ -47,7 +47,23 @@ def getMonitorInfo(monitor):
     info['calibrationdate'] = str(monitor.getCalibDate())
     return info
     
+def getSweepFrames(sweeporder,sweeptime,preexpsec,postexpsec,postsweepsec):
+    """ Gets the sweep frame (start,stop) list """
+    sweepframelist = []
+    frame = int(preexpsec*60)
+    for i in range(len(sweeporder)):
+        print frame
+        frames = (frame, frame+int(60*sweeptime)-1)
+        sweepframelist.append(frames)
+        frame = frames[1] + 60*postsweepsec +1
+    return sweepframelist
+    
 class prettyfloat(float):
     """ Prettier format for float text output. """
     def __repr__(self):
         return "%0.4f" % self
+        
+if __name__ == "__main__":
+    sweeporder = range(10)
+    f = getSweepFrames(sweeporder,3,5,2,2)
+    print f
