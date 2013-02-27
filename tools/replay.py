@@ -73,7 +73,7 @@ def getFrameInfo(logstringarray):
     
 if __name__=="__main__":
     
-    path = r"C:\ForagingLogs\130222135300-test.log"
+    path = r"C:\ForagingLogs\130226173414-teststimulus.log"
     f = open(path,'r').readlines()
     frames = [1,100,200]
     frame = replay(f,True,frames)
