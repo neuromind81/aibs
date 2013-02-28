@@ -227,6 +227,7 @@ class SweepStim(object):
         log.add(fgsweeptable = self.fgsweeptable)
         log.add(fgsweeporder = self.fgsweeporder)
         log.add(fgdimnames = self.fgdimnames)
+        log.add(bgsweepframes = getSweepFrames(self.bgsweeporder,self.sweeplength,self.preexpsec,self.postexpsec,self.postsweepsec))
         log.add(vsyncintervals = map(prettyfloat,self.intervalsms.tolist()))
         log.add(droppedframes = self.droppedframes)
         log.close()

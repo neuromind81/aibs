@@ -52,7 +52,6 @@ def getSweepFrames(sweeporder,sweeptime,preexpsec,postexpsec,postsweepsec):
     sweepframelist = []
     frame = int(preexpsec*60)
     for i in range(len(sweeporder)):
-        print frame
         frames = (frame, frame+int(60*sweeptime)-1)
         sweepframelist.append(frames)
         frame = frames[1] + 60*postsweepsec +1
