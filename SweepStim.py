@@ -24,8 +24,8 @@ Example use:
 from psychopy import core, visual, event, logging, misc, monitors
 import time
 import datetime
-import scipy
 import numpy
+from numpy import sin
 import pylab
 import os
 import random
@@ -133,10 +133,10 @@ class SweepStim(object):
             for k,v in self.bgFrame.iteritems():
                 try: #parameter is a proper stimulus property
                     exec("self.bgStim.set" + k + "(" + str(v) + ")")
-                except: #parameter is not a proper stimulus property
+                except Exception, e: #parameter is not a proper stimulus property
                     if k == "TF": #special case for temporal frequency
                         self.bgStim.setPhase(v*vsync/60.0)
-                    else: print "No parameter called: ", k
+                    else: print "No parameter called: ", k,v,e
                     
     def flipSyncSqr(self):
         """ Flips the sync square. """
