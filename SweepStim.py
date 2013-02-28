@@ -276,8 +276,8 @@ class SweepStim(object):
             #MAIN DISPLAY LOOP
             for vsync in range(int(self.sweeplength*60)):
                 if self.bgStim is not None:
-                    self.bgStim.draw()
                     self.updateFrame(vsync)
+                    self.bgStim.draw()
                 if self.fgStim is not None: self.fgStim.draw()
                 for keys in event.getKeys(timeStamped=True):
                     if keys[0]in ['escape','q']:
