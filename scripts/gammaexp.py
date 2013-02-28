@@ -37,7 +37,7 @@ window.setColor(params['bgcolor'])
 #CREATE BACKGROUND STIMULUS
 
 gamma = visual.GratingStim(window,tex=None,mask="None",texRes=64,
-       size=[80,80], name='gamma', autoLog=False, units = 'deg')
+       size=[80,80], name='gamma', autoLog=False, units = 'deg', colorSpace = 'rgb')
        
 #CREATE BACKGROUND FRAME PARAMETERS (what changes between frames and how much)
 bgFrame = {}
