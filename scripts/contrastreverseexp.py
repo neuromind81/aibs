@@ -47,7 +47,7 @@ bgFrame = {}
 contrastfreq = 1 #Hz
 contrastmax = 1 #max contrast
 contraststep = 2*pi*contrastfreq/60.00 #contrast delta per frame
-bgFrame['Contrast'] = str(contrastmax) + "*sin("+str(contraststep)+"*vsync)" #equation for setting contrast every frame
+bgFrame['Contrast'] = str(contrastmax) + "*sin("+str(contraststep)+"*vsync)" #string equation for setting contrast every frame
 
 #CREATE BACKGROUND SWEEP PARAMETERS (what changes between sweeps, and in what order)
 bgSweep = {}
