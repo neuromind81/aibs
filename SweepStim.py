@@ -46,7 +46,11 @@ class SweepStim(object):
         self.params = params
         for k,v in self.params.iteritems():
             setattr(self,k,v)
-            
+        
+        #SET STIMULUS DOMAIN
+        self.timedomain = False
+        #self.sweepclock = core.Clock()
+        
         #MONITOR INFO
         ##TODO: Get monitor from script
         self.window = window
@@ -73,7 +77,6 @@ class SweepStim(object):
         self.bgsweeptable, self.bgsweeporder, self.bgdimnames = buildSweepTable(self.bgSweep, self.runs, self.blanksweeps)
         self.fgsweeptable, self.fgsweeporder, self.fgdimnames = None,None,None #foreground sweeps not implemented yet
         if self.shuffle: random.shuffle(self.bgsweeporder)
-        #print "BG sweep order: ", self.bgsweeporder
         
         #STIMULUS OBJECTS
         self.bgStim = bgStim
@@ -99,6 +102,7 @@ class SweepStim(object):
         self.saveframes = False
         self.framelist = []
         self.framefolder = r"C:\SavedFrames"
+        
         
         
     def updateBackground(self, sweepi):

@@ -52,7 +52,10 @@ class Foraging(SweepStim):
         self.params = params
         for k,v in self.params.iteritems():
             setattr(self,k,v)
-            
+        
+        #SET STIMULUS DOMAIN
+        self.timedomain = False
+        
         #MONITOR INFO
         ##TODO: Get monitor from script
         self.window = window
