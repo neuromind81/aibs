@@ -213,7 +213,6 @@ class Foraging(SweepStim):
     def cleanup(self):
         """ Destructor """
         #STOP CLOCKS
-        self.stoptime = time.clock()
         timestr = str(datetime.timedelta(seconds = (self.stoptime-self.starttime)))
         print "Actual experiment duration:", timestr
         self.stopdatetime = datetime.datetime.now()
@@ -297,7 +296,7 @@ class Foraging(SweepStim):
         
         #START CLOCKS
         self.startdatetime = datetime.datetime.now()
-        self.starttime = time.clock()
+        self.starttime = time.clock() #TIME SENSITIVE STUFF STARTS HERE
         self.vsynccount = 0
         
         self.window.setRecordFrameIntervals() #start checking frame intervals
@@ -355,6 +354,7 @@ class Foraging(SweepStim):
             self.flip()
             self.vsynccount += 1
         self.window.setRecordFrameIntervals(False) #stop recording frame intervals
+        self.stoptime = time.clock() #TIME SENSITIVE STUFF ENDS HERE
         
         #FLIP FOR SYNC SQUARE CLEAR
         for i in range(30):
