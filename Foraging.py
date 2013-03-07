@@ -340,6 +340,9 @@ class Foraging(SweepStim):
                     self.checkEncoder()
                     self.fgStim.setPos([self.x,0])
                     self.fgStim.draw()
+                for keys in event.getKeys(timeStamped=True):
+                    if keys[0]in ['escape','q']:
+                        self.cleanup()
                 if self.syncsqr: self.flipSyncSqr()
                 self.flip()
                 self.vsynccount += 1
@@ -375,7 +378,7 @@ if __name__ == "__main__":
     params['mousename'] = "Spock" #name of the mouse
     params['userid'] = "derricw" #name of the user
     params['task'] = "Virtual Foraging" #task type
-    params['stage'] = "idkwhatthismeans" #stage
+    params['stage'] = "Acrylic Wheel" #stage
     params['protocol'] = "" #implemented later
     params['nidevice']='Dev1' #NI device name
     params['rewardline']=0 #NI DO line

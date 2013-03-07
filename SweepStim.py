@@ -295,6 +295,9 @@ class SweepStim(object):
             
             #POST SWEEP DISPLAY LOOP
             for vsync in range(int(self.postsweepsec*60)):
+                for keys in event.getKeys(timeStamped=True):
+                    if keys[0]in ['escape','q']:
+                        self.cleanup()
                 if self.syncsqr: self.flipSyncSqr()
                 self.flip()
                 self.vsynccount += 1
