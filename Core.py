@@ -61,7 +61,17 @@ class prettyfloat(float):
     """ Prettier format for float text output. """
     def __repr__(self):
         return "%0.4f" % self
-        
+
+def setpriority():
+    """ Set The Priority of a Windows Process to highest priority. """
+    import psutil,os
+    p = psutil.Process(os.getpid())
+    #print "Current process priority is:",str(p.nice)
+    p.set_nice(psutil.HIGH_PRIORITY_CLASS)
+    #print "Set process priority to:",str(psutil.REALTIME_PRIORITY_CLASS)
+    
+
+   
 if __name__ == "__main__":
     sweeporder = range(10)
     f = getSweepFrames(sweeporder,3,5,2,2)
