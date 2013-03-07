@@ -310,6 +310,10 @@ class SweepStim(object):
             self.vsynccount += 1
         self.window.setRecordFrameIntervals(False) #stop recording frame intervals
         
+        #FLIP FOR SYNC SQUARE CLEAR
+        for i in range(30):
+            self.window.flip()        
+        
         #POST EXP CLEANUP (stops clocks, cleans up windows, etc)
         self.cleanup()
     

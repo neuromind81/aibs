@@ -354,6 +354,10 @@ class Foraging(SweepStim):
             self.vsynccount += 1
         self.window.setRecordFrameIntervals(False) #stop recording frame intervals
         
+        #FLIP FOR SYNC SQUARE CLEAR
+        for i in range(30):
+            self.window.flip()            
+        
         #POST EXP CLEANUP (stops clocks, cleans up windows, etc)
         self.cleanup()
     
@@ -402,7 +406,7 @@ if __name__ == "__main__":
     
     #SET CONSOLE OUTPUT LEVEL, INITIALIZE WINDOWS
     #logging.console.setLevel(logging.DEBUG) #uncommet for diagnostics
-    window = visual.Window(units='norm',monitor='testMonitor', fullscr = True, screen = 0, waitBlanking=False)
+    window = visual.Window(units='norm',monitor='testMonitor', fullscr = True, screen = 1, waitBlanking=False)
     window.setColor(params['bgcolor'])
     
     #CREATE BACKGROUND STIMULUS
