@@ -54,6 +54,7 @@ class SweepStim(object):
         #MONITOR INFO
         ##TODO: Get monitor from script
         self.window = window
+        self.window.winHandle.set_exclusive_mouse()
         self.wwidth = window.size[0]
         self.wheight = window.size[1]
         self.monitor = monitors.Monitor('testMonitor')
@@ -349,7 +350,7 @@ if __name__ == "__main__":
     
     #SET CONSOLE OUTPUT LEVEL, INITIALIZE WINDOWS
     #logging.console.setLevel(logging.DEBUG) #uncommet for diagnostics
-    window = visual.Window(units='norm',monitor='testMonitor', fullscr = True, screen = 0, waitBlanking=False)
+    window = visual.Window(units='norm',monitor='testMonitor', fullscr = True, screen = 0, waitBlanking=True)
     window.setColor(params['bgcolor'])
     
     #CREATE BACKGROUND STIMULUS

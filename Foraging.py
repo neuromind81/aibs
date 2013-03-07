@@ -59,6 +59,7 @@ class Foraging(SweepStim):
         #MONITOR INFO
         ##TODO: Get monitor from script
         self.window = window
+        self.window.winHandle.set_exclusive_mouse()
         self.wwidth = window.size[0]
         self.wheight = window.size[1]
         self.monitor = monitors.Monitor('testMonitor')
