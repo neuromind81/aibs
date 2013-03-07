@@ -60,6 +60,7 @@ class Foraging(SweepStim):
         ##TODO: Get monitor from script
         self.window = window
         self.window.winHandle.set_exclusive_mouse()
+        self.window.winHandle.set_exclusive_keyboard()
         setpriority()
         self.wwidth = window.size[0]
         self.wheight = window.size[1]
@@ -213,6 +214,12 @@ class Foraging(SweepStim):
     def cleanup(self):
         """ Destructor """
         #STOP CLOCKS
+        self.stoptime = time.clock() #TIME SENSITIVE STUFF ENDS HERE
+        
+        #FLIP FOR SYNC SQUARE CLEAR
+        for i in range(30):
+            self.window.flip()            
+        
         timestr = str(datetime.timedelta(seconds = (self.stoptime-self.starttime)))
         print "Actual experiment duration:", timestr
         self.stopdatetime = datetime.datetime.now()
@@ -353,12 +360,7 @@ class Foraging(SweepStim):
             if self.syncsqr: self.flipSyncSqr()
             self.flip()
             self.vsynccount += 1
-        self.window.setRecordFrameIntervals(False) #stop recording frame intervals
-        self.stoptime = time.clock() #TIME SENSITIVE STUFF ENDS HERE
-        
-        #FLIP FOR SYNC SQUARE CLEAR
-        for i in range(30):
-            self.window.flip()            
+        self.window.setRecordFrameIntervals(False) #stop recording frame intervals         
         
         #POST EXP CLEANUP (stops clocks, cleans up windows, etc)
         self.cleanup()
