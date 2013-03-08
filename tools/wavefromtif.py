@@ -14,6 +14,21 @@ from scipy.signal import butter, lfilter
 
 
 def getWaveform(folder):
+    waveform = []
+    dirs = [os.path.join(folder,name) for name in os.listdir(folder)]
+    for d in dirs:
+        files = [f for f in os.listdir(d)]
+        for f in files:
+            path = os.path.join(d,f)
+            print path
+            img = Image.open(path)
+            width,height = img.size
+            pixels = list(img.getdata())
+            waveform.extend(pixels[0:len(pixels):width])
+    return waveform
+
+'''  
+def getWaveform(folder):
     files = [f for f in os.listdir(folder)]
     waveform = []
     for f in files:
@@ -22,8 +37,12 @@ def getWaveform(folder):
         img = Image.open(path)
         width,height = img.size
         pixels = list(img.getdata())
-        waveform.extend(pixels[0:len(pixels):width])
+        pix = np.array(pixels)
+        pix = pix.reshape(width,height)
+        for i in range(height):
+            waveform.append(int(pix[i,:].sum()))
     return waveform
+'''
 
 def getFrameTimes(waveform):
     
@@ -46,7 +65,7 @@ def getFrameTimes(waveform):
 
 if __name__ == "__main__":
     
-    folder = r"C:\Users\derricw\Pictures\PDTEST\sequence"
+    folder = r"C:\Users\derricw\Documents\data130307\images\CA170_130205_a\ch3\sequence"
     waveform = getWaveform(folder)
     samplesperframe = 256.000
     secondsperframe = 31.200
