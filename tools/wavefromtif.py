@@ -7,13 +7,13 @@ Created on Fri Feb 08 13:30:07 2013
 
 import Image
 import os
-from pylab import *
-import scipy
 import numpy as np
-from scipy.signal import butter, lfilter
+import scipy.io as sio
 
 
 def getWaveform(folder):
+    """ Input is a folder containing an ordered sequence of .tif files
+        Output is a waveform of the first column of each image. """
     waveform = []
     dirs = [os.path.join(folder,name) for name in os.listdir(folder)]
     for d in dirs:
@@ -25,63 +25,45 @@ def getWaveform(folder):
             width,height = img.size
             pixels = list(img.getdata())
             waveform.extend(pixels[0:len(pixels):width])
-    return waveform
+    return np.array(waveform)
 
-'''  
-def getWaveform(folder):
-    files = [f for f in os.listdir(folder)]
-    waveform = []
-    for f in files:
-        path = os.path.join(folder,f)
-        print path
-        img = Image.open(path)
-        width,height = img.size
-        pixels = list(img.getdata())
-        pix = np.array(pixels)
-        pix = pix.reshape(width,height)
-        for i in range(height):
-            waveform.append(int(pix[i,:].sum()))
-    return waveform
-'''
-
-def getFrameTimes(waveform):
-    
+def getFrameLines(waveform):
+    """ GETS THE LINES FROM THE IMAGE SEQUENCE FOR EACH FRAME TICK """
     wfrange = np.ptp(waveform)
-    centered = waveform-wfrange/3
+    centered = (waveform-wfrange*2/3)[:,0]
     zero_crossings = np.where(np.diff(np.sign(centered)))[0]
-    samplesperframe = 256.000
-    framespersecond = 31.200
-    secondspersample = 1/samplesperframe/framespersecond
-    frametimes = zero_crossings*secondspersample
     
-    fdiff = np.diff(frametimes)
+    zdiff = np.diff(zero_crossings)    
     duplicates = []
-    for i in range(len(fdiff)):
-        if fdiff[i] < 0.01:
+    for i in range(len(zdiff)):
+        if zdiff[i] < 60:
             duplicates.append(i)
-    frametimes = np.delete(frametimes,duplicates)
-    return frametimes
-
-
+    framelines = np.delete(zero_crossings,duplicates)
+    ##TODO: COME UP WITH A MORE RELIABLE WAY TO GET RID OF WINDOW FLASH
+    framelines = np.delete(framelines,[0,1])
+    startframe= framelines[0]
+    endframe = framelines[-1]
+    #TODO: NEEDS TO USE AVE LINES/FRAME instead of 132
+    ideallines = range(startframe,endframe,132)
+    return ideallines
+    
+def getImageNumbers(waveform):
+    """ GETS DATA IMAGE NUMBER FOR EACH STIMULUS FRAME TICK OF A WAVEFORM"""
+    imagelines = getFrameLines(waveform)
+    imagenumbers = [x/256 for x in imagelines]
+    return imagenumbers
+    
+def processSequence(folder):
+    """ PROCESSES A SEQUENCE FROM START TO FINISH """
+    data = {}    
+    data['waveform'] = getWaveform(folder)
+    sio.savemat('waveform.mat',data)
+    data = sio.loadmat('waveform.mat')
+    data['framelines'] = getFrameLines(data['waveform'])
+    data['imgnumbers'] = getImageNumbers(data['waveform'])
+    sio.savemat('seqoutput.mat',data)
+    
 if __name__ == "__main__":
+    path = r"C:\Users\derricw\Documents\data130307\images\CA170_130205_a\ch3\sequence"
+    processSequence(path)
     
-    folder = r"C:\Users\derricw\Documents\data130307\images\CA170_130205_a\ch3\sequence"
-    waveform = getWaveform(folder)
-    samplesperframe = 256.000
-    secondsperframe = 31.200
-    secondspersample = 1/samplesperframe/secondsperframe
-    twave = [x/samplesperframe/secondsperframe for x in range(len(waveform))]
-    files = [f for f in os.listdir(folder)]
-    
-    tframe = [x/31.2 for x in range(len(files))]
-    midpoint = scipy.average(waveform)
-    frame = [midpoint for x in range(len(files))]
-    frametimes = getFrameTimes(waveform)
-    ftrange = [midpoint for x in range(len(frametimes))]
-
-    plot(twave,waveform,tframe,frame,'rd',frametimes,ftrange,'gd')
-    xlabel('time, seconds')
-    ylabel('Output (intensity, converted from V')
-    title('Photodiode waveform')
-    legend(('diode','data frame','stimulus frame'))
-    show(False)
