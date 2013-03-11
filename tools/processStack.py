@@ -25,3 +25,5 @@ output = r"C:\Users\derricw\Documents\data130307\seqoutput.mat"
 
 #GO!!!
 processSequence(sequence,output)
+
+print "Processing complete. Check for mat file output at: ",output
