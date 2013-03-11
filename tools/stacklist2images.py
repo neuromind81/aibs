@@ -1,13 +1,15 @@
 import os
 from loci.plugins.util import BFVirtualStack
 from loci.formats import ChannelSeparator
+from ij.io import DirectoryChooser, FileSaver
+from ij import ImagePlus
 
 def run():
 	index = 0
 	# Chose a file to open
-	srcDir = DirectoryChooser("Chosea starting file to split").getDirectory()
+	srcDir = DirectoryChooser("Choose directory containing sequence to split").getDirectory()
 	# Chose a directory to store each slice as a file
-	targetDir = DirectoryChooser("Chose folder in which to save").getDirectory()
+	targetDir = DirectoryChooser("Chose folder in which to save sequence").getDirectory()
 	if targetDir is None:
 		# User canceled the diolog
 		return

@@ -43,7 +43,7 @@ def getFrameLines(waveform):
     framelines = np.delete(framelines,[0,1])
     startframe= framelines[0]
     endframe = framelines[-1]
-    #TODO: NEEDS TO USE AVE LINES/FRAME instead of 132
+    #TODO: NEEDS TO USE AVE LINES/FRAME instead of 132 OR frame intervals from log file
     ideallines = range(startframe,endframe,132)
     return ideallines
     
@@ -53,7 +53,7 @@ def getImageNumbers(waveform):
     imagenumbers = [x/256 for x in imagelines]
     return imagenumbers
     
-def processSequence(folder):
+def processSequence(folder,output = 'seqoutput.mat'):
     """ PROCESSES A SEQUENCE FROM START TO FINISH """
     data = {}    
     data['waveform'] = getWaveform(folder)
@@ -61,7 +61,7 @@ def processSequence(folder):
     data = sio.loadmat('waveform.mat')
     data['framelines'] = getFrameLines(data['waveform'])
     data['imgnumbers'] = getImageNumbers(data['waveform'])
-    sio.savemat('seqoutput.mat',data)
+    sio.savemat(output,data)
     
 if __name__ == "__main__":
     path = r"C:\Users\derricw\Documents\data130307\images\CA170_130205_a\ch3\sequence"
