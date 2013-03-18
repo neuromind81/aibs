@@ -1,0 +1,14 @@
+terrain = Terrain(['color','orientation'])
+terrain.colormatters = True
+terrain.orientation = 45
+terrain.correctfreq = 1
+terrain.lapdistance = 3500
+terrain.windowwidth = 200
+terrain.selectiontime = 25
+terrain.speedgain = 4
+terrain.colorrandom = True
+terrain.oriarray = [0,45]
+terrain.oricorrect = 0
+terrain.objectwidthDeg = 10
+terrain.colorcorrect = terrain.black
+terrain.color = terrain.white

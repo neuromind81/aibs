@@ -801,7 +801,7 @@
     <property name="title">
      <string>Experiment Params</string>
     </property>
-    <widget class="QPushButton" name="pushButton_loadStimulus_2">
+    <widget class="QPushButton" name="pushButton_loadExperiment">
      <property name="geometry">
       <rect>
        <x>240</x>
@@ -840,7 +840,7 @@
      <property name="title">
       <string>Parameters</string>
      </property>
-     <widget class="QTableWidget" name="tableWidget_bgStimulus_2">
+     <widget class="QTableWidget" name="tableWidget_experiment">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -857,7 +857,7 @@
        </font>
       </property>
       <property name="rowCount">
-       <number>10</number>
+       <number>20</number>
       </property>
       <property name="columnCount">
        <number>2</number>
@@ -875,12 +875,22 @@
       <row/>
       <row/>
       <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
       <column/>
       <column/>
      </widget>
     </widget>
     <zorder>groupBox_5</zorder>
-    <zorder>pushButton_loadStimulus_2</zorder>
+    <zorder>pushButton_loadExperiment</zorder>
    </widget>
    <zorder>groupBox_bgStimulus_2</zorder>
    <zorder>groupBox_bgStimulus</zorder>

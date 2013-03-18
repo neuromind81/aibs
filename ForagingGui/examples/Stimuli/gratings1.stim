@@ -1,0 +1,15 @@
+#CREATE BACKGROUND STIMULUS
+
+bgstim = visual.GratingStim(window,tex="sin",mask="None",texRes=64, size=[160,160], sf=1, ori = 0, name='grating', autoLog=False, units = 'deg')
+       
+#CREATE BACKGROUND FRAME PARAMETERS (what changes between frames and how much)
+bgFrame = {}
+
+#CREATE BACKGROUND SWEEP PARAMETERS (what changes between sweeps, and in what order)  
+bgSweep = {}
+
+bgSweep['Ori'] = (range(0,360,45),0)
+bgSweep['SF'] = ([0.1,0.2],1)
+bgSweep['Contrast'] = ([1],3)
+bgSweep['TF'] = ([1,2,3],2)
+bgSweep['Phase'] = ([0],4)

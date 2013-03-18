@@ -1,0 +1,14 @@
+params = {
+        'runs':1,
+        'shuffle':False,
+        'preexpsec':10,
+        'postexpsec':2,
+        'sweeplength':5,
+        'postsweepsec':0,
+        'rewardtime':0.03,
+        'blanksweeps':0,
+        'bgcolor':'gray',
+        'syncsqr':False,
+        'syncsqrloc':(900,500),
+        'comments':"",
+        }
