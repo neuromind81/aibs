@@ -10,6 +10,7 @@ from PyQt4 import QtCore as qt, QtGui
 from PyQt4.QtCore import QObject as qo
 from ForagingGuiLayout import Ui_MainWindow
 from psychopy import visual
+from aibs.Terrain import Terrain
 
 
 def checkDirs(paths):
@@ -137,7 +138,7 @@ class MyForm(QtGui.QMainWindow):
                 data = f.read()
                 stim = data.split('PARAMETERS',1) #only care about parameters
                 try:
-                    exec(stim[1]) #excupt only parameters
+                    exec(stim[1]) #execute only parameters
                     index = 0
                     for k,v in fgSweep.iteritems():
                         self.ui.tableWidget_fgStimulus.setItem(index,0,QtGui.QTableWidgetItem(str(k)))
@@ -156,9 +157,18 @@ class MyForm(QtGui.QMainWindow):
             f = open(fname, 'r')
             with f:        
                 data = f.read()
-                print data
-        except:
-            pass
+                try:
+                    exec(data) #execute only parameters
+                    index = 0
+                    for k,v in terrain.__dict__.iteritems():
+                        self.ui.tableWidget_terrainParams.setItem(index,0,QtGui.QTableWidgetItem(str(k)))
+                        self.ui.tableWidget_terrainParams.setItem(index,1,QtGui.QTableWidgetItem(str(v)))
+                        index +=1
+                    self.ui.tableWidget_experiment.sortByColumn(0,0)
+                except Exception, e:
+                    print "Data is incorreclty formatted.",e
+        except Exception, e:
+            print "Couldn't open file:",e
     
     def _run(self):
         print "Running experiment"
