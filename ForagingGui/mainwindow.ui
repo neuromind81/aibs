@@ -721,7 +721,7 @@
        </font>
       </property>
       <property name="rowCount">
-       <number>10</number>
+       <number>20</number>
       </property>
       <property name="columnCount">
        <number>2</number>
@@ -729,6 +729,16 @@
       <attribute name="horizontalHeaderDefaultSectionSize">
        <number>160</number>
       </attribute>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
       <row/>
       <row/>
       <row/>

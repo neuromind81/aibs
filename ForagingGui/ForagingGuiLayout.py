@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Mon Mar 18 00:43:17 2013
+# Created: Mon Mar 18 21:45:38 2013
 #      by: PyQt4 UI code generator 4.9.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -301,7 +301,7 @@ class Ui_MainWindow(object):
         font.setBold(False)
         font.setWeight(50)
         self.tableWidget_terrainParams.setFont(font)
-        self.tableWidget_terrainParams.setRowCount(10)
+        self.tableWidget_terrainParams.setRowCount(20)
         self.tableWidget_terrainParams.setColumnCount(2)
         self.tableWidget_terrainParams.setObjectName(_fromUtf8("tableWidget_terrainParams"))
         self.tableWidget_terrainParams.horizontalHeader().setDefaultSectionSize(160)

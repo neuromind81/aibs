@@ -107,7 +107,6 @@ class MyForm(QtGui.QMainWindow):
             backupdir
         """
 
-
     
     def _loadBG(self):
         fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.stimuli)
