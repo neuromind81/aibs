@@ -53,7 +53,7 @@
       <string>Load Mouse</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit">
+    <widget class="QLineEdit" name="lineEdit_mouseid">
      <property name="geometry">
       <rect>
        <x>30</x>
@@ -174,7 +174,7 @@
     </widget>
     <zorder>groupBox_4</zorder>
     <zorder>pushButton_loadMouse</zorder>
-    <zorder>lineEdit</zorder>
+    <zorder>lineEdit_mouseid</zorder>
     <zorder>pushButton_sessionPerformance</zorder>
     <zorder>pushButton_lifetimePerformance</zorder>
    </widget>
@@ -913,7 +913,7 @@
      <x>0</x>
      <y>0</y>
      <width>885</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFiles">

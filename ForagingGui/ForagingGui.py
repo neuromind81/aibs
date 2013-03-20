@@ -10,14 +10,8 @@ from PyQt4 import QtCore as qt, QtGui
 from PyQt4.QtCore import QObject as qo
 from ForagingGuiLayout import Ui_MainWindow
 from psychopy import visual
-from aibs.Terrain import Terrain
-
-
-def checkDirs(paths):
-    for path in paths:
-        if not os.path.isdir(path):
-            os.makedirs(path)
-            print "Creating new path:",path
+from ScriptGenerator import Script
+import subprocess
 
  
 class MyForm(QtGui.QMainWindow):
@@ -27,13 +21,26 @@ class MyForm(QtGui.QMainWindow):
         self.ui.setupUi(self)
         
         # Set up some directories
+        self.library = getdirectories()
+        self.logDir = os.path.join(self.library,'BehaviorLogs/')
+        self.experiments = os.path.join(self.library,'Experiments/')
+        self.stimuli = os.path.join(self.library,'Stimuli/')
+        self.terrain = os.path.join(self.library,'Terrain/')
+        self.scriptlog = os.path.join(self.library,'ScriptLog')
+
+        ''' Delete if above works on windows
         self.library = "C:\\AibsStim\\"
         self.logDir = "C:\\BehaviorLogs\\"
         self.experiments = "C:\\AibsStim\\Experiments\\"
         self.stimuli = "C:\\AibsStim\\Stimuli\\"
         self.terrain = "C:\\AibsStim\\Terrain\\"
+        '''
         
         # Set up some important variables
+        self.params = {}
+        self.bgSweep = {}
+        self.fgSweep = {}
+        self.terrain = None
         self.bgStimText = None
         self.fgStimText = None
         
@@ -51,7 +58,7 @@ class MyForm(QtGui.QMainWindow):
         self.ui.lineEdit_logDir.setText(self.logDir)
         
         # Ensure important directories exist, create them if not.
-        checkDirs([self.logDir,self.library,self.stimuli,self.experiments,self.terrain])
+        checkDirs(self.logDir,self.library,self.stimuli,self.experiments,self.terrain)
         
         # Connect signals
         qo.connect(self.ui.pushButton_loadExperiment,qt.SIGNAL("clicked()"), self._loadExperiment)
@@ -96,7 +103,7 @@ class MyForm(QtGui.QMainWindow):
             task
             stage
             protocol
-            mousename
+            mouseid
             logdir
             script
             nidevice
@@ -170,11 +177,32 @@ class MyForm(QtGui.QMainWindow):
             print "Couldn't open file:",e
     
     def _run(self):
+        print "Generating script..."
+        _generateScript()
         print "Running experiment"
+        
+    def _generateScript(self):
+        #CREATE SCRIPT
+        script = Script()
+        #ADD PARAMS
+        self.params['mouseid'] = self.ui.lineEdit_mouseid.text
+        self.params['logDir'] = self.ui.lineEdit_logDir.text
+        self.params['task'] = self.ui.lineEdit_task.text
+        self.params['stage'] = self.ui.lineEdit_stage.text
+        self.params['protocol'] = self.ui.lineEdit_foragingProtocol.text
+        self.params['nidevice'] = self.nidevice
+        self.params['rewardport'] = self.rewardport
+        self.params['rewardline'] = self.rewardline
+        self.params['encodervsigchannel'] = self.encodervsigchannel
+        self.params['encodervinchannel'] = self.encodervinchannel
+        self.params['backupdir'] = self.backupdir
         
 
 
 if __name__ == "__main__":
+    sys.path.append('/home/derricw/GitHub')  #get rid of this when I'm coding in windows
+    from aibs.Terrain import Terrain
+    from aibs.Core import *
     app = QtGui.QApplication(sys.argv)
     myapp = MyForm()
     myapp.show()

@@ -70,9 +70,27 @@ def setpriority():
     p.set_nice(psutil.HIGH_PRIORITY_CLASS)
     #print "Set process priority to:",str(psutil.REALTIME_PRIORITY_CLASS)
     
+def getdirectories():
+    import sys
+    import os
+    if 'linux' in sys.platform:
+        topdir = os.path.expanduser('~/Aibstim/')
+    else:
+        topdir = 'C:\\Aibstim\\'
+    return topdir
+  
+def checkDirs(*args):
+    """ Checks to see if any of the directories exist.  Creates them if they don't"""
+    import os
+    for arg in args:
+        if not os.path.isdir(arg):
+            os.makedirs(arg)
+            print "Creating new path:",arg
 
-   
 if __name__ == "__main__":
-    sweeporder = range(10)
-    f = getSweepFrames(sweeporder,3,5,2,2)
-    print f
+    d = getdirectories()
+    print d
+    import sys
+    #sys.path.append('/home/derricw/GitHub/aibs')
+    print sys.path
+    
