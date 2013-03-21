@@ -297,7 +297,7 @@
     <property name="title">
      <string>Foraging</string>
     </property>
-    <widget class="QLineEdit" name="lineEdit_userId">
+    <widget class="QLineEdit" name="lineEdit_userid">
      <property name="geometry">
       <rect>
        <x>82</x>
@@ -775,7 +775,7 @@
     </widget>
     <zorder>groupBox</zorder>
     <zorder>groupBox_2</zorder>
-    <zorder>lineEdit_userId</zorder>
+    <zorder>lineEdit_userid</zorder>
     <zorder>pushButton_run</zorder>
     <zorder>label</zorder>
     <zorder>label_2</zorder>

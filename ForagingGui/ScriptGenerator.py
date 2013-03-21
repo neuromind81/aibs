@@ -18,7 +18,6 @@ from aibs.Foraging import Foraging
 from psychopy import visual, core, event, logging, misc, monitors
 import numpy as np
 
-print "TEST"
 """
 
 
@@ -31,7 +30,8 @@ class Script(object):
 
     def add(self, *args):
     	for a in args:
-    		self.script+=a + '\n'
+            if a is not None:
+    	        self.script+=a + '\n'
 
     def save(self, path):
     	with open(path, 'w+') as f:

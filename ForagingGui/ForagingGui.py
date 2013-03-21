@@ -40,9 +40,19 @@ class MyForm(QtGui.QMainWindow):
         self.params = {}
         self.bgSweep = {}
         self.fgSweep = {}
-        self.terrain = None
+        self.terrainText = None
         self.bgStimText = None
         self.fgStimText = None
+
+        # Set up some defaults (can be overwritten by config file)
+        self.nidevice = 'Dev1'
+        self.rewardport = '0'
+        self.rewardline = '0'
+        self.encodervsigchannel = '0'
+        self.encodervinchannel = '1'
+        self.backupdir = ''
+        self.screen = 0
+        self.monitor = 'testMonitor'
         
         # Read config file
         try:
@@ -106,6 +116,7 @@ class MyForm(QtGui.QMainWindow):
             with f:        
                 data = f.read()
                 stim = data.split('PARAMETERS',1) #only care about parameters
+                self.bgStimText = data.split('PARAMETERS',0)
                 try:
                     exec(stim[1]) #excupt only parameters
                     index = 0
@@ -162,33 +173,80 @@ class MyForm(QtGui.QMainWindow):
     
     def _run(self):
         print "Generating script..."
-        _generateScript()
+        self._generateScript()
         print "Running experiment"
         
     def _generateScript(self):
         #CREATE SCRIPT
         script = Script()
         #ADD PARAMS
-        self.params['mouseid'] = self.ui.lineEdit_mouseid.text
-        self.params['logDir'] = self.ui.lineEdit_logDir.text
-        self.params['task'] = self.ui.lineEdit_task.text
-        self.params['stage'] = self.ui.lineEdit_stage.text
-        self.params['protocol'] = self.ui.lineEdit_foragingProtocol.text
+        self.params['userid'] = str(self.ui.lineEdit_userid.text())
+        self.params['mouseid'] = str(self.ui.lineEdit_mouseid.text())
+        self.params['logDir'] = str(self.ui.lineEdit_logDir.text())
+        self.params['task'] = str(self.ui.lineEdit_task.text())
+        self.params['stage'] = str(self.ui.lineEdit_stage.text())
+        self.params['protocol'] = str(self.ui.lineEdit_foragingProtocol.text())
         self.params['nidevice'] = self.nidevice
         self.params['rewardport'] = self.rewardport
         self.params['rewardline'] = self.rewardline
         self.params['encodervsigchannel'] = self.encodervsigchannel
         self.params['encodervinchannel'] = self.encodervinchannel
         self.params['backupdir'] = self.backupdir
+
+        paramstr = "params = "+repr(self.params)
+        script.add(paramstr)
         
-        paramstring = "params = "+repr(self.params)
-        script.add(paramstring)
+        #ADD TERRAIN
+        script.add("terrain = Terrain(['color','orientation'])")
+        for i in range(self.ui.tableWidget_terrainParams.rowCount()):
+            keystr = self.ui.tableWidget_terrainParams.item(i,0)
+            valstr = self.ui.tableWidget_terrainParams.item(i,1)
+            if keystr is not None:
+                terrainstr = 'terrain.'+keystr.text()+"="+valstr.text()
+                script.add(terrainstr)
+
+        #ADD WINDOW
+        windowstr = "window = visual.Window(units='norm',monitor='"+ \
+            self.monitor+"',fullscr=True,screen="+str(self.screen)+")"
+        script.add(windowstr)
+
+        #ADD BGSTIM
+        script.add(self.bgStimText)
+
+        #ADD BGSWEEPS
+        script.add('bgSweep={}')
+        for i in range(self.ui.tableWidget_bgStimulus.rowCount()):
+            keystr = self.ui.tableWidget_bgStimulus.item(i,0)
+            valstr = self.ui.tableWidget_bgStimulus.item(i,1)
+            if keystr is not None:
+                bgsweepstr = "bgSweep['"+keystr.text()+"']="+valstr.text()
+                script.add(bgsweepstr)        
+
+        #ADD FGSTIM
+        script.add(self.fgStimText)
+
+        #ADD FGSWEEPS
+        script.add('fgSweep={}')
+        for i in range(self.ui.tableWidget_fgStimulus.rowCount()):
+            keystr = self.ui.tableWidget_fgStimulus.item(i,0)
+            valstr = self.ui.tableWidget_fgStimulus.item(i,1)
+            if keystr is not None:
+                fgsweepstr = "fgSweep['"+keystr.text()+"']="+valstr.text()
+                script.add(fgsweepstr)  
+
+        #CREATE FORAGING INSTANCE
+        foragingstr = "g=Foraging(window=window,terrain=terrain," + \
+            "params=params,bgStim=bgStim,bgFrame=bgFrame," + \
+            "bgSweep=bgSweep,fgStim=fgStim)"
+
         print script.script
 
 
+
+
 if __name__ == "__main__":
-    #sys.path.append('/home/derricw/GitHub')  #get rid of this when I'm coding in windows
-    sys.path.append(r'C:\Users\derricw\Documents\GitHub')
+    sys.path.append('/home/derricw/GitHub')  #get rid of this when I'm coding in windows
+    #sys.path.append(r'C:\Users\derricw\Documents\GitHub') #comment this in windows
     from aibs.Terrain import Terrain
     from aibs.Core import *
     app = QtGui.QApplication(sys.argv)

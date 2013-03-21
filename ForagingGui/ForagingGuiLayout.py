@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Mon Mar 18 21:45:38 2013
-#      by: PyQt4 UI code generator 4.9.6
+# Created: Wed Mar 20 23:32:02 2013
+#      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,16 +12,7 @@ from PyQt4 import QtCore, QtGui
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
-    def _fromUtf8(s):
-        return s
-
-try:
-    _encoding = QtGui.QApplication.UnicodeUTF8
-    def _translate(context, text, disambig):
-        return QtGui.QApplication.translate(context, text, disambig, _encoding)
-except AttributeError:
-    def _translate(context, text, disambig):
-        return QtGui.QApplication.translate(context, text, disambig)
+    _fromUtf8 = lambda s: s
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -45,12 +36,12 @@ class Ui_MainWindow(object):
         font.setWeight(50)
         self.pushButton_loadMouse.setFont(font)
         self.pushButton_loadMouse.setObjectName(_fromUtf8("pushButton_loadMouse"))
-        self.lineEdit = QtGui.QLineEdit(self.groupBox_mouse)
-        self.lineEdit.setGeometry(QtCore.QRect(30, 30, 191, 20))
+        self.lineEdit_mouseid = QtGui.QLineEdit(self.groupBox_mouse)
+        self.lineEdit_mouseid.setGeometry(QtCore.QRect(30, 30, 191, 20))
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.lineEdit.setFont(font)
-        self.lineEdit.setObjectName(_fromUtf8("lineEdit"))
+        self.lineEdit_mouseid.setFont(font)
+        self.lineEdit_mouseid.setObjectName(_fromUtf8("lineEdit_mouseid"))
         self.pushButton_sessionPerformance = QtGui.QPushButton(self.groupBox_mouse)
         self.pushButton_sessionPerformance.setGeometry(QtCore.QRect(20, 250, 171, 41))
         font = QtGui.QFont()
@@ -131,14 +122,14 @@ class Ui_MainWindow(object):
         font.setWeight(75)
         self.groupBox_foraging.setFont(font)
         self.groupBox_foraging.setObjectName(_fromUtf8("groupBox_foraging"))
-        self.lineEdit_userId = QtGui.QLineEdit(self.groupBox_foraging)
-        self.lineEdit_userId.setGeometry(QtCore.QRect(82, 30, 161, 20))
+        self.lineEdit_userid = QtGui.QLineEdit(self.groupBox_foraging)
+        self.lineEdit_userid.setGeometry(QtCore.QRect(82, 30, 161, 20))
         font = QtGui.QFont()
         font.setPointSize(10)
         font.setBold(False)
         font.setWeight(50)
-        self.lineEdit_userId.setFont(font)
-        self.lineEdit_userId.setObjectName(_fromUtf8("lineEdit_userId"))
+        self.lineEdit_userid.setFont(font)
+        self.lineEdit_userid.setObjectName(_fromUtf8("lineEdit_userid"))
         self.pushButton_run = QtGui.QPushButton(self.groupBox_foraging)
         self.pushButton_run.setGeometry(QtCore.QRect(260, 0, 151, 51))
         font = QtGui.QFont()
@@ -350,7 +341,7 @@ class Ui_MainWindow(object):
         self.tableWidget_experiment.horizontalHeader().setDefaultSectionSize(150)
         MainWindow.setCentralWidget(self.centralWidget)
         self.menuBar = QtGui.QMenuBar(MainWindow)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 885, 21))
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 885, 23))
         self.menuBar.setObjectName(_fromUtf8("menuBar"))
         self.menuFiles = QtGui.QMenu(self.menuBar)
         self.menuFiles.setObjectName(_fromUtf8("menuFiles"))
@@ -373,36 +364,36 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(_translate("MainWindow", "Foraging", None))
-        self.groupBox_mouse.setTitle(_translate("MainWindow", "Mouse Info", None))
-        self.pushButton_loadMouse.setText(_translate("MainWindow", "Load Mouse", None))
-        self.pushButton_sessionPerformance.setText(_translate("MainWindow", "Session Performance", None))
-        self.pushButton_lifetimePerformance.setText(_translate("MainWindow", "Lifetime Performance", None))
-        self.groupBox_4.setTitle(_translate("MainWindow", "Logs", None))
-        self.groupBox_bgStimulus.setTitle(_translate("MainWindow", "Background Stimulus", None))
-        self.pushButton_loadBGStimulus.setText(_translate("MainWindow", "Load Stimulus", None))
-        self.groupBox_3.setTitle(_translate("MainWindow", "Parameters", None))
-        self.groupBox_foraging.setTitle(_translate("MainWindow", "Foraging", None))
-        self.pushButton_run.setText(_translate("MainWindow", "RUN", None))
-        self.label.setText(_translate("MainWindow", "User ID:", None))
-        self.label_2.setText(_translate("MainWindow", "Log dir:", None))
-        self.lineEdit_logDir.setText(_translate("MainWindow", "C:\\", None))
-        self.label_3.setText(_translate("MainWindow", "Task:", None))
-        self.label_4.setText(_translate("MainWindow", "Stage:", None))
-        self.pushButton_loadProtocol.setText(_translate("MainWindow", "Load Protocol", None))
-        self.pushButton_protocolEditor.setText(_translate("MainWindow", "Protocol Editor", None))
-        self.label_5.setText(_translate("MainWindow", "Foraging Protocol:", None))
-        self.pushButton_displayTerrain.setText(_translate("MainWindow", "Display Terrain", None))
-        self.pushButton_rewardDiagnostic.setText(_translate("MainWindow", "Reward Diagnostic", None))
-        self.pushButton_TBD.setText(_translate("MainWindow", "TBD", None))
-        self.groupBox.setTitle(_translate("MainWindow", "Stimulus Parameters", None))
-        self.pushButton_loadFGStimulus.setText(_translate("MainWindow", "Load Stimulus", None))
-        self.groupBox_2.setTitle(_translate("MainWindow", "Terrain Parameters", None))
-        self.pushButton_loadTerrain.setText(_translate("MainWindow", "Load Terrain", None))
-        self.groupBox_bgStimulus_2.setTitle(_translate("MainWindow", "Experiment Params", None))
-        self.pushButton_loadExperiment.setText(_translate("MainWindow", "Load Experiment", None))
-        self.groupBox_5.setTitle(_translate("MainWindow", "Parameters", None))
-        self.menuFiles.setTitle(_translate("MainWindow", "File", None))
-        self.menuHelp.setTitle(_translate("MainWindow", "Help", None))
-        self.actionAbout.setText(_translate("MainWindow", "About", None))
+        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Foraging", None, QtGui.QApplication.UnicodeUTF8))
+        self.groupBox_mouse.setTitle(QtGui.QApplication.translate("MainWindow", "Mouse Info", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_loadMouse.setText(QtGui.QApplication.translate("MainWindow", "Load Mouse", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_sessionPerformance.setText(QtGui.QApplication.translate("MainWindow", "Session Performance", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_lifetimePerformance.setText(QtGui.QApplication.translate("MainWindow", "Lifetime Performance", None, QtGui.QApplication.UnicodeUTF8))
+        self.groupBox_4.setTitle(QtGui.QApplication.translate("MainWindow", "Logs", None, QtGui.QApplication.UnicodeUTF8))
+        self.groupBox_bgStimulus.setTitle(QtGui.QApplication.translate("MainWindow", "Background Stimulus", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_loadBGStimulus.setText(QtGui.QApplication.translate("MainWindow", "Load Stimulus", None, QtGui.QApplication.UnicodeUTF8))
+        self.groupBox_3.setTitle(QtGui.QApplication.translate("MainWindow", "Parameters", None, QtGui.QApplication.UnicodeUTF8))
+        self.groupBox_foraging.setTitle(QtGui.QApplication.translate("MainWindow", "Foraging", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_run.setText(QtGui.QApplication.translate("MainWindow", "RUN", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("MainWindow", "User ID:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("MainWindow", "Log dir:", None, QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_logDir.setText(QtGui.QApplication.translate("MainWindow", "C:\\", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(QtGui.QApplication.translate("MainWindow", "Task:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(QtGui.QApplication.translate("MainWindow", "Stage:", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_loadProtocol.setText(QtGui.QApplication.translate("MainWindow", "Load Protocol", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_protocolEditor.setText(QtGui.QApplication.translate("MainWindow", "Protocol Editor", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_5.setText(QtGui.QApplication.translate("MainWindow", "Foraging Protocol:", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_displayTerrain.setText(QtGui.QApplication.translate("MainWindow", "Display Terrain", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_rewardDiagnostic.setText(QtGui.QApplication.translate("MainWindow", "Reward Diagnostic", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_TBD.setText(QtGui.QApplication.translate("MainWindow", "TBD", None, QtGui.QApplication.UnicodeUTF8))
+        self.groupBox.setTitle(QtGui.QApplication.translate("MainWindow", "Stimulus Parameters", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_loadFGStimulus.setText(QtGui.QApplication.translate("MainWindow", "Load Stimulus", None, QtGui.QApplication.UnicodeUTF8))
+        self.groupBox_2.setTitle(QtGui.QApplication.translate("MainWindow", "Terrain Parameters", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_loadTerrain.setText(QtGui.QApplication.translate("MainWindow", "Load Terrain", None, QtGui.QApplication.UnicodeUTF8))
+        self.groupBox_bgStimulus_2.setTitle(QtGui.QApplication.translate("MainWindow", "Experiment Params", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_loadExperiment.setText(QtGui.QApplication.translate("MainWindow", "Load Experiment", None, QtGui.QApplication.UnicodeUTF8))
+        self.groupBox_5.setTitle(QtGui.QApplication.translate("MainWindow", "Parameters", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuFiles.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuHelp.setTitle(QtGui.QApplication.translate("MainWindow", "Help", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionAbout.setText(QtGui.QApplication.translate("MainWindow", "About", None, QtGui.QApplication.UnicodeUTF8))
 

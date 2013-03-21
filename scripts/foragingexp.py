@@ -53,7 +53,7 @@ terrain.color = terrain.white
 
 #SET CONSOLE OUTPUT LEVEL, INITIALIZE WINDOWS
 #logging.console.setLevel(logging.DEBUG) #uncommet for diagnostics
-window = visual.Window(units='norm',monitor='testMonitor', fullscr = True, screen = 0, waitBlanking = False)
+window = visual.Window(units='norm',monitor='testMonitor', fullscr = True, screen = 0)
 window.setColor(params['bgcolor'])
 
 #CREATE BACKGROUND STIMULUS
