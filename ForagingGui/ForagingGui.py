@@ -22,10 +22,10 @@ class MyForm(QtGui.QMainWindow):
         
         # Set up some directories
         self.library = getdirectories()
-        self.logDir = os.path.join(self.library,'BehaviorLogs/')
-        self.experiments = os.path.join(self.library,'Experiments/')
-        self.stimuli = os.path.join(self.library,'Stimuli/')
-        self.terrain = os.path.join(self.library,'Terrain/')
+        self.logDir = os.path.join(self.library,'BehaviorLogs')
+        self.experimentslib = os.path.join(self.library,'Experiments')
+        self.stimulilib = os.path.join(self.library,'Stimuli')
+        self.terrainlib = os.path.join(self.library,'Terrain')
         self.scriptlog = os.path.join(self.library,'ScriptLog')
 
         ''' Delete if above works on windows
@@ -58,7 +58,7 @@ class MyForm(QtGui.QMainWindow):
         self.ui.lineEdit_logDir.setText(self.logDir)
         
         # Ensure important directories exist, create them if not.
-        checkDirs(self.logDir,self.library,self.stimuli,self.experiments,self.terrain)
+        checkDirs(self.logDir,self.library,self.stimulilib,self.experimentslib,self.terrainlib,self.scriptlog)
         
         # Connect signals
         qo.connect(self.ui.pushButton_loadExperiment,qt.SIGNAL("clicked()"), self._loadExperiment)
@@ -80,7 +80,7 @@ class MyForm(QtGui.QMainWindow):
         '''
         
     def _loadExperiment(self):
-        fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.experiments)
+        fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.experimentslib)
         try:
             f = open(fname, 'r')
             with f:        
@@ -97,26 +97,10 @@ class MyForm(QtGui.QMainWindow):
                     print "Data is incorrectly formatted.",e
         except Exception, e:
             print "Couldn't open file:",e
-        
-        """ Need to add *Perhaps in run():
-            userid
-            task
-            stage
-            protocol
-            mouseid
-            logdir
-            script
-            nidevice
-            rewardline
-            rewardport
-            encodervinchannel
-            encodervsigchannel
-            backupdir
-        """
 
     
     def _loadBG(self):
-        fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.stimuli)
+        fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.stimulilib)
         try:
             f = open(fname, 'r')
             with f:        
@@ -137,7 +121,7 @@ class MyForm(QtGui.QMainWindow):
             print "Couldn't open file:",e
     
     def _loadFG(self):
-        fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.stimuli)
+        fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.stimulilib)
         try:
             f = open(fname, 'r')
             with f:        
@@ -158,7 +142,7 @@ class MyForm(QtGui.QMainWindow):
             print "Couldn't open file:",e
         
     def _loadTerrain(self):
-        fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.terrain)
+        fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.terrainlib)
         try:
             f = open(fname, 'r')
             with f:        
@@ -197,10 +181,14 @@ class MyForm(QtGui.QMainWindow):
         self.params['encodervinchannel'] = self.encodervinchannel
         self.params['backupdir'] = self.backupdir
         
+        paramstring = "params = "+repr(self.params)
+        script.add(paramstring)
+        print script.script
 
 
 if __name__ == "__main__":
-    sys.path.append('/home/derricw/GitHub')  #get rid of this when I'm coding in windows
+    #sys.path.append('/home/derricw/GitHub')  #get rid of this when I'm coding in windows
+    sys.path.append(r'C:\Users\derricw\Documents\GitHub')
     from aibs.Terrain import Terrain
     from aibs.Core import *
     app = QtGui.QApplication(sys.argv)

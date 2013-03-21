@@ -34,11 +34,9 @@ class Script(object):
     		self.script+=a + '\n'
 
     def save(self, path):
-    	with f = open(path, 'w+'):
+    	with open(path, 'w+') as f:
     		f.write(self.script)
 
-    
-    	
 
 
 
