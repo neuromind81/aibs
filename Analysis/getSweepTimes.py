@@ -8,7 +8,7 @@ from pylab import nan
 import numpy as np
 
 def getSweepTimesOP(path):
-    '''uses .log file to get sweep timing and stimulus conditions'''
+    '''uses .log file to get stimulus sweep timing and stimulus conditions'''
     f = open(path, 'r')
     exec(f.read())
     
