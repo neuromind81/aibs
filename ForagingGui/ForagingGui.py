@@ -201,7 +201,9 @@ class MyForm(QtGui.QMainWindow):
         """Runs an experiment."""
         print "Generating script..."
         script = self._generateScript()
+        print "*"*80+"\n"
         print script.script
+        print "*"*80+"\n"
         print "Checking script..."
         #self._checkScript()
         print "Saving script..."

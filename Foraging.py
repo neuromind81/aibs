@@ -170,7 +170,8 @@ class Foraging(SweepStim):
     def checkEncoder(self):
         """ Checks encoder values and tweaks foreground object position based on speedgain. """
         if self.ni: deg = self.encoder.getDegrees() 
-        else: deg = 0
+        else:
+            deg = 0
         dx = deg-self.encDeg
         self.encDeg = deg
         if 180 > dx > -180: #encoder hasn't looped
@@ -360,6 +361,11 @@ class Foraging(SweepStim):
             
         #POST EXPERIMENT LOOP
         for vsync in range(int(self.postexpsec*60)):
+            if self.fgStim is not None:
+                self.checkTerrain()
+                self.checkEncoder()
+                self.fgStim.setPos([self.x,0])
+                self.fgStim.draw()
             if self.syncsqr: self.flipSyncSqr()
             self.flip()
             self.vsynccount += 1
