@@ -12,10 +12,12 @@ from ForagingGuiLayout import Ui_MainWindow
 from psychopy import visual
 from ScriptGenerator import Script
 import subprocess
+from datetime import datetime
 
  
 class MyForm(QtGui.QMainWindow):
     def __init__(self, parent=None):
+        """Constructor for main form."""
         QtGui.QWidget.__init__(self, parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -53,6 +55,8 @@ class MyForm(QtGui.QMainWindow):
         self.backupdir = ''
         self.screen = 0
         self.monitor = 'testMonitor'
+        self.syncsqr = 'True'
+        self.syncsqrloc = (-500,-500)
         
         # Read config file
         try:
@@ -90,6 +94,7 @@ class MyForm(QtGui.QMainWindow):
         '''
         
     def _loadExperiment(self):
+        """Load an experiment file."""
         fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.experimentslib)
         try:
             f = open(fname, 'r')
@@ -97,6 +102,7 @@ class MyForm(QtGui.QMainWindow):
                 data = f.read()
                 try:
                     exec(data)
+                    self.params = params
                     index = 0
                     for k,v in params.iteritems():
                         self.ui.tableWidget_experiment.setItem(index,0,QtGui.QTableWidgetItem(str(k)))
@@ -110,13 +116,14 @@ class MyForm(QtGui.QMainWindow):
 
     
     def _loadBG(self):
+        """Load a stimulus file as the background stimulus."""
         fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.stimulilib)
         try:
             f = open(fname, 'r')
             with f:        
                 data = f.read()
                 stim = data.split('PARAMETERS',1) #only care about parameters
-                self.bgStimText = data.split('PARAMETERS',0)
+                self.bgStimText = stim[0]
                 try:
                     exec(stim[1]) #excupt only parameters
                     index = 0
@@ -132,12 +139,14 @@ class MyForm(QtGui.QMainWindow):
             print "Couldn't open file:",e
     
     def _loadFG(self):
+        """Load a stimulus file as the foreground stimulus."""
         fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.stimulilib)
         try:
             f = open(fname, 'r')
             with f:        
                 data = f.read()
                 stim = data.split('PARAMETERS',1) #only care about parameters
+                self.fgStimText = stim[0]
                 try:
                     exec(stim[1]) #execute only parameters
                     index = 0
@@ -153,6 +162,7 @@ class MyForm(QtGui.QMainWindow):
             print "Couldn't open file:",e
         
     def _loadTerrain(self):
+        """Load a terrain file as the terrain."""
         fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.terrainlib)
         try:
             f = open(fname, 'r')
@@ -172,17 +182,30 @@ class MyForm(QtGui.QMainWindow):
             print "Couldn't open file:",e
     
     def _run(self):
+        """Runs an experiment."""
         print "Generating script..."
-        self._generateScript()
-        print "Running experiment"
+        script = self._generateScript()
+        print "Checking script..."
+        #self._checkScript()
+        print "Saving script..."
+        dt = datetime.now().strftime('%y%m%d%H%M%S')
+        path = os.path.join(self.scriptlog,dt+str(self.ui.lineEdit_mouseid.text())+".py")
+        script.save(path)
+        print "Script saved at",path
+        print "Running experiment..."
+        execstring = "python "+path
+        sp = subprocess.Popen(execstring)
+        print "Experiment complete..."
+
         
     def _generateScript(self):
+        """"Generates a Foraging script based on GUI input fields."""
         #CREATE SCRIPT
         script = Script()
         #ADD PARAMS
         self.params['userid'] = str(self.ui.lineEdit_userid.text())
         self.params['mouseid'] = str(self.ui.lineEdit_mouseid.text())
-        self.params['logDir'] = str(self.ui.lineEdit_logDir.text())
+        self.params['logdir'] = str(self.ui.lineEdit_logDir.text())
         self.params['task'] = str(self.ui.lineEdit_task.text())
         self.params['stage'] = str(self.ui.lineEdit_stage.text())
         self.params['protocol'] = str(self.ui.lineEdit_foragingProtocol.text())
@@ -192,12 +215,14 @@ class MyForm(QtGui.QMainWindow):
         self.params['encodervsigchannel'] = self.encodervsigchannel
         self.params['encodervinchannel'] = self.encodervinchannel
         self.params['backupdir'] = self.backupdir
+        self.params['syncsqr'] = self.syncsqr
+        self.params['syncsqrloc'] = self.syncsqrloc
 
         paramstr = "params = "+repr(self.params)
         script.add(paramstr)
         
         #ADD TERRAIN
-        script.add("terrain = Terrain(['color','orientation'])")
+        script.add("\nterrain = Terrain(['color','orientation'])")
         for i in range(self.ui.tableWidget_terrainParams.rowCount()):
             keystr = self.ui.tableWidget_terrainParams.item(i,0)
             valstr = self.ui.tableWidget_terrainParams.item(i,1)
@@ -206,7 +231,7 @@ class MyForm(QtGui.QMainWindow):
                 script.add(terrainstr)
 
         #ADD WINDOW
-        windowstr = "window = visual.Window(units='norm',monitor='"+ \
+        windowstr = "\nwindow = visual.Window(units='norm',monitor='"+ \
             self.monitor+"',fullscr=True,screen="+str(self.screen)+")"
         script.add(windowstr)
 
@@ -238,8 +263,12 @@ class MyForm(QtGui.QMainWindow):
         foragingstr = "g=Foraging(window=window,terrain=terrain," + \
             "params=params,bgStim=bgStim,bgFrame=bgFrame," + \
             "bgSweep=bgSweep,fgStim=fgStim)"
+        script.add(foragingstr)
 
-        print script.script
+        #ADD RUN()
+        script.add("g.run()")
+
+        return script
 
 
 

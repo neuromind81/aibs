@@ -1,0 +1,6 @@
+#STIMULUS
+monitor = monitors.Monitor('testMonitor')
+fgStim = visual.GratingStim(window, tex = None, size = (misc.deg2pix(terrain.objectwidthDeg,monitor), misc.deg2pix(terrain.objectwidthDeg,monitor)), units = 'pix', color = -1, autoLog=False)
+fgFrame = {}
+#PARAMETERS
+fgSweep = {}
