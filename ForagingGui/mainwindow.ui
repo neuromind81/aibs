@@ -178,7 +178,7 @@
     <zorder>pushButton_sessionPerformance</zorder>
     <zorder>pushButton_lifetimePerformance</zorder>
    </widget>
-   <widget class="QGroupBox" name="groupBox_bgStimulus">
+   <widget class="QGroupBox" name="groupBox_BgStimulus">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -608,7 +608,7 @@
       <string>TBD</string>
      </property>
     </widget>
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="groupBox_FgStimulus">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -686,7 +686,7 @@
       </property>
      </widget>
     </widget>
-    <widget class="QGroupBox" name="groupBox_2">
+    <widget class="QGroupBox" name="groupBox_Terrain">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -773,8 +773,8 @@
       </property>
      </widget>
     </widget>
-    <zorder>groupBox</zorder>
-    <zorder>groupBox_2</zorder>
+    <zorder>groupBox_FgStimulus</zorder>
+    <zorder>groupBox_Terrain</zorder>
     <zorder>lineEdit_userid</zorder>
     <zorder>pushButton_run</zorder>
     <zorder>label</zorder>
@@ -792,7 +792,7 @@
     <zorder>pushButton_rewardDiagnostic</zorder>
     <zorder>pushButton_TBD</zorder>
    </widget>
-   <widget class="QGroupBox" name="groupBox_bgStimulus_2">
+   <widget class="QGroupBox" name="groupBox_ExperimentParams">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -902,8 +902,8 @@
     <zorder>groupBox_5</zorder>
     <zorder>pushButton_loadExperiment</zorder>
    </widget>
-   <zorder>groupBox_bgStimulus_2</zorder>
-   <zorder>groupBox_bgStimulus</zorder>
+   <zorder>groupBox_ExperimentParams</zorder>
+   <zorder>groupBox_BgStimulus</zorder>
    <zorder>groupBox_mouse</zorder>
    <zorder>groupBox_foraging</zorder>
   </widget>

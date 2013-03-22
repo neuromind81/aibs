@@ -212,7 +212,7 @@ class SweepStim(object):
         log = ailogger(path)
         log.add(script = self.script)
         log.add(scripttext = open(self.script,'r').read())
-        log.add(mousename = self.mousename)
+        log.add(mouseid = self.mouseid)
         log.add(userid = self.userid)
         log.add(task = self.task)
         log.add(stage = self.stage)
@@ -338,7 +338,7 @@ if __name__ == "__main__":
     params['postsweepsec'] = 1 #black period after sweeps (foreground remains)
     params['logdir'] = "C:\\ExperimentLogs\\" #where to put the log
     params['backupdir'] = "" #backup to network
-    params['mousename'] = "Spock" #name of the mouse
+    params['mouseid'] = "Spock" #name of the mouse
     params['userid'] = "derricw" #name of the user
     params['task'] = "" #task type
     params['stage'] = "idkwhatthismeans" #stage

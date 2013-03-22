@@ -9,10 +9,13 @@ import sys
 from PyQt4 import QtCore as qt, QtGui
 from PyQt4.QtCore import QObject as qo
 from ForagingGuiLayout import Ui_MainWindow
+from rewarddiaglayout import Ui_Form
 from psychopy import visual
 from ScriptGenerator import Script
 import subprocess
 from datetime import datetime
+from aibs.Terrain import Terrain
+from aibs.Core import *
 
  
 class MyForm(QtGui.QMainWindow):
@@ -21,6 +24,9 @@ class MyForm(QtGui.QMainWindow):
         QtGui.QWidget.__init__(self, parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
+        #Set up other forms
+        self.rewarddiag = None
         
         # Set up some directories
         self.library = getdirectories()
@@ -80,7 +86,9 @@ class MyForm(QtGui.QMainWindow):
         qo.connect(self.ui.pushButton_loadFGStimulus,qt.SIGNAL("clicked()"), self._loadFG)
         qo.connect(self.ui.pushButton_loadTerrain,qt.SIGNAL("clicked()"), self._loadTerrain)
         qo.connect(self.ui.pushButton_run,qt.SIGNAL("clicked()"), self._run)
-        
+        qo.connect(self.ui.pushButton_displayTerrain,qt.SIGNAL("clicked()"), self._preview)
+        qo.connect(self.ui.pushButton_rewardDiagnostic,qt.SIGNAL("clicked()"),self._rewarddiag)
+
         ''' Examples of connecting signals (assumes your form has a pushButton, lineEdit, and textEdit)
         #QtCore.QObject.connect(self.ui.pushButton, QtCore.SIGNAL("clicked()"), self.ui.textEdit.clear )
         #QtCore.QObject.connect(self.ui.lineEdit, QtCore.SIGNAL("returnPressed()"), self.add_entry)
@@ -109,6 +117,8 @@ class MyForm(QtGui.QMainWindow):
                         self.ui.tableWidget_experiment.setItem(index,1,QtGui.QTableWidgetItem(str(v)))
                         index +=1
                     self.ui.tableWidget_experiment.sortByColumn(0,0)
+                    _,tail = os.path.split(str(fname)) #get just the file name
+                    self.ui.groupBox_ExperimentParams.setTitle(tail)
                 except Exception, e:
                     print "Data is incorrectly formatted.",e
         except Exception, e:
@@ -132,6 +142,8 @@ class MyForm(QtGui.QMainWindow):
                         self.ui.tableWidget_bgStimulus.setItem(index,1,QtGui.QTableWidgetItem(str(v)))
                         index +=1
                     self.ui.tableWidget_experiment.sortByColumn(0,0)
+                    _,tail = os.path.split(str(fname)) #get just the file name
+                    self.ui.groupBox_BgStimulus.setTitle(tail)
                 except Exception, e:
                     print "Data is incorreclty formatted.",e
                     
@@ -155,6 +167,8 @@ class MyForm(QtGui.QMainWindow):
                         self.ui.tableWidget_fgStimulus.setItem(index,1,QtGui.QTableWidgetItem(str(v)))
                         index +=1
                     self.ui.tableWidget_experiment.sortByColumn(0,0)
+                    _,tail = os.path.split(str(fname)) #get just the file name
+                    self.ui.groupBox_FgStimulus.setTitle(tail)
                 except Exception, e:
                     print "Data is incorreclty formatted.",e
                     
@@ -176,6 +190,8 @@ class MyForm(QtGui.QMainWindow):
                         self.ui.tableWidget_terrainParams.setItem(index,1,QtGui.QTableWidgetItem(str(v)))
                         index +=1
                     self.ui.tableWidget_experiment.sortByColumn(0,0)
+                    _,tail = os.path.split(str(fname)) #get just the file name
+                    self.ui.groupBox_Terrain.setTitle(tail)
                 except Exception, e:
                     print "Data is incorreclty formatted.",e
         except Exception, e:
@@ -185,6 +201,7 @@ class MyForm(QtGui.QMainWindow):
         """Runs an experiment."""
         print "Generating script..."
         script = self._generateScript()
+        print script.script
         print "Checking script..."
         #self._checkScript()
         print "Saving script..."
@@ -194,8 +211,8 @@ class MyForm(QtGui.QMainWindow):
         print "Script saved at",path
         print "Running experiment..."
         execstring = "python "+path
-        sp = subprocess.Popen(execstring)
-        print "Experiment complete..."
+        sp = subprocess.Popen(execstring.split())
+        
 
         
     def _generateScript(self):
@@ -218,8 +235,9 @@ class MyForm(QtGui.QMainWindow):
         self.params['syncsqr'] = self.syncsqr
         self.params['syncsqrloc'] = self.syncsqrloc
 
-        paramstr = "params = "+repr(self.params)
+        paramstr = "params = "+repr(self.params) + "\n" + "params['script']=__file__\n"
         script.add(paramstr)
+        script.add()
         
         #ADD TERRAIN
         script.add("\nterrain = Terrain(['color','orientation'])")
@@ -270,14 +288,41 @@ class MyForm(QtGui.QMainWindow):
 
         return script
 
+    def _preview(self):
+        """Generates a preview in a small window"""
+        from psychopy import visual,event,monitors,misc
 
+        window = visual.Window(monitor = 'testMonitor')
+
+        if self.bgStimText is not None: exec(self.bgStimText)
+        if self.fgStimText is not None: exec(self.fgStimText)
+
+        while True:
+            for keys in event.getKeys(timeStamped=True):
+                if keys[0]in ['escape','q']:
+                    window.close()
+            if self.bgStimText is not None: bgStim.draw()
+            if self.fgStimText is not None: fgStim.draw()
+            window.flip()            
+
+    def _rewarddiag(self):
+        if self.rewarddiag is None:
+            self.rewarddiag = RewardDiagnostic()
+        self.rewarddiag.show()
+
+
+class RewardDiagnostic(QtGui.QWidget):
+    """docstring for RewardDiagnostic"""
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self,parent)
+        self.ui = Ui_Form()
+        self.ui.setupUi(self)
+   
 
 
 if __name__ == "__main__":
-    sys.path.append('/home/derricw/GitHub')  #get rid of this when I'm coding in windows
+    #sys.path.append('/home/derricw/GitHub')  #get rid of this when I'm coding in windows
     #sys.path.append(r'C:\Users\derricw\Documents\GitHub') #comment this in windows
-    from aibs.Terrain import Terrain
-    from aibs.Core import *
     app = QtGui.QApplication(sys.argv)
     myapp = MyForm()
     myapp.show()

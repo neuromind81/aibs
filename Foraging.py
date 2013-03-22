@@ -61,7 +61,10 @@ class Foraging(SweepStim):
         self.window = window
         self.window.winHandle.set_exclusive_mouse()
         self.window.winHandle.set_exclusive_keyboard()
-        setpriority()
+        try:
+            setpriority()
+        except Exception, e:
+            print "Could not set OS priority to high."
         self.wwidth = window.size[0]
         self.wheight = window.size[1]
         self.monitor = monitors.Monitor('testMonitor')
@@ -238,12 +241,12 @@ class Foraging(SweepStim):
     def logMeta(self):
         """ Writes all important information to log. """
         dir = self.logdir
-        file = self.mousename + ".log" #logger automatically appends timestamp
+        file = self.mouseid + ".log" #logger automatically appends timestamp
         path = os.path.join(dir,file)
         log = ailogger(path)
         log.add(script = self.script)
         log.add(scripttext = open(self.script,'r').read())
-        log.add(mousename = self.mousename)
+        log.add(mouseid = self.mouseid)
         log.add(userid = self.userid)
         log.add(task = self.task)
         log.add(stage = self.stage)
@@ -383,7 +386,7 @@ if __name__ == "__main__":
     params['rewardtime'] = 0.03 #length of reward for mouse
     params['logdir'] = "C:\\ForagingLogs\\" #where to put the log
     params['backupdir'] = "" #backup to network
-    params['mousename'] = "Spock" #name of the mouse
+    params['mouseid'] = "Spock" #name of the mouse
     params['userid'] = "derricw" #name of the user
     params['task'] = "Virtual Foraging" #task type
     params['stage'] = "Acrylic Wheel" #stage
