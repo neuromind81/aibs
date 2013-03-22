@@ -149,7 +149,7 @@ def flashgrating (datapath, logpath, modality, numbins, showflag):
                 errorbar(tuning, f1mean[:,sp], yerr=f1sem[:,sp], fmt = 'ro', capsize=2, linestyle='-')
                 errorbar(tuning, f0mean[:,sp], yerr=f0sem[:,sp], fmt = 'bx', capsize=2, linestyle='-')
                 if (modality.find("conrev")+1):
-                    errorbar(tuning, f2mean[:,sp], yerr=f2sem[:,sp], fmt = 'go', capsize=2, linestyle='-') )
+                    errorbar(tuning, f2mean[:,sp], yerr=f2sem[:,sp], fmt = 'go', capsize=2, linestyle='-')
                 xticks(ticks)             
                 xlabel(tlabel, fontsize=10)
                 ylabel("(spk/s)", fontsize=10)
