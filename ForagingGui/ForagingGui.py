@@ -110,7 +110,6 @@ class MyForm(QtGui.QMainWindow):
                 data = f.read()
                 try:
                     exec(data)
-                    self.params = params
                     index = 0
                     for k,v in params.iteritems():
                         self.ui.tableWidget_experiment.setItem(index,0,QtGui.QTableWidgetItem(str(k)))
@@ -221,7 +220,8 @@ class MyForm(QtGui.QMainWindow):
         """"Generates a Foraging script based on GUI input fields."""
         #CREATE SCRIPT
         script = Script()
-        #ADD PARAMS
+
+        #ADD SOME PARAMS MANUALLY
         self.params['userid'] = str(self.ui.lineEdit_userid.text())
         self.params['mouseid'] = str(self.ui.lineEdit_mouseid.text())
         self.params['logdir'] = str(self.ui.lineEdit_logDir.text())
@@ -234,8 +234,15 @@ class MyForm(QtGui.QMainWindow):
         self.params['encodervsigchannel'] = self.encodervsigchannel
         self.params['encodervinchannel'] = self.encodervinchannel
         self.params['backupdir'] = self.backupdir
-        self.params['syncsqr'] = self.syncsqr
-        self.params['syncsqrloc'] = self.syncsqrloc
+        #ADD SOME PARAMS AUTOMATICALLY
+        for i in range(self.ui.tableWidget_experiment.rowCount()):
+            keystr = self.ui.tableWidget_experiment.item(i,0)
+            valstr = self.ui.tableWidget_experiment.item(i,1)
+            if keystr is not None:
+                try:
+                    self.params[str(keystr.text())] = eval(str(valstr.text())) #not a string
+                except:
+                    self.params[str(keystr.text())] = str(valstr.text()) #string
 
         paramstr = "params = "+repr(self.params) + "\n" + "params['script']=__file__\n"
         script.add(paramstr)
