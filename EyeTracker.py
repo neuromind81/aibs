@@ -28,15 +28,23 @@ class EyeTracker(object):
         #loop through grabbing frames
  
         while self.disp.isNotDone():
-            i = self.cam.getImage()
+            i = self.cam.getImage() #get camera image
+
+            """ How to find blobs
             blobs = i.findBlobs()
             if blobs:
                 blobs.draw()
-            i.save(self.disp)
+            """
+
+            gray = i.greyscale().binarize(128).invert()
+
+
+
+            gray.save(self.disp) #show image on display
             if self.disp.mouseLeft:
-                hist = i.hueHistogram()
-                plot(hist)
-                show()
+                #hist = i.hueHistogram()
+                #plot(hist)
+                #show()
                 break
         
 
