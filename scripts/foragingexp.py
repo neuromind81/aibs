@@ -35,21 +35,16 @@ params['comments']="SOME COMMENTS FROM THE USER"
 params['script']=__file__
 
 #TERRAIN CREATION AND PARAMETERS (see Terrain for additional parameters)
-terrain = Terrain(['color','orientation'])
-terrain.colormatters = True
-terrain.orientation = 45
+terrain = Terrain()
+terrain.params.append({'name':'Color','possible':[-1,0,1],'correct':[1],'relevance':True})
+terrain.params.append({'name':'Ori','possible':range(0,360,45),'correct':[0,45],'relevance':True})
+terrain.current = [-1,0] #initial values
 terrain.correctfreq = 1
 terrain.lapdistance = 3500
 terrain.windowwidth = 200
 terrain.selectiontime = 25
 terrain.speedgain = 4
-terrain.colorrandom = True
-terrain.oriarray = [0,45]
-terrain.oricorrect = 0
 terrain.objectwidthDeg = 10
-terrain.colorcorrect = terrain.black
-terrain.color = terrain.white
-
 
 #SET CONSOLE OUTPUT LEVEL, INITIALIZE WINDOWS
 #logging.console.setLevel(logging.DEBUG) #uncommet for diagnostics

@@ -101,7 +101,9 @@ class Foraging(SweepStim):
         
         #INITIALIZE TERRAIN
         self.terrain = terrain
-        self.offscreen = self.off_screen_distance(self.terrain.orientation)
+        paramnames = [x['name'] for x in self.terrain.params]
+        print "param names: ",paramnames
+        self.offscreen = self.off_screen_distance(45) #constant for now
         self.updateTerrain()
         
         #INITIALIZE ENCODER
@@ -160,12 +162,12 @@ class Foraging(SweepStim):
                 
     def updateTerrain(self):
         """ Updates terrain variables and logs current instance """
-        ##TODO: update terrain to allow for discrimination besides color and orientation
-        self.fgStim.setColor(self.terrain.color)
-        self.fgStim.setOri(self.terrain.orientation)
-        self.offscreen = self.off_screen_distance(self.terrain.orientation)
-        self.terrainlog.append((self.terrain.orientation, self.terrain.color))
-        
+        for i in range(len(self.terrain.params)):
+            param = self.terrain.params[i]
+            execstring = "self.fgStim.set"+param['name']+"("+str(self.terrain.current[i])+")"
+            exec(execstring)
+        self.terrainlog.append(self.terrain.current)
+
                 
     def checkEncoder(self):
         """ Checks encoder values and tweaks foreground object position based on speedgain. """
@@ -409,12 +411,11 @@ if __name__ == "__main__":
     params['script']=__file__
     
     #TERRAIN CREATION AND PARAMETERS (see Terrain for additional parameters)
-    terrain = Terrain(['color','orientation'])
+    terrain = Terrain()
+    terrain.params.append({'name':'Color','possible':[-1,0,1],'correct':[1],'relevance':True})
+    terrain.params.append({'name':'Ori','possible':range(0,360,45),'correct':[0,45],'relevance':True})
+    terrain.current = [-1,0] #initial values
     terrain.objectwidthDeg = 10
-    terrain.colormatters = False
-    terrain.colorrandom = False
-    terrain.color = 1
-    terrain.orientation = 45
     terrain.speedgain = 0.25
     
     #SET CONSOLE OUTPUT LEVEL, INITIALIZE WINDOWS
