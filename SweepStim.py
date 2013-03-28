@@ -39,7 +39,7 @@ except Exception, e:
 
 class SweepStim(object):
 
-    def __init__(self, window, params, bgSweep = None, fgSweep = None, bgStim = None, fgStim = None, fgFrame = None, bgFrame = None):
+    def __init__(self, window, params, bgSweep = {}, fgSweep = {}, bgStim = None, fgStim = None, fgFrame = {}, bgFrame = {}):
         
         """ Constructor.  Builds SweepStim experiment and prepares for run() """
         # GENERIC PARAMETERS (generate them as properties of this instance of Gratings; they don't change)
@@ -128,8 +128,8 @@ class SweepStim(object):
                         elif k == "PosY": #special case for y position
                             self.bgStim.setPos((self.bgStim.pos[0],v))
                         else: print "Sweep parameter is incorrectly formatted:", k, v, e
-            else: self.bgStim.setOpacity(0.0) #blank sweep
-                
+            else: self.bgStim.setOpacity(0.0) #blank sweep   
+    
     def updateForeground(self, sweepi):
         """ Updates the foreground stimulus based on its sweep number.  UNIMPLIMENTED."""
         pass
@@ -143,6 +143,14 @@ class SweepStim(object):
                 except Exception, e: #parameter is not a proper stimulus property
                     if k == "TF": #special case for temporal frequency
                         self.bgStim.setPhase(v*vsync/60.0)
+                    else: print "No parameter called: ", k,v,e
+        if self.fgStim is not None:
+            for k,v in self.fgFrame.iteritems():
+                try: #parameter is a proper stimulus property
+                    exec("self.fgStim.set" + k + "(" + str(v) + ")")
+                except Exception, e: #parameter is not a proper stimulus property
+                    if k == "TF": #special case for temporal frequency
+                        self.fgStim.setPhase(v*vsync/60.0)
                     else: print "No parameter called: ", k,v,e
                     
     def flipSyncSqr(self):
@@ -162,7 +170,6 @@ class SweepStim(object):
         nDropped=sum(intervalsMS>(1.5*m))
         self.droppedframes = ([x for x in intervalsMS if x > (1.5*m)],[x for x in range(len(intervalsMS)) if intervalsMS[x]>(1.5*m)])
         droppedString = "Dropped/Frames = %i/%i = %.3f%%" %(nDropped,nTotal,nDropped/float(nTotal)*100)
-        #calculate some values
         print "Actual vsyncs displayed:",self.vsynccount
         print "Frame interval statistics:", distString
         print "Drop statistics:", droppedString
@@ -181,6 +188,7 @@ class SweepStim(object):
     def cleanup(self):
         """ Destructor """
         #STOP CLOCKS
+        self.window.setRecordFrameIntervals(False) #stop recording frame intervals 
         self.stoptime = time.clock() #TIME SENSITIVE STUFF ENDS HERE
         
         #FLIP FOR SYNC SQUARE CLEAR
@@ -288,9 +296,8 @@ class SweepStim(object):
             
             #MAIN DISPLAY LOOP
             for vsync in range(int(self.sweeplength*60)):
-                if self.bgStim is not None:
-                    self.updateFrame(vsync)
-                    self.bgStim.draw()
+                self.updateFrame(vsync)
+                if self.bgStim is not None: self.bgStim.draw()
                 if self.fgStim is not None: self.fgStim.draw()
                 for keys in event.getKeys(timeStamped=True):
                     if keys[0]in ['escape','q']:
@@ -315,8 +322,7 @@ class SweepStim(object):
         for vsync in range(int(self.postexpsec*60)):
             if self.syncsqr: self.flipSyncSqr()
             self.flip()
-            self.vsynccount += 1
-        self.window.setRecordFrameIntervals(False) #stop recording frame intervals    
+            self.vsynccount += 1   
         
         #POST EXP CLEANUP (stops clocks, cleans up windows, etc)
         self.cleanup()
@@ -337,7 +343,7 @@ if __name__ == "__main__":
     params['sweeplength'] = 2 #length of sweeps
     params['postsweepsec'] = 1 #black period after sweeps (foreground remains)
     params['logdir'] = "C:\\ExperimentLogs\\" #where to put the log
-    params['backupdir'] = "" #backup to network
+    params['backupdir'] = None #backup to network
     params['mouseid'] = "Spock" #name of the mouse
     params['userid'] = "derricw" #name of the user
     params['task'] = "" #task type

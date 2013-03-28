@@ -16,7 +16,7 @@ params['sweeplength'] = 5 #length of sweeps
 params['postsweepsec'] = 0 #black period after sweeps (foreground remains)
 params['rewardtime'] = 0.03 #length of reward for mouse
 params['logdir'] = "C:\\ForagingLogs\\" #where to put the log
-params['backupdir'] = "" #backup to network
+params['backupdir'] = None #backup to network
 params['mouseid'] = "test" #id of mouse
 params['userid'] = "derricw" #name of the user
 params['task'] = "Virtual Foraging" #task type
@@ -27,24 +27,25 @@ params['rewardline']=0 #NI DO line
 params['rewardport']=1 #NI DO port
 params['encodervinchannel']=1 #NI Vin channel
 params['encodervsigchannel']=2 #NI Vsig channel
-params['blanksweeps']=7 #blank sweep e                if self.fgStim is not None: 
+params['blanksweeps']=7 #blank sweep every X sweeps
 params['bgcolor']='gray' #background color
-params['syncsqr']= True
+params['syncsqr']= True #display sync square
 params['syncsqrloc']=(900,500) #(900,500) upper right corner
 params['comments']="SOME COMMENTS FROM THE USER"
-params['script']=__file__
+params['script']=__file__ #this should not be changed
 
 #TERRAIN CREATION AND PARAMETERS (see Terrain for additional parameters)
 terrain = Terrain()
-terrain.params.append({'name':'Color','possible':[-1,0,1],'correct':[1],'relevance':True})
-terrain.params.append({'name':'Ori','possible':range(0,360,45),'correct':[0,45],'relevance':True})
-terrain.current = [-1,0] #initial values
-terrain.correctfreq = 1
-terrain.lapdistance = 3500
+terrain.params.append({'name':'Color','possible':[-1,1],'correct':[1],'relevance':True})
+terrain.params.append({'name':'Ori','possible':range(0,90,15),'correct':[0],'relevance':True})
+terrain.params.append({'name':'PosY','possible':[0,-100,100,-200,200],'correct':[0],'relevance':True})
+terrain.current = [-1,0,0] #initial values (order is the order added to params)
+terrain.objectwidthDeg = 10
+terrain.speedgain = 10
+terrain.correctfreq = 0.1
+terrain.lapdistance = 2000
 terrain.windowwidth = 200
 terrain.selectiontime = 25
-terrain.speedgain = 4
-terrain.objectwidthDeg = 10
 
 #SET CONSOLE OUTPUT LEVEL, INITIALIZE WINDOWS
 #logging.console.setLevel(logging.DEBUG) #uncommet for diagnostics
@@ -63,9 +64,9 @@ bgFrame = {}
 bgSweep = {}
 
 bgSweep['Ori'] = (range(0,360,45),0)
-bgSweep['SF'] = ([0.1,0.2],1)
+bgSweep['SF'] = ([0.2],1)
 bgSweep['Contrast'] = ([1],3)
-bgSweep['TF'] = ([1,2,3],2)
+bgSweep['TF'] = ([2],2)
 bgSweep['Phase'] = ([0],4)
 
 #CREATE FOREGROUND STIMULUS

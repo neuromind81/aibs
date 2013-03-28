@@ -79,9 +79,13 @@ class ailogger(object):
         self.dir = os.path.dirname(path)
         self.filename = os.path.basename(path)
         self.timestamp = timestamp
+        
         self.genmatfile = genmatfile
         if self.timestamp: self.filename = datetime.datetime.now().strftime('%y%m%d%H%M%S') + '-' + self.filename
         self.fullPath = os.path.join(self.dir,self.filename)
+        filename,_ = os.path.splitext(self.fullPath) #remove file ext
+        self.matfilepath = filename + ".mat"        
+        
         if not os.path.exists(self.dir): os.makedirs(self.dir)
         self.f = open(self.fullPath,'w+')
         self.objnames = []
@@ -129,16 +133,21 @@ class ailogger(object):
         """ Closes the logger. [Sets read only status. Backs up the file.] """
         self.f.close()
         if self.readOnly: os.chmod(self.fullPath,stat.S_IREAD)
-        if self.backupFileDir is not None: self.backup()
         if self.genmatfile:
             self.generateMatFile()
+        if self.backupFileDir is not None: self.backup()
 
     def backup(self):
         """ Saves a copy of the file to another directory. """
         try:
-            directory = os.path.dirname(self.backupFileDir)
+            directory = self.backupFileDir
             if not os.path.exists(directory): os.makedirs(directory)
-            shutil.copy(self.fullPath, directory)
+            fullbackuppath = os.path.join(directory,self.filename)
+            shutil.copy(self.fullPath, fullbackuppath)
+            if self.genmatfile:
+                filename,_ = os.path.splitext(fullbackuppath)
+                shutil.copy(self.matfilepath,filename+".mat")
+            print "Backup to",self.backupFileDir,"performed successfully!"
         except:
             print "BACKUP COULD NOT BE PERFORMED!  Ensure that the directory is accessible!"
 
@@ -153,9 +162,8 @@ class ailogger(object):
             except Exception,e:
                print "Could not parse: ", rl, "It will not be included in .mat file.", e
         data = removeNone(data)
-        filename, fileext = os.path.splitext(self.fullPath) #remove file ext
         try:
-            sio.savemat(filename + ".mat", data) #save .mat file
+            sio.savemat(self.matfilepath, data) #save .mat file
             print ".mat file generated successfully."
         except Exception, e:
             print "Could not save .mat file.  Check input format.", e
@@ -169,7 +177,8 @@ if __name__ == "__main__":
     dic['a'] = [1, 2, 3]
     dic['b'] = None
     dic['c'] = {'a': 1, 'b': [1,2], 'c': None, 'd': {'a': [1,2]}}
-    path = r"C:\Herp\Derp.log"
+    path = "C:\\Herp\\Derp\\"
     log = ailogger(path)
+    log.backupFileDir = "C:\\herp\\derp\\BACKUP\\"
     log.add(dic)
     log.close()

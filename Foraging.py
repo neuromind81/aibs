@@ -22,10 +22,9 @@ Example use:
     
     See main() below.
 
-##TODO: Foraging should inherit SweepStim
-
 '''
 from psychopy import core, visual, event, logging, misc, monitors
+from pyglet.window import key
 import time
 import datetime
 import numpy
@@ -45,7 +44,7 @@ except Exception, e:
 
 class Foraging(SweepStim):
 
-    def __init__(self, window, params, terrain = None, bgSweep = None, fgSweep = None, bgStim = None, fgStim = None, fgFrame = None, bgFrame = None):
+    def __init__(self, window, params, terrain = None, bgSweep = {}, fgSweep = {}, bgStim = None, fgStim = None, fgFrame = {}, bgFrame = {}):
         
         """ Constructor.  Builds Foraging experiment and prepares for run() """
         # GENERIC PARAMETERS (generate them as properties of this instance of Foraging; they don't change)
@@ -61,10 +60,14 @@ class Foraging(SweepStim):
         self.window = window
         self.window.winHandle.set_exclusive_mouse()
         self.window.winHandle.set_exclusive_keyboard()
+        #TURN OFF MOUSE
+        self.mouse = event.Mouse()
+        self.mouse.setVisible(0) 
+        #SET OS PRIORITY TO HIGH
         try:
             setpriority()
         except Exception, e:
-            print "Could not set OS priority to high."
+            print "Could not set OS priority to high.", e
         self.wwidth = window.size[0]
         self.wheight = window.size[1]
         self.monitor = monitors.Monitor('testMonitor')
@@ -101,8 +104,6 @@ class Foraging(SweepStim):
         
         #INITIALIZE TERRAIN
         self.terrain = terrain
-        paramnames = [x['name'] for x in self.terrain.params]
-        print "param names: ",paramnames
         self.offscreen = self.off_screen_distance(45) #constant for now
         self.updateTerrain()
         
@@ -112,7 +113,7 @@ class Foraging(SweepStim):
             self.encoder = Encoder(self.nidevice,self.encodervinchannel,self.encodervsigchannel)
             self.encoder.start()
             time.sleep(0.1)
-            self.encDeg = self.encoder.getDegrees()
+            self.encDeg = self.encoder.getDegrees() #get initial state
         except Exception, e:
             print "Could not initialize Encoder.  Ensure that NI is connected properly.", e
             self.encDeg = 0
@@ -128,15 +129,11 @@ class Foraging(SweepStim):
             self.reward = Reward(self.nidevice,self.rewardport,self.rewardline)
             self.reward.rewardtime = self.rewardtime
             self.reward.start()
-        except:
+        except Exception, e:
             print "Could not initialize Reward.  Ensure that NI is connected properly."
             self.ni = False
             self.reward = None
         self.framescorrect = 0
-        
-        #TURN OFF MOUSE
-        self.mouse = event.Mouse()
-        self.mouse.setVisible(0) 
         
         #REPLAY MODE? Modify these values after instantiating but before run()
         self.replay = False
@@ -147,6 +144,11 @@ class Foraging(SweepStim):
         self.replayx = []
         self.replayterrain = []
         self.replaylaps = []
+        
+        #NO NI BOARD? TURN ON KEYBOARD CONTROL (CHECKING KEYS HURTS PERFORMACE)
+        if not self.ni:
+            self.keys = key.KeyStateHandler()
+            self.window.winHandle.push_handlers(self.keys)
 
     def checkTerrain(self):
         """ Determines if a reward should be given """
@@ -162,20 +164,42 @@ class Foraging(SweepStim):
                 
     def updateTerrain(self):
         """ Updates terrain variables and logs current instance """
+        ##TODO: Merge with SweepStim.updateBackground (these do almost the same thing and shouldn't be separate)
         for i in range(len(self.terrain.params)):
-            param = self.terrain.params[i]
-            execstring = "self.fgStim.set"+param['name']+"("+str(self.terrain.current[i])+")"
-            exec(execstring)
+            k,v = self.terrain.params[i]['name'],self.terrain.current[i]
+            try: #parameter is a proper stimulus property
+                execstring = "self.fgStim.set"+ k + "(" + str(v) + ")"
+                exec(execstring)
+            except Exception, e: #paramter is not a proper stimulus property
+                if k == "TF": #special case for temporal freqency
+                    self.fgFrame[k] = v
+                elif k == "Tex": #special case for textures (fix later)
+                    self.fgStim.setTex(v)
+                elif k == "Image": #special case for images
+                    self.fgStim.setImage(v)
+                elif k == "PosX": #special case for x position
+                    self.fgStim.setPos((v,self.fgStim.pos[1]))
+                elif k == "PosY": #special case for y position
+                    self.fgStim.setPos((self.fgStim.pos[0],v))
+                else: print "Sweep parameter is incorrectly formatted:", k, v, e
         self.terrainlog.append(self.terrain.current)
 
                 
     def checkEncoder(self):
         """ Checks encoder values and tweaks foreground object position based on speedgain. """
-        if self.ni: deg = self.encoder.getDegrees() 
-        else:
-            deg = 0
-        dx = deg-self.encDeg
-        self.encDeg = deg
+        ##TODO: Function has become too long, does too much.  Should be split.
+        if self.ni: 
+            deg = self.encoder.getDegrees()
+            dx = deg-self.encDeg
+            self.encDeg = deg
+        else: #NO NI BOARD.  KEY INPUT?
+            if self.keys[key.D]:
+                dx = 1
+            elif self.keys[key.A]:
+                dx = -1
+            else:
+                dx = 0
+                
         if 180 > dx > -180: #encoder hasn't looped
             self.x += dx*self.terrain.speedgain
             self.lastDx = dx
@@ -193,7 +217,7 @@ class Foraging(SweepStim):
                     self.fgStim.setOri(self.replayterrain[0][0])
                     self.fgStim.setColor(self.replayterrain[0][1])
                     del self.replayterrain[0]
-            else: self.cleanup() #no more frames in replay.
+            else: self.cleanup() #no more frames in replay. we're done.                
         
         #check for lap completion
         if self.x > (-self.wwidth/2 + self.terrain.lapdistance + self.offscreen):
@@ -212,7 +236,9 @@ class Foraging(SweepStim):
         self.dx.append(self.lastDx)
         
     def off_screen_distance(self, orientation = 0):
-        """Gets off screen distance using formula to compensate for orientation of object """
+        """Gets off screen distance using formula to compensate for orientation of object 
+            THIS MIGHT BE UNECESSARY AND COULD BE REMOVED.
+        """
         x = misc.deg2pix(self.terrain.objectwidthDeg, self.monitor) # converts width of object to pixels from degrees
         dist = orientation/45*(numpy.sqrt(2*(x)**2)-x) + x #pythagorean theorem
         return dist/2 #float divide by two because measurement is from center of object
@@ -220,6 +246,7 @@ class Foraging(SweepStim):
     def cleanup(self):
         """ Destructor """
         #STOP CLOCKS
+        self.window.setRecordFrameIntervals(False) #stop recording frame intervals     
         self.stoptime = time.clock() #TIME SENSITIVE STUFF ENDS HERE
         
         #FLIP FOR SYNC SQUARE CLEAR
@@ -247,6 +274,7 @@ class Foraging(SweepStim):
         file = self.mouseid + ".log" #logger automatically appends timestamp
         path = os.path.join(dir,file)
         log = ailogger(path)
+        log.backupFileDir = self.backupdir
         log.add(script = self.script)
         log.add(scripttext = open(self.script,'r').read())
         log.add(mouseid = self.mouseid)
@@ -315,12 +343,13 @@ class Foraging(SweepStim):
         self.window.setRecordFrameIntervals() #start checking frame intervals
         #PRE EXPERIMENT LOOP
         for vsync in range(int(self.preexpsec*60)):
-            if self.syncsqr: self.flipSyncSqr()
+            self.updateFrame(vsync)
             if self.fgStim is not None: 
                 self.checkTerrain()
                 self.checkEncoder()
-                self.fgStim.setPos([self.x,0]) #set fgStim position every frame
+                self.fgStim.setPos([self.x,self.fgStim.pos[1]]) #set fgStim position every frame
                 self.fgStim.draw()
+            if self.syncsqr: self.flipSyncSqr()
             self.flip()
             self.vsynccount += 1
         
@@ -331,13 +360,13 @@ class Foraging(SweepStim):
             
             #MAIN DISPLAY LOOP
             for vsync in range(int(self.sweeplength*60)):
+                self.updateFrame(vsync)
                 if self.bgStim is not None:
                     self.bgStim.draw()
-                    self.updateFrame(vsync)
                 if self.fgStim is not None: 
                     self.checkTerrain()
                     self.checkEncoder()
-                    self.fgStim.setPos([self.x,0]) #set fgStim position every frame
+                    self.fgStim.setPos([self.x,self.fgStim.pos[1]]) #set fgStim position every frame
                     self.fgStim.draw()
                 for keys in event.getKeys(timeStamped=True):
                     if keys[0]in ['escape','q']:
@@ -349,10 +378,11 @@ class Foraging(SweepStim):
             
             #POST SWEEP DISPLAY LOOP
             for vsync in range(int(self.postsweepsec*60)):
+                self.updateFrame(vsync)
                 if self.fgStim is not None:
                     self.checkTerrain()
                     self.checkEncoder()
-                    self.fgStim.setPos([self.x,0])
+                    self.fgStim.setPos([self.x,self.fgStim.pos[1]])
                     self.fgStim.draw()
                 for keys in event.getKeys(timeStamped=True):
                     if keys[0]in ['escape','q']:
@@ -363,15 +393,15 @@ class Foraging(SweepStim):
             
         #POST EXPERIMENT LOOP
         for vsync in range(int(self.postexpsec*60)):
+            self.updateFrame(vsync)
             if self.fgStim is not None:
                 self.checkTerrain()
                 self.checkEncoder()
-                self.fgStim.setPos([self.x,0])
+                self.fgStim.setPos([self.x,self.fgStim.pos[1]])
                 self.fgStim.draw()
             if self.syncsqr: self.flipSyncSqr()
             self.flip()
-            self.vsynccount += 1
-        self.window.setRecordFrameIntervals(False) #stop recording frame intervals         
+            self.vsynccount += 1    
         
         #POST EXP CLEANUP (stops clocks, cleans up windows, etc)
         self.cleanup()
@@ -381,8 +411,6 @@ if __name__ == "__main__":
     """
     This is a sample script that sets up a basic experiment.  This should be performed by the GUI.
     """
-    
-    
     #GENERIC PARAMETERS (should be passed by GUI, some of which have been read from config file)
     params = {}
     params['runs'] = 1 #number of runs
@@ -393,7 +421,7 @@ if __name__ == "__main__":
     params['postsweepsec'] = 1 #black period after sweeps (foreground remains)
     params['rewardtime'] = 0.03 #length of reward for mouse
     params['logdir'] = "C:\\ForagingLogs\\" #where to put the log
-    params['backupdir'] = "" #backup to network
+    params['backupdir'] = None #backup to network
     params['mouseid'] = "Spock" #name of the mouse
     params['userid'] = "derricw" #name of the user
     params['task'] = "Virtual Foraging" #task type
@@ -412,11 +440,12 @@ if __name__ == "__main__":
     
     #TERRAIN CREATION AND PARAMETERS (see Terrain for additional parameters)
     terrain = Terrain()
-    terrain.params.append({'name':'Color','possible':[-1,0,1],'correct':[1],'relevance':True})
-    terrain.params.append({'name':'Ori','possible':range(0,360,45),'correct':[0,45],'relevance':True})
-    terrain.current = [-1,0] #initial values
+    terrain.params.append({'name':'Color','possible':[-1,1],'correct':[1],'relevance':True})
+    terrain.params.append({'name':'Ori','possible':range(0,90,15),'correct':[0],'relevance':True})
+    terrain.current = [-1,0] #initial values (order is the order added to params)
     terrain.objectwidthDeg = 10
-    terrain.speedgain = 0.25
+    terrain.speedgain = 10
+    terrain.correctfreq = 0.25
     
     #SET CONSOLE OUTPUT LEVEL, INITIALIZE WINDOWS
     #logging.console.setLevel(logging.DEBUG) #uncommet for diagnostics
@@ -442,7 +471,7 @@ if __name__ == "__main__":
     
     #CREATE FOREGROUND STIMULUS
     monitor = monitors.Monitor('testMonitor')
-    box = visual.GratingStim(window,size = (misc.deg2pix(terrain.objectwidthDeg,monitor), misc.deg2pix(terrain.objectwidthDeg,monitor)), units = 'pix', color = -1, autoLog=False)
+    box = visual.GratingStim(window,size = (misc.deg2pix(terrain.objectwidthDeg,monitor), misc.deg2pix(terrain.objectwidthDeg,monitor)), units = 'pix', color = -1, autoLog=False, tex=None)
     #fgrating = visual.GratingStim(window,tex="sin",mask="gauss", texRes=64,size=[20,20],units='deg',sf=2)    
     #img = visual.ImageStim(window, image = "C:\\Users\\derricw\\Pictures\\facepalm.jpg", size = [450,300], units = 'pix', autoLog=False) #creates an image from an image in specified directory
     #CREATE FOREGROUND STIMULUS FRAME PARAMETERS (what changes between frames and how much (BESIDES XPOSITITON WHICH IS AUTOMATIC FOR THIS EXPERIMENT)
