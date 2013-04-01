@@ -14,11 +14,11 @@ params['runs'] = 1 #number of runs
 params['shuffle'] = True #shuffle sweep tables
 params['preexpsec'] = 2 #seconds at the start of the experiment
 params['postexpsec'] = 2 #seconds at the end of the experiment
-params['sweeplength'] = 0.25 #length of sweeps
+params['sweeplength'] = 2/60.00 #length of sweeps
 params['postsweepsec'] = 0 #black period after sweeps (foreground remains)
 params['logdir'] = "C:\\ExperimentLogs\\" #where to put the log
 params['backupdir'] = None #backup to network
-params['mousename'] = "Spock" #name of the mouse
+params['mouseid'] = "Spock" #name of the mouse
 params['userid'] = "derricw" #name of the user
 params['task'] = "" #task type
 params['stage'] = "idkwhatthismeans" #stage
@@ -39,7 +39,7 @@ window.setColor(params['bgcolor'])
 #CREATE BACKGROUND STIMULUS
 
 noise = visual.GratingStim(window,tex=None,mask="None",texRes=64,
-       size=[1920,1080], ori = 0, pos = (0,0), name='box', autoLog=False, units = 'pix')    
+       size=[1280,1024], ori = 0, pos = (0,0), name='box', autoLog=False, units = 'pix')    
        
 #CREATE BACKGROUND FRAME PARAMETERS (what changes between frames and how much)
 bgFrame = {}
@@ -47,7 +47,7 @@ bgFrame = {}
 #CREATE BACKGROUND SWEEP PARAMETERS (what changes between sweeps, and in what order)
 bgSweep = {}
 
-noisematrix = [(scipy.random.randint(2,size = (32,32))*2-1) for x in range(100)]
+noisematrix = [(scipy.random.randint(2,size = (64,64))*2-1) for x in range(100)]
 
 bgSweep['Tex'] = (noisematrix,0) #each texture we just generated
 

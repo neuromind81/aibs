@@ -215,7 +215,7 @@ class SweepStim(object):
         """ Writes all important information to log. """
         ##TODO: Think of a better way to do this, or move it out of this class somehow.
         dir = self.logdir
-        file = self.mousename + ".log" #logger automatically appends timestamp
+        file = self.mouseid + ".log" #logger automatically appends timestamp
         path = os.path.join(dir,file)
         log = ailogger(path)
         log.add(script = self.script)
