@@ -65,7 +65,7 @@ def loadsweeptimes(path):
     
     vsync = findlevelsdown(vsynctrace, -4000, 300)
     
-    dthr = (np.amax(diodetrace)-np.amin(diodetrace))/2    
+    dthr = (np.amax(diodetrace)-np.amin(diodetrace))/4    
     diode = findlevels(diodetrace, dthr, 400)
     diode = np.append(diode, findlevelsdown(diodetrace, dthr, 400))
     diode.sort()
@@ -106,7 +106,7 @@ def loadsweeptimesnogap(path):
     
     vsync = findlevelsdown(vsynctrace, -4000, 300)
     
-    dthr = (np.amax(diodetrace)-np.amin(diodetrace))/2    
+    dthr = (np.amax(diodetrace)-np.amin(diodetrace))/4    
     diode = findlevels(diodetrace, dthr, 400)
     diode = np.append(diode, findlevelsdown(diodetrace, dthr, 400))
     diode.sort()

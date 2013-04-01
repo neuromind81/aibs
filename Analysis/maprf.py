@@ -48,20 +48,28 @@ def maprf(datapath, logpath, staflag):
         oncount = np.zeros((nxp,nyp))
         
         '''count spikes per sweep'''
-        spikecount = np.zeros((len(sweeptiming),nc))
+        #spikecount = np.zeros((len(sweeptiming),nc))
+        spikecount = []   
         for ci in range(nc):
             cellspikes = sort(spiketimes[:,ci])
             '''gets sorted spike times for one cell'''
             cellspikes = cellspikes[np.logical_not(np.isnan(cellspikes))]
             '''deletes the NaNs'''
+            onecount = np.zeros((len(sweeptiming),1))
             for i in range(len(sweeptiming)):
                 sweepstart = sweeptiming[i,0]
                 sweepend = sweeptiming[i,1]
                 for j in range(len(cellspikes)):
-                    if cellspikes[j] >= sweeptiming[i,0] and cellspikes[j] < sweeptiming[i,1]:
-                        spikecount[i:ci] += 1
+                    if ((cellspikes[j] >= sweeptiming[i,0]) and (cellspikes[j] < sweeptiming[i,1])):
+                        #spikecount[i:ci] += 1
+                        onecount[i] += 1
+            if ci == 0:
+                spikecount = onecount
+            elif ci > 0:
+                spikecount = np.column_stack([spikecount, onecount])
+            #spikecount[:,ci] = onecount[:]
 
-                spikecount[i:ci] /= (sweepend - sweepstart)
+                #spikecount[i:ci] /= (sweepend - sweepstart)
             #spikecount *= 20000 
         return spikecount
 
@@ -166,9 +174,8 @@ def plotRF(RF, frame):
     colorbar()
     
     
-    
-datapath = r"C:\Users\saskiad\Documents\ephys\20130228_M10_Sparse2\20130228_M10_Sparse2"
-logpath = r"C:\Users\saskiad\Documents\ephys\SPARSE2\130228143420-M9.log"
-
-#(onrf, offrf) = maprf(datapath, logpath, 0)
-spikecount = maprf(datapath, logpath, 0)
+if __name__ == '__main__':    
+    datapath = r"C:\Users\saskiad\Documents\ephys\20130228_M10_Sparse2\20130228_M10_Sparse2"
+    logpath = r"C:\Users\saskiad\Documents\ephys\SPARSE2\130228143420-M9.log"
+    #(onrf, offrf) = maprf(datapath, logpath, 0)
+    spikecount = maprf(datapath, logpath, 0)

@@ -23,7 +23,7 @@ def loadclu(path, numberoffiles):
         
         '''sorts by cell#'''
         spikearray = spikearray[spikearray[:,0].argsort()]
-        spikearray = np.delete(spikearray,len(spikearray)-1,0)
+        #spikearray = np.delete(spikearray,len(spikearray)-1,0)
     
         if i == 1:
             nc = size(celllist)
@@ -47,12 +47,18 @@ def loadclu(path, numberoffiles):
     cut = range(max(temp2[:,0])+1, len(spikelistlong)+1)
     spikelist = np.delete(spikelistlong,cut,0)
     
+#    '''convert extra 0s to Nan'''
+#    for yi in range(0,size(spikelist,axis=1)):
+#        if spikelist[len(spikelist)-1,yi] == 0:
+#            xi = findleveldown(spikelist[:,yi],0)
+#            for i in range(xi,len(spikelist)):
+#                spikelist[i,yi] = nan
     '''convert extra 0s to Nan'''
     for yi in range(0,size(spikelist,axis=1)):
         if spikelist[len(spikelist)-1,yi] == 0:
-            xi = findleveldown(spikelist[:,yi],0)
-            for i in range(xi,len(spikelist)):
-                spikelist[i,yi] = nan
+            for xi in range(len(spikelist)):
+                if spikelist[xi,yi] == 0:
+                    spikelist[xi,yi] = nan
 
     '''sampled at 20kHz, from bin number to seconds'''
     spikelist += 0.0    
