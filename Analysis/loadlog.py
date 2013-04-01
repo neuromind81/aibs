@@ -8,7 +8,7 @@ Created on Fri Feb 15 09:32:07 2013
 import scipy as sp
 import scipy.io as sio
 import numpy as np
-from findlevel import findlevels, findlevelsdown
+from findlevel import *
 
 def loadsweep(datapath):
     '''loads sweep and diode data'''
@@ -37,7 +37,7 @@ def loadlog(logpath):
     return (sweeporder, logtemp, dimnames)
     
 def loadsweeptimes(path):
-    '''loads sweep timing correcteced for computer - monitor delay'''
+    '''loads sweep timing corrected for computer - monitor delay'''
     datapath = path + ".dat"
     metapath = path + ".meta"
     d = open(datapath)
@@ -57,12 +57,17 @@ def loadsweeptimes(path):
     
     #sweep start and end times   
     sweep = findlevels(sweeptrace, 4000, 80000)
-    sweep = np.column_stack([sweep, findlevelsdown(sweeptrace, -4000, 80000)])
+    sweepdown = findlevelsdown(sweeptrace, -4000, 80000)
+    if sweepdown[0] > sweep[0]:
+        sweep = np.column_stack([sweep, sweepdown])
+    elif sweepdown[0] <= sweep[0]:
+        sweep = np.column_stack([sweep, sweepdown[1:]])
     
     vsync = findlevelsdown(vsynctrace, -4000, 300)
     
-    diode = findlevels(diodetrace, 200, 600)
-    diode = np.append(diode, findlevelsdown(diodetrace, 200, 600))
+    dthr = (np.amax(diodetrace)-np.amin(diodetrace))/2    
+    diode = findlevels(diodetrace, dthr, 400)
+    diode = np.append(diode, findlevelsdown(diodetrace, dthr, 400))
     diode.sort()
     diode = np.delete(diode,[0,1],0)
     
@@ -72,8 +77,50 @@ def loadsweeptimes(path):
     sweeptiming = sweep + 0.0
     sweeptiming /= 20000    
     return sweeptiming
+    
+def loadsweeptimesnogap(path):
+    '''loads sweep timing corrected for computer - monitor delay'''
+    datapath = path + ".dat"
+    metapath = path + ".meta"
+    d = open(datapath)
+    data = np.fromfile(d,np.int16)
+    m = open(metapath)
+    meta = m.readlines()
+    
+    channels = int(meta[7].split(' = ')[1])
+    samplerate = int(meta[10].split(' = ')[1])
+    duration = len(data)/channels/samplerate
+    
+    datareshaped = np.transpose(np.reshape(data,(len(data)/channels,channels)))
+    
+    sweeptrace = datareshaped[(channels-3),:]
+    vsynctrace = datareshaped[(channels-2),:]
+    diodetrace = datareshaped[(channels-1),:]
+    
+    temp = findlevel(sweeptrace, 4000)
+    
+    sweep = findlevels(sweeptrace, -5000, 4000)
+    sweep.insert( 0, temp)
+    sweep = np.column_stack([sweep, findlevelsdown(sweeptrace, -5000, 4000)])
+    sweep = delete(sweep, len(sweep)-1, 0)
+    
+    vsync = findlevelsdown(vsynctrace, -4000, 300)
+    
+    dthr = (np.amax(diodetrace)-np.amin(diodetrace))/2    
+    diode = findlevels(diodetrace, dthr, 400)
+    diode = np.append(diode, findlevelsdown(diodetrace, dthr, 400))
+    diode.sort()
+    diode = np.delete(diode,[0,1],0)
+    
+    #corrects for delay between computer and monitor
+    sweep -= (vsync[0]-diode[0])
+    #converts to time
+    sweeptiming = sweep + 0.0
+    sweeptiming /= 20000    
+    return sweeptiming
+    
+    
  
-
-#path = r"C:\Users\saskiad\Documents\ephys\20130228_M10_Ori4\20130228_M10_Ori4"
-
-#sweeptest = loadsweeptimes(path)
+if __name__ == '__main__':
+    path = r"C:\Users\saskiad\Documents\ephys\20130228_M10_Sparse2\20130228_M10_Sparse2"
+    sweeptest = loadsweeptimes(path)

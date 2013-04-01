@@ -15,22 +15,20 @@ def loadclu(path, numberoffiles):
         cluin = path +'.clu.' + str(i)
         resin = path + '.res.' + str(i)
         celllist = np.loadtxt(cluin, dtype = int)
+        celllist = delete(celllist,0)
         timelist = np.loadtxt(resin, dtype = int)
-    
-        if i == 1:
-            nc = size(celllist)*2
-            spikelistlong = np.zeros((nc,0))
-            cellnumber = np.zeros((0))
         
         '''puts data into an array, column 0 = cell#, column1 = spike bin'''
-        spikearray = np.zeros(((size(celllist)*2),2), dtype = int)
-        spikearray[:len(celllist),0] = celllist[:]
-        spikearray[:(len(celllist)-1),1] = timelist[:]
+        spikearray = np.column_stack([celllist, timelist])
         
         '''sorts by cell#'''
         spikearray = spikearray[spikearray[:,0].argsort()]
         spikearray = np.delete(spikearray,len(spikearray)-1,0)
-        #every shank has one spike for a larger number spike that I think is meaningless...
+    
+        if i == 1:
+            nc = size(celllist)
+            spikelistlong = np.zeros((nc,0))
+            cellnumber = np.zeros((0))
     
         '''array where each column contains the spike times for a single cell'''
         spikelisttemp = np.zeros((nc,(max(spikearray[:,0])-1)), dtype = float)
@@ -62,6 +60,7 @@ def loadclu(path, numberoffiles):
     
     return (spikelist, cellnumber)
 
-#path = r"C:\Users\saskiad\Documents\ephys\20130228_M10_Ori4\20130228_M10_Ori4"
-#numberoffiles = 8
-#(spikelist, cellnumber) = loadclu(path, numberoffiles)
+if __name__ == '__main__':
+    path = r"C:\Users\saskiad\Documents\ephys\20130228_M10_Ori4\20130228_M10_Ori4"
+    numberoffiles = 8
+    (spikelist, cellnumber) = loadclu(path, numberoffiles)

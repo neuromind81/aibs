@@ -9,79 +9,95 @@ from pylab import *
 import scipy as sp
 import numpy as np
 from loadlog import *
+from loadclu import loadclu
+from getSweepTimes import *
 from findlevel import findlevel
 import matplotlib.pyplot as plt
 import matplotlib.animation as manimation
 
 
 def maprf(datapath, logpath, staflag):
-    sweeptiming = loadsweeptimes(datapath)
+    print "loading data from:",datapath    
+    sweeptiming = loadsweeptimesnogap(datapath)
     numberofshanks = 8
     (spiketimes, cellnumber) = loadclu(datapath, numberofshanks)
     (sweeporder, sweeptable, bgdimnames) = getSweepTimesEP(logpath)
-    #yi = sweeptable[0]
-    #xi = sweeptable[1]
-    #brightness = sweeptable[8]
-    col = sweeptable[0][bgdimnames.index('Color')]
-    xi = sweeptable[0][bgdimnames.index('PosX')]
-    yi = sweeptable[0][bgdimnames.index('PosY')]
-    
-    '''count spikes per sweep'''
-    firstspike = findlevel(spiketiming, sweeptiming[0])
-    spikecount = np.zeros((len(sweeptiming),1))
-    for i in range(0,(len(sweeptiming)-1)):
-        sweepstart = sweeptiming[i]
-        sweepend = sweeptiming[(i+1)]
-        for j in range(firstspike, (firstspike+100)):
-            if spiketiming[j] >= sweepstart and spiketiming[j] < sweepend:
-                spikecount[i] += 1
-                tempj = j
-        firstspike = tempj
-        spikecount[i] /= (sweepend - sweepstart)
-    spikecount *= 20000 
+    nc = size(spiketimes,1)
+
+    col = bgdimnames.index('Color')
+    xi = bgdimnames.index('PosX')
+    yi = bgdimnames.index('PosY')
     
     '''arranges stimulus conditions'''    
-    stimuluscondition = np.zeros((len(sweeporder),4))
+    stimuluscondition = np.zeros((len(sweeporder),3))
     for i in range(0, len(sweeporder)):    
         j = sweeporder[i]        
-#        stimuluscondition[i,0] = brightness[j]
-#        stimuluscondition[i,1] = xi[j]
-#        stimuluscondition[i,2] = yi[j]
-#        stimuluscondition[i,3] = spikecount[i]
         stimuluscondition[i,0] = sweeptable[i][col]
         stimuluscondition[i,1] = sweeptable[i][xi]
         stimuluscondition[i,2] = sweeptable[i][yi]
-        stimuluscondition[i,3] = spikecount[i]
     
+    '''number of xpositions and ypositions'''
     nxp = ((amax(stimuluscondition[:,1])-amin(stimuluscondition[:,1]))/5)+1
     nyp = ((amax(stimuluscondition[:,2])-amin(stimuluscondition[:,2]))/5)+1
     
     if staflag == 0:
         '''on and off count maps'''
-        onrf = np.zeros((nxp,nyp))
-        offrf = np.zeros((nxp,nyp))
-        oncount = np.zeros((nxp,nyp))
+        offrf = np.zeros((nxp,nyp,nc))
         offcount = np.zeros((nxp,nyp))
-    
-        for i in range(0,len(stimuluscondition)):
-            if stimuluscondition[i,0] == 0:
-                offrf[stimuluscondition[i,1],stimuluscondition[i,2]] += stimuluscondition[i,3]            
-                offcount[stimuluscondition[i,1],stimuluscondition[i,2]] += 1
-            if stimuluscondition[i,0] == 1:
-                onrf[stimuluscondition[i,1],stimuluscondition[i,2]] += stimuluscondition[i,3]            
-                oncount[stimuluscondition[i,1],stimuluscondition[i,2]] += 1
-        offrf /= offcount
-        onrf /= oncount
-        rf = np.zeros((16,16))
-        rf = (onrf - offrf)/(onrf + offrf)
-        imshow(rf, cmap="RdBu", vmin=-1, vmax=1)
-        xlabel("X position", fontsize=20)
-        ylabel("Y position", fontsize=20)
-        tick_params(labelsize=20)
-        cbar = colorbar()
-        cbar.ax.set_ylabel('(ON-OFF)/(ON+OFF)', fontsize=16)         
-        show()
-        return rf
+        onrf = np.zeros((nxp,nyp,nc))
+        oncount = np.zeros((nxp,nyp))
+        
+        '''count spikes per sweep'''
+        spikecount = np.zeros((len(sweeptiming),nc))
+        for ci in range(nc):
+            cellspikes = sort(spiketimes[:,ci])
+            '''gets sorted spike times for one cell'''
+            cellspikes = cellspikes[np.logical_not(np.isnan(cellspikes))]
+            '''deletes the NaNs'''
+            for i in range(len(sweeptiming)):
+                sweepstart = sweeptiming[i,0]
+                sweepend = sweeptiming[i,1]
+                for j in range(len(cellspikes)):
+                    if cellspikes[j] >= sweeptiming[i,0] and cellspikes[j] < sweeptiming[i,1]:
+                        spikecount[i:ci] += 1
+
+                spikecount[i:ci] /= (sweepend - sweepstart)
+            #spikecount *= 20000 
+        return spikecount
+
+#            for i in range(0,len(stimuluscondition)):
+#                if stimuluscondition[i,0] == 0:
+#                    offrf[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5),:] += spikecount[i,:]            
+#                    offcount[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5)] += 1
+#                if stimuluscondition[i,0] == 1:
+#                    onrf[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5),:] += spikecount[i,:]            
+#                    oncount[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5)] += 1
+
+
+        #offrf /= offcount
+        #onrf /= oncount
+#        rf = np.zeros((nxp,nyp,nc))
+#        rf = (onrf - offrf)/(onrf + offrf)
+#
+#        '''plotting?'''
+#        for s in range(1,numberofshanks+1):
+#            firstcell = findlevelbuffer(cellnumber, s, 100) 
+#            lastcell = findlevelbuffer(cellnumber, (s+1), 100) - 1
+#            if lastcell > firstcell:     
+#                sn = lastcell - firstcell + 1
+#                print "shank #"+str(s)+" has "+str(sn)+" cells"
+#                figure(s)        
+#                for c in range(sn):
+#                    sp = c + firstcell
+#                    subplot(ceil(sqrt(sn)), round(sqrt(sn)), c)        
+#                    imshow(rf, cmap="RdBu", vmin=-1, vmax=1)
+#                    xlabel("X position", fontsize=10)
+#                    ylabel("Y position", fontsize=10)
+#                    tick_params(labelsize=10)
+#                    cbar = colorbar()
+#            cbar.ax.set_ylabel('(ON-OFF)/(ON+OFF)', fontsize=16)         
+#            show()
+        return (onrf, offrf)
         
     if staflag == 1:
         '''simple spike triggered average (downsampled to 1 kHz)'''
@@ -151,7 +167,8 @@ def plotRF(RF, frame):
     
     
     
-datapath = "C:\Users\saskiad\Documents\ephys\20130228_M10_Sparse2\20130228_M10_Sparse2"
+datapath = r"C:\Users\saskiad\Documents\ephys\20130228_M10_Sparse2\20130228_M10_Sparse2"
 logpath = r"C:\Users\saskiad\Documents\ephys\SPARSE2\130228143420-M9.log"
 
-rf = maprf(datapath, logpath, 0)
+#(onrf, offrf) = maprf(datapath, logpath, 0)
+spikecount = maprf(datapath, logpath, 0)

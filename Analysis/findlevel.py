@@ -9,8 +9,8 @@ from pylab import *
 
 def findlevel(inwave, threshold):
     '''script to find a single upward threshold crossing'''
-    for i in range(0,(size(inwave)-1)):
-        if (inwave[i]) >= threshold and (inwave[(i-1)]) < threshold:            
+    for i in range(0,(size(inwave))):
+        if np.logical_and(((inwave[i]) >= threshold),((inwave[(i-1)]) < threshold)):            
             return i
 
 def findlevelbuffer(inwave, threshold, endbuffer):
