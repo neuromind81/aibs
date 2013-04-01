@@ -25,7 +25,10 @@ def run():
 		bf = BFVirtualStack(path, cs, False, False, False)
 		fname = "%06d"%(index-index%200)
 		path = os.path.join(targetDir,fname)
-		os.mkdir(path)
+		try:
+			os.mkdir(path)
+		except Exception, e:
+			print "Couldn't make directory:",e
 		for sliceIndex in xrange(1,bf.getSize() +1):
 			print "Well done. Processing slice", sliceIndex
 			ip = bf.getProcessor(sliceIndex)
