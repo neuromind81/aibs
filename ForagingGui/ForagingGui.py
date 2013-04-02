@@ -9,7 +9,7 @@ import sys
 from PyQt4 import QtCore as qt, QtGui
 from PyQt4.QtCore import QObject as qo
 from ForagingGuiLayout import Ui_MainWindow
-from rewarddiaglayout import Ui_Form
+from RewardDiagLayout import Ui_Form
 from psychopy import visual
 from ScriptGenerator import Script
 import subprocess
@@ -79,27 +79,20 @@ class MyForm(QtGui.QMainWindow):
         
         # Ensure important directories exist, create them if not.
         checkDirs(self.logDir,self.library,self.stimulilib,self.experimentslib,self.terrainlib,self.scriptlog)
-        
-        # Connect signals
-        qo.connect(self.ui.pushButton_loadExperiment,qt.SIGNAL("clicked()"), self._loadExperiment)
-        qo.connect(self.ui.pushButton_loadBGStimulus,qt.SIGNAL("clicked()"), self._loadBG)
-        qo.connect(self.ui.pushButton_loadFGStimulus,qt.SIGNAL("clicked()"), self._loadFG)
-        qo.connect(self.ui.pushButton_loadTerrain,qt.SIGNAL("clicked()"), self._loadTerrain)
-        qo.connect(self.ui.pushButton_run,qt.SIGNAL("clicked()"), self._run)
-        qo.connect(self.ui.pushButton_displayTerrain,qt.SIGNAL("clicked()"), self._preview)
-        qo.connect(self.ui.pushButton_rewardDiagnostic,qt.SIGNAL("clicked()"),self._rewarddiag)
 
-        ''' Examples of connecting signals (assumes your form has a pushButton, lineEdit, and textEdit)
-        #QtCore.QObject.connect(self.ui.pushButton, QtCore.SIGNAL("clicked()"), self.ui.textEdit.clear )
-        #QtCore.QObject.connect(self.ui.lineEdit, QtCore.SIGNAL("returnPressed()"), self.add_entry)
-        '''
-        ''' Example of signal callback (performed when return is pressed on lineEdit, see above)
-    def add_entry(self):
-        self.ui.lineEdit.selectAll()
-        self.ui.lineEdit.cut()
-        self.ui.textEdit.append("")
-        self.ui.textEdit.paste()
-        '''
+        # Connect signals
+        self.ui.pushButton_loadExperiment.clicked.connect(self._loadExperiment)
+        self.ui.pushButton_loadBGStimulus.clicked.connect(self._loadBG)
+        self.ui.pushButton_loadFGStimulus.clicked.connect(self._loadFG)
+        self.ui.pushButton_loadTerrain.clicked.connect(self._loadTerrain)
+        self.ui.pushButton_run.clicked.connect(self._run)
+        self.ui.pushButton_displayTerrain.clicked.connect(self._preview)
+        self.ui.pushButton_rewardDiagnostic.clicked.connect(self._rewarddiag)
+
+        self.ui.tableWidget_experiment.itemChanged.connect(self._experimentChanged)
+        self.ui.tableWidget_BGStimulus.itemChanged.connect(self._BGStimulusChanged)
+        self.ui.tableWidget_FGStimulus.itemChanged.connect(self._FGStimulusChanged)
+        self.ui.tableWidget_terrain.itemChanged.connect(self._terrainChanged)
         
     def _loadExperiment(self):
         """Load an experiment file."""
@@ -117,12 +110,11 @@ class MyForm(QtGui.QMainWindow):
                         index +=1
                     self.ui.tableWidget_experiment.sortByColumn(0,0)
                     _,tail = os.path.split(str(fname)) #get just the file name
-                    self.ui.groupBox_ExperimentParams.setTitle(tail)
+                    self.ui.groupBox_experiment.setTitle(tail)
                 except Exception, e:
                     print "Data is incorrectly formatted.",e
         except Exception, e:
             print "Couldn't open file:",e
-
     
     def _loadBG(self):
         """Load a stimulus file as the background stimulus."""
@@ -137,12 +129,12 @@ class MyForm(QtGui.QMainWindow):
                     exec(stim[1]) #excupt only parameters
                     index = 0
                     for k,v in bgSweep.iteritems():
-                        self.ui.tableWidget_bgStimulus.setItem(index,0,QtGui.QTableWidgetItem(str(k)))
-                        self.ui.tableWidget_bgStimulus.setItem(index,1,QtGui.QTableWidgetItem(str(v)))
+                        self.ui.tableWidget_BGStimulus.setItem(index,0,QtGui.QTableWidgetItem(str(k)))
+                        self.ui.tableWidget_BGStimulus.setItem(index,1,QtGui.QTableWidgetItem(str(v)))
                         index +=1
                     self.ui.tableWidget_experiment.sortByColumn(0,0)
                     _,tail = os.path.split(str(fname)) #get just the file name
-                    self.ui.groupBox_BgStimulus.setTitle(tail)
+                    self.ui.groupBox_BGStimulus.setTitle(tail)
                 except Exception, e:
                     print "Data is incorreclty formatted.",e
                     
@@ -162,12 +154,12 @@ class MyForm(QtGui.QMainWindow):
                     exec(stim[1]) #execute only parameters
                     index = 0
                     for k,v in fgSweep.iteritems():
-                        self.ui.tableWidget_fgStimulus.setItem(index,0,QtGui.QTableWidgetItem(str(k)))
-                        self.ui.tableWidget_fgStimulus.setItem(index,1,QtGui.QTableWidgetItem(str(v)))
+                        self.ui.tableWidget_FGStimulus.setItem(index,0,QtGui.QTableWidgetItem(str(k)))
+                        self.ui.tableWidget_FGStimulus.setItem(index,1,QtGui.QTableWidgetItem(str(v)))
                         index +=1
                     self.ui.tableWidget_experiment.sortByColumn(0,0)
                     _,tail = os.path.split(str(fname)) #get just the file name
-                    self.ui.groupBox_FgStimulus.setTitle(tail)
+                    self.ui.groupBox_FGStimulus.setTitle(tail)
                 except Exception, e:
                     print "Data is incorreclty formatted.",e
                     
@@ -185,17 +177,45 @@ class MyForm(QtGui.QMainWindow):
                     exec(data) #execute only parameters
                     index = 0
                     for k,v in terrain.__dict__.iteritems():
-                        self.ui.tableWidget_terrainParams.setItem(index,0,QtGui.QTableWidgetItem(str(k)))
-                        self.ui.tableWidget_terrainParams.setItem(index,1,QtGui.QTableWidgetItem(str(v)))
+                        self.ui.tableWidget_terrain.setItem(index,0,QtGui.QTableWidgetItem(str(k)))
+                        self.ui.tableWidget_terrain.setItem(index,1,QtGui.QTableWidgetItem(str(v)))
                         index +=1
                     self.ui.tableWidget_experiment.sortByColumn(0,0)
                     _,tail = os.path.split(str(fname)) #get just the file name
-                    self.ui.groupBox_Terrain.setTitle(tail)
+                    self.ui.groupBox_terrain.setTitle(tail)
                 except Exception, e:
                     print "Data is incorreclty formatted.",e
         except Exception, e:
             print "Couldn't open file:",e
     
+    def _experimentChanged(self):
+        """Experiment parameter changed callback. """
+        current = str(self.ui.groupBox_experiment.title())
+        if current[-1] is not "*":
+            current +="*"
+            self.ui.groupBox_experiment.setTitle(current)
+
+    def _BGStimulusChanged(self):
+        """BGStimulus sweep parameter changed callback."""
+        current = str(self.ui.groupBox_BGStimulus.title())
+        if current[-1] is not "*":
+            current +="*"
+            self.ui.groupBox_BGStimulus.setTitle(current)
+
+    def _FGStimulusChanged(self):
+        """FGStimulus sweep parameter changed callback."""
+        current = str(self.ui.groupBox_FGStimulus.title())
+        if current[-1] is not "*":
+            current +="*"
+            self.ui.groupBox_FGStimulus.setTitle(current)
+
+    def _terrainChanged(self):
+        """Terrain parameter changed callback."""
+        current = str(self.ui.groupBox_terrain.title())
+        if current[-1] is not "*":
+            current +="*"
+            self.ui.groupBox_terrain.setTitle(current)
+
     def _run(self):
         """Runs an experiment."""
         print "Generating script..."
@@ -250,9 +270,9 @@ class MyForm(QtGui.QMainWindow):
         
         #ADD TERRAIN
         script.add("\nterrain = Terrain(['color','orientation'])")
-        for i in range(self.ui.tableWidget_terrainParams.rowCount()):
-            keystr = self.ui.tableWidget_terrainParams.item(i,0)
-            valstr = self.ui.tableWidget_terrainParams.item(i,1)
+        for i in range(self.ui.tableWidget_terrain.rowCount()):
+            keystr = self.ui.tableWidget_terrain.item(i,0)
+            valstr = self.ui.tableWidget_terrain.item(i,1)
             if keystr is not None:
                 terrainstr = 'terrain.'+keystr.text()+"="+valstr.text()
                 script.add(terrainstr)
@@ -267,9 +287,9 @@ class MyForm(QtGui.QMainWindow):
 
         #ADD BGSWEEPS
         script.add('bgSweep={}')
-        for i in range(self.ui.tableWidget_bgStimulus.rowCount()):
-            keystr = self.ui.tableWidget_bgStimulus.item(i,0)
-            valstr = self.ui.tableWidget_bgStimulus.item(i,1)
+        for i in range(self.ui.tableWidget_BGStimulus.rowCount()):
+            keystr = self.ui.tableWidget_BGStimulus.item(i,0)
+            valstr = self.ui.tableWidget_BGStimulus.item(i,1)
             if keystr is not None:
                 bgsweepstr = "bgSweep['"+keystr.text()+"']="+valstr.text()
                 script.add(bgsweepstr)        
@@ -279,9 +299,9 @@ class MyForm(QtGui.QMainWindow):
 
         #ADD FGSWEEPS
         script.add('fgSweep={}')
-        for i in range(self.ui.tableWidget_fgStimulus.rowCount()):
-            keystr = self.ui.tableWidget_fgStimulus.item(i,0)
-            valstr = self.ui.tableWidget_fgStimulus.item(i,1)
+        for i in range(self.ui.tableWidget_FGStimulus.rowCount()):
+            keystr = self.ui.tableWidget_FGStimulus.item(i,0)
+            valstr = self.ui.tableWidget_FGStimulus.item(i,1)
             if keystr is not None:
                 fgsweepstr = "fgSweep['"+keystr.text()+"']="+valstr.text()
                 script.add(fgsweepstr)  
@@ -326,12 +346,20 @@ class RewardDiagnostic(QtGui.QWidget):
         QtGui.QWidget.__init__(self,parent)
         self.ui = Ui_Form()
         self.ui.setupUi(self)
-   
+    
+        self.ui.pushButton_dispense.clicked.connect(self._dispense)
+        self.ui.pushButton_calibrate.clicked.connect(self._calibrate)
+
+    def _dispense(self):
+        pass
+
+    def _calibrate(self):
+        pass
 
 
 if __name__ == "__main__":
-    #sys.path.append('/home/derricw/GitHub')  #get rid of this when I'm coding in windows
-    #sys.path.append(r'C:\Users\derricw\Documents\GitHub') #comment this in windows
+    #sys.path.append('/home/derricw/GitHub')  #comment this in windows
+    #sys.path.append(r'C:\Users\derricw\Documents\GitHub') #comment this in linux
     app = QtGui.QApplication(sys.argv)
     myapp = MyForm()
     myapp.show()

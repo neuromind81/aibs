@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="pushButton_dispense">
    <property name="geometry">
     <rect>
      <x>250</x>
@@ -26,7 +26,7 @@
     <string>Dispense</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_2">
+  <widget class="QPushButton" name="pushButton_calibrate">
    <property name="geometry">
     <rect>
      <x>400</x>
@@ -39,7 +39,7 @@
     <string>Calibrate</string>
    </property>
   </widget>
-  <widget class="QGroupBox" name="groupBox_2">
+  <widget class="QGroupBox" name="groupBox_volume">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -51,7 +51,7 @@
    <property name="title">
     <string>Volume/Time</string>
    </property>
-   <widget class="QLineEdit" name="lineEdit">
+   <widget class="QLineEdit" name="lineEdit_volume">
     <property name="geometry">
      <rect>
       <x>40</x>
@@ -61,7 +61,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QComboBox" name="comboBox">
+   <widget class="QComboBox" name="comboBox_unit">
     <property name="geometry">
      <rect>
       <x>60</x>

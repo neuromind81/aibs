@@ -31,28 +31,8 @@
      </font>
     </property>
     <property name="title">
-     <string>Mouse Info</string>
+     <string>Mouse</string>
     </property>
-    <widget class="QPushButton" name="pushButton_loadMouse">
-     <property name="geometry">
-      <rect>
-       <x>240</x>
-       <y>0</y>
-       <width>151</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-       <weight>50</weight>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Load Mouse</string>
-     </property>
-    </widget>
     <widget class="QLineEdit" name="lineEdit_mouseid">
      <property name="geometry">
       <rect>
@@ -173,12 +153,11 @@
      </widget>
     </widget>
     <zorder>groupBox_4</zorder>
-    <zorder>pushButton_loadMouse</zorder>
     <zorder>lineEdit_mouseid</zorder>
     <zorder>pushButton_sessionPerformance</zorder>
     <zorder>pushButton_lifetimePerformance</zorder>
    </widget>
-   <widget class="QGroupBox" name="groupBox_BgStimulus">
+   <widget class="QGroupBox" name="groupBox_BGStimulus">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -200,10 +179,10 @@
     <widget class="QPushButton" name="pushButton_loadBGStimulus">
      <property name="geometry">
       <rect>
-       <x>240</x>
-       <y>0</y>
-       <width>161</width>
-       <height>41</height>
+       <x>320</x>
+       <y>10</y>
+       <width>81</width>
+       <height>31</height>
       </rect>
      </property>
      <property name="font">
@@ -214,7 +193,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Load Stimulus</string>
+      <string>Load</string>
      </property>
     </widget>
     <widget class="QGroupBox" name="groupBox_3">
@@ -236,7 +215,7 @@
      <property name="title">
       <string>Parameters</string>
      </property>
-     <widget class="QTableWidget" name="tableWidget_bgStimulus">
+     <widget class="QTableWidget" name="tableWidget_BGStimulus">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -275,8 +254,29 @@
       <column/>
      </widget>
     </widget>
+    <widget class="QPushButton" name="pushButton_saveBGStimulus">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>10</y>
+       <width>81</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Save</string>
+     </property>
+    </widget>
     <zorder>groupBox_3</zorder>
     <zorder>pushButton_loadBGStimulus</zorder>
+    <zorder>pushButton_saveBGStimulus</zorder>
    </widget>
    <widget class="QGroupBox" name="groupBox_foraging">
     <property name="geometry">
@@ -297,23 +297,6 @@
     <property name="title">
      <string>Foraging</string>
     </property>
-    <widget class="QLineEdit" name="lineEdit_userid">
-     <property name="geometry">
-      <rect>
-       <x>82</x>
-       <y>30</y>
-       <width>161</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-       <weight>50</weight>
-       <bold>false</bold>
-      </font>
-     </property>
-    </widget>
     <widget class="QPushButton" name="pushButton_run">
      <property name="geometry">
       <rect>
@@ -335,26 +318,6 @@
      </property>
      <property name="text">
       <string>RUN</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>30</y>
-       <width>51</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-       <weight>50</weight>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>User ID:</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_2">
@@ -608,7 +571,7 @@
       <string>TBD</string>
      </property>
     </widget>
-    <widget class="QGroupBox" name="groupBox_FgStimulus">
+    <widget class="QGroupBox" name="groupBox_FGStimulus">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -619,15 +582,15 @@
      </property>
      <property name="font">
       <font>
-       <pointsize>10</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
      <property name="title">
-      <string>Stimulus Parameters</string>
+      <string>Target Stimulus</string>
      </property>
-     <widget class="QTableWidget" name="tableWidget_fgStimulus">
+     <widget class="QTableWidget" name="tableWidget_FGStimulus">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -668,10 +631,10 @@
      <widget class="QPushButton" name="pushButton_loadFGStimulus">
       <property name="geometry">
        <rect>
-        <x>240</x>
-        <y>0</y>
-        <width>161</width>
-        <height>41</height>
+        <x>320</x>
+        <y>10</y>
+        <width>81</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="font">
@@ -682,11 +645,31 @@
        </font>
       </property>
       <property name="text">
-       <string>Load Stimulus</string>
+       <string>Load</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_saveFGStimulus">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>10</y>
+        <width>81</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Save</string>
       </property>
      </widget>
     </widget>
-    <widget class="QGroupBox" name="groupBox_Terrain">
+    <widget class="QGroupBox" name="groupBox_terrain">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -697,7 +680,7 @@
      </property>
      <property name="font">
       <font>
-       <pointsize>10</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -705,7 +688,7 @@
      <property name="title">
       <string>Terrain Parameters</string>
      </property>
-     <widget class="QTableWidget" name="tableWidget_terrainParams">
+     <widget class="QTableWidget" name="tableWidget_terrain">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -755,10 +738,10 @@
      <widget class="QPushButton" name="pushButton_loadTerrain">
       <property name="geometry">
        <rect>
-        <x>240</x>
-        <y>0</y>
-        <width>161</width>
-        <height>41</height>
+        <x>320</x>
+        <y>10</y>
+        <width>81</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="font">
@@ -769,15 +752,33 @@
        </font>
       </property>
       <property name="text">
-       <string>Load Terrain</string>
+       <string>Load</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_saveTerrain">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>10</y>
+        <width>81</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Save</string>
       </property>
      </widget>
     </widget>
-    <zorder>groupBox_FgStimulus</zorder>
-    <zorder>groupBox_Terrain</zorder>
-    <zorder>lineEdit_userid</zorder>
+    <zorder>groupBox_FGStimulus</zorder>
+    <zorder>groupBox_terrain</zorder>
     <zorder>pushButton_run</zorder>
-    <zorder>label</zorder>
     <zorder>label_2</zorder>
     <zorder>lineEdit_logDir</zorder>
     <zorder>label_3</zorder>
@@ -792,7 +793,7 @@
     <zorder>pushButton_rewardDiagnostic</zorder>
     <zorder>pushButton_TBD</zorder>
    </widget>
-   <widget class="QGroupBox" name="groupBox_ExperimentParams">
+   <widget class="QGroupBox" name="groupBox_experiment">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -814,10 +815,10 @@
     <widget class="QPushButton" name="pushButton_loadExperiment">
      <property name="geometry">
       <rect>
-       <x>240</x>
-       <y>0</y>
-       <width>161</width>
-       <height>41</height>
+       <x>320</x>
+       <y>10</y>
+       <width>81</width>
+       <height>31</height>
       </rect>
      </property>
      <property name="font">
@@ -828,7 +829,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Load Experiment</string>
+      <string>Load</string>
      </property>
     </widget>
     <widget class="QGroupBox" name="groupBox_5">
@@ -899,11 +900,32 @@
       <column/>
      </widget>
     </widget>
+    <widget class="QPushButton" name="pushButton_saveExperiment">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>10</y>
+       <width>81</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Save</string>
+     </property>
+    </widget>
     <zorder>groupBox_5</zorder>
     <zorder>pushButton_loadExperiment</zorder>
+    <zorder>pushButton_saveExperiment</zorder>
    </widget>
-   <zorder>groupBox_ExperimentParams</zorder>
-   <zorder>groupBox_BgStimulus</zorder>
+   <zorder>groupBox_experiment</zorder>
+   <zorder>groupBox_BGStimulus</zorder>
    <zorder>groupBox_mouse</zorder>
    <zorder>groupBox_foraging</zorder>
   </widget>
@@ -913,7 +935,7 @@
      <x>0</x>
      <y>0</y>
      <width>885</width>
-     <height>23</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFiles">
