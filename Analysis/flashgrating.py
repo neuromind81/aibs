@@ -145,7 +145,7 @@ def flashgrating (datapath, logpath, modality, numbins, showflag):
             figure(s)        
             for c in range(sn):
                 sp = c + firstcell
-                subplot(ceil(sqrt(sn)), round(sqrt(sn)), c)
+                subplot(ceil(sqrt(sn)), round(sqrt(sn)), c+1)
                 errorbar(tuning, f1mean[:,sp], yerr=f1sem[:,sp], fmt = 'ro', capsize=2, linestyle='-')
                 errorbar(tuning, f0mean[:,sp], yerr=f0sem[:,sp], fmt = 'bx', capsize=2, linestyle='-')
                 if (modality.find("conrev")+1):

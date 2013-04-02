@@ -31,16 +31,17 @@ def loadclu(path, numberoffiles):
             cellnumber = np.zeros((0))
     
         '''array where each column contains the spike times for a single cell'''
-        spikelisttemp = np.zeros((nc,(max(spikearray[:,0])-1)), dtype = float)
-        for k in range(2,(max(spikearray[:,0]+1))):
-            temp = np.argwhere(spikearray[:,0]==k)
-            for j in range(0,len(temp)):    
-                spikelisttemp[j,(k-2)] = spikearray[temp[j],1]
-            cn = float(i + (float(k)/100))
-            cellnumber = np.append(cellnumber,cn)
-       
-        '''appends cells from one file to array of all files'''
-        spikelistlong = np.append(spikelistlong, spikelisttemp,1)    
+        if max(spikearray[:,0]>1):
+            spikelisttemp = np.zeros((nc,max(spikearray[:,0]-1)), dtype = float)
+            for k in range(2,(max(spikearray[:,0]+1))):
+                temp = np.argwhere(spikearray[:,0]==k)
+                for j in range(0,len(temp)):    
+                    spikelisttemp[j,(k-2)] = spikearray[temp[j],1]
+                cn = float(i + (float(k)/100))
+                cellnumber = np.append(cellnumber,cn)
+           
+            '''appends cells from one file to array of all files'''
+            spikelistlong = np.append(spikelistlong, spikelisttemp,1)    
     
     '''trims list of extra 0s'''
     temp2 = np.argwhere(spikelistlong)

@@ -48,7 +48,6 @@ def maprf(datapath, logpath, staflag):
         oncount = np.zeros((nxp,nyp))
         
         '''count spikes per sweep'''
-        #spikecount = np.zeros((len(sweeptiming),nc))
         spikecount = []   
         for ci in range(nc):
             cellspikes = sort(spiketimes[:,ci])
@@ -57,54 +56,78 @@ def maprf(datapath, logpath, staflag):
             '''deletes the NaNs'''
             onecount = np.zeros((len(sweeptiming),1))
             for i in range(len(sweeptiming)):
-                sweepstart = sweeptiming[i,0]
-                sweepend = sweeptiming[i,1]
                 for j in range(len(cellspikes)):
                     if ((cellspikes[j] >= sweeptiming[i,0]) and (cellspikes[j] < sweeptiming[i,1])):
-                        #spikecount[i:ci] += 1
                         onecount[i] += 1
+                onecount[i] /= (sweeptiming[i,1] - sweeptiming[i,0])
             if ci == 0:
                 spikecount = onecount
             elif ci > 0:
                 spikecount = np.column_stack([spikecount, onecount])
-            #spikecount[:,ci] = onecount[:]
-
-                #spikecount[i:ci] /= (sweepend - sweepstart)
-            #spikecount *= 20000 
-        return spikecount
-
-#            for i in range(0,len(stimuluscondition)):
-#                if stimuluscondition[i,0] == 0:
-#                    offrf[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5),:] += spikecount[i,:]            
-#                    offcount[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5)] += 1
-#                if stimuluscondition[i,0] == 1:
-#                    onrf[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5),:] += spikecount[i,:]            
-#                    oncount[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5)] += 1
 
 
+        for i in range(0,len(stimuluscondition)):
+            if stimuluscondition[i,0] == -1:
+                offrf[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5),:] += spikecount[i,:]            
+                offcount[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5)] += 1
+            if stimuluscondition[i,0] == 1:
+                onrf[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5),:] += spikecount[i,:]            
+                oncount[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5)] += 1
+
+        if amin(offcount) == amax(offcount):
+            offrf /= amin(offcount)
+        else:
+            print "unequal OFF sampling!"
+        
+        if amin(oncount) == amax(oncount):
+            onrf /= amin(oncount)
+        else:
+            print "unequal ON sampling!"
         #offrf /= offcount
         #onrf /= oncount
-#        rf = np.zeros((nxp,nyp,nc))
-#        rf = (onrf - offrf)/(onrf + offrf)
-#
-#        '''plotting?'''
-#        for s in range(1,numberofshanks+1):
-#            firstcell = findlevelbuffer(cellnumber, s, 100) 
-#            lastcell = findlevelbuffer(cellnumber, (s+1), 100) - 1
-#            if lastcell > firstcell:     
-#                sn = lastcell - firstcell + 1
-#                print "shank #"+str(s)+" has "+str(sn)+" cells"
-#                figure(s)        
-#                for c in range(sn):
-#                    sp = c + firstcell
-#                    subplot(ceil(sqrt(sn)), round(sqrt(sn)), c)        
-#                    imshow(rf, cmap="RdBu", vmin=-1, vmax=1)
-#                    xlabel("X position", fontsize=10)
-#                    ylabel("Y position", fontsize=10)
-#                    tick_params(labelsize=10)
-#                    cbar = colorbar()
-#            cbar.ax.set_ylabel('(ON-OFF)/(ON+OFF)', fontsize=16)         
-#            show()
+        #rf = np.zeros((nxp,nyp,nc))
+        #rf = (onrf - offrf)/(onrf + offrf)
+
+        '''plotting?'''
+        for s in range(1,numberofshanks+1):
+            firstcell = findlevelbuffer(cellnumber, s, 100) 
+            lastcell = findlevelbuffer(cellnumber, (s+1), 100) - 1
+            if lastcell > firstcell:     
+                sn = 2*(lastcell - firstcell + 1)
+                print "shank #"+str(s)+" has "+str(sn/2)+" cells"
+                figure(s)
+                for c in range(sn):
+                    sp = c + firstcell
+                    ncol = 2 * floor(sqrt(sn/2))
+                    nrow = ceil(sn/ncol)
+                    #subplot(ceil(sqrt(sn)), round(sqrt(sn)), c+1)
+                    subplot(nrow, ncol, c+1)
+                    if np.logical_not(mod(c,2)):                    
+                        imshow(onrf[:,:,sp/2])
+                        title("ON")
+                    else:
+                        imshow(offrf[:,:,sp/2])
+                        title("OFF")
+                    #xlabel("X position", fontsize=10)
+                    #ylabel("Y position", fontsize=10)
+                    xticks([])
+                    yticks([])
+                    text(0,0, str(int(floor(c/2)+2)), fontsize=10, color='white')
+                    #tick_params(labelsize=10)
+                    cbar = colorbar()
+                    cbar.ax.set_ylabel('(spk/s)', fontsize=8)
+                    for t in cbar.ax.get_yticklabels():
+                        t.set_fontsize(8)
+                suptitle("Shank #"+str(s), fontsize=14)
+                fname = datapath+'_ONRF'+str(s)+'.png'
+                savefig(fname)
+                show()
+            
+        
+#        fileout = datapath+'_ONRF.dat'    
+#        np.savetxt(fileout, onrf,'%f')
+#        fileout = datapath+'_OFFRF.dat'    
+#        np.savetxt(fileout, offrf,'%f')
         return (onrf, offrf)
         
     if staflag == 1:
@@ -177,5 +200,4 @@ def plotRF(RF, frame):
 if __name__ == '__main__':    
     datapath = r"C:\Users\saskiad\Documents\ephys\20130228_M10_Sparse2\20130228_M10_Sparse2"
     logpath = r"C:\Users\saskiad\Documents\ephys\SPARSE2\130228143420-M9.log"
-    #(onrf, offrf) = maprf(datapath, logpath, 0)
-    spikecount = maprf(datapath, logpath, 0)
+    (onrf, offrf) = maprf(datapath, logpath, 0)
