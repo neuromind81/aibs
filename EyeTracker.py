@@ -36,17 +36,17 @@ class EyeTracker(object):
                 blobs.draw()
             """
 
-            gray = i.greyscale().binarize(128).invert()
+            graybin = i.greyscale().binarize(128)
+            
 
 
-
-            gray.save(self.disp) #show image on display
+            graybin.save(self.disp) #show image on display
             if self.disp.mouseLeft:
                 #hist = i.hueHistogram()
                 #plot(hist)
                 #show()
                 break
-        
+                
 
 if __name__ == '__main__':
     et = EyeTracker()
