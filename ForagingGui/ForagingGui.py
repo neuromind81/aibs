@@ -54,22 +54,20 @@ class MyForm(QtGui.QMainWindow):
 
         # Set up some defaults (can be overwritten by config file)
         self.nidevice = 'Dev1'
-        self.rewardport = '0'
-        self.rewardline = '0'
-        self.encodervsigchannel = '0'
-        self.encodervinchannel = '1'
+        self.rewardport = 1
+        self.rewardline = 1
+        self.encodervsigchannel = 0
+        self.encodervinchannel = 1
         self.backupdir = ''
         self.screen = 0
         self.monitor = 'testMonitor'
-        self.syncsqr = 'True'
-        self.syncsqrloc = (-500,-500)
         
         # Read config file
         try:
             f = open("foraging.cfg")
             for rl in f.readlines():
                 line = rl.split("=")
-                setattr(self,line[0], line[1])
+                setattr(self,line[0], eval(line[1]))
             f.close()
         except:
             print "Could not read config file.  Using default values."
@@ -93,10 +91,23 @@ class MyForm(QtGui.QMainWindow):
         self.ui.tableWidget_BGStimulus.itemChanged.connect(self._BGStimulusChanged)
         self.ui.tableWidget_FGStimulus.itemChanged.connect(self._FGStimulusChanged)
         self.ui.tableWidget_terrain.itemChanged.connect(self._terrainChanged)
+
+        #Load previous experiment
+        self._loadLast()
+
+    def _loadLast(self):
+        """Loads the last experiment that was run."""
+        pass
+
+    def _saveLast(self):
+        """Saves the last experiment that was run."""
+        pass
         
-    def _loadExperiment(self):
+    def _loadExperiment(self,fname=None):
         """Load an experiment file."""
-        fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.experimentslib)
+        self.ui.tableWidget_experiment.clear()
+        if fname is not None:
+            fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.experimentslib)
         try:
             f = open(fname, 'r')
             with f:        
@@ -116,9 +127,11 @@ class MyForm(QtGui.QMainWindow):
         except Exception, e:
             print "Couldn't open file:",e
     
-    def _loadBG(self):
+    def _loadBG(self,fname=None):
         """Load a stimulus file as the background stimulus."""
-        fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.stimulilib)
+        self.ui.tableWidget_BGStimulus.clear()
+        if fname is not None:
+            fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.stimulilib)
         try:
             f = open(fname, 'r')
             with f:        
@@ -141,9 +154,11 @@ class MyForm(QtGui.QMainWindow):
         except Exception, e:
             print "Couldn't open file:",e
     
-    def _loadFG(self):
+    def _loadFG(self,fname=None):
         """Load a stimulus file as the foreground stimulus."""
-        fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.stimulilib)
+        self.ui.tableWidget_FGStimulus.clear()
+        if fname is not None:
+            fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.stimulilib)
         try:
             f = open(fname, 'r')
             with f:        
@@ -168,7 +183,9 @@ class MyForm(QtGui.QMainWindow):
         
     def _loadTerrain(self):
         """Load a terrain file as the terrain."""
-        fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.terrainlib)
+        self.ui.tableWidget_terrain.clear()
+        if fname is not None:
+            fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.terrainlib)
         try:
             f = open(fname, 'r')
             with f:        
@@ -242,7 +259,7 @@ class MyForm(QtGui.QMainWindow):
         script = Script()
 
         #ADD SOME PARAMS MANUALLY
-        self.params['userid'] = str(self.ui.lineEdit_userid.text())
+        self.params['userid'] = ""
         self.params['mouseid'] = str(self.ui.lineEdit_mouseid.text())
         self.params['logdir'] = str(self.ui.lineEdit_logDir.text())
         self.params['task'] = str(self.ui.lineEdit_task.text())
@@ -258,7 +275,7 @@ class MyForm(QtGui.QMainWindow):
         for i in range(self.ui.tableWidget_experiment.rowCount()):
             keystr = self.ui.tableWidget_experiment.item(i,0)
             valstr = self.ui.tableWidget_experiment.item(i,1)
-            if keystr is not None:
+            if (keystr is not None) and (keystr.text() not in ("",'',None)):
                 try:
                     self.params[str(keystr.text())] = eval(str(valstr.text())) #not a string
                 except:
@@ -273,7 +290,7 @@ class MyForm(QtGui.QMainWindow):
         for i in range(self.ui.tableWidget_terrain.rowCount()):
             keystr = self.ui.tableWidget_terrain.item(i,0)
             valstr = self.ui.tableWidget_terrain.item(i,1)
-            if keystr is not None:
+            if (keystr is not None) and (keystr.text() not in ("",'',None)):
                 terrainstr = 'terrain.'+keystr.text()+"="+valstr.text()
                 script.add(terrainstr)
 
@@ -290,9 +307,9 @@ class MyForm(QtGui.QMainWindow):
         for i in range(self.ui.tableWidget_BGStimulus.rowCount()):
             keystr = self.ui.tableWidget_BGStimulus.item(i,0)
             valstr = self.ui.tableWidget_BGStimulus.item(i,1)
-            if keystr is not None:
-                bgsweepstr = "bgSweep['"+keystr.text()+"']="+valstr.text()
-                script.add(bgsweepstr)        
+            if (keystr is not None) and (keystr.text() not in ("",'',None)):
+                    bgsweepstr = "bgSweep['"+keystr.text()+"']="+valstr.text()
+                    script.add(bgsweepstr)        
 
         #ADD FGSTIM
         script.add(self.fgStimText)
@@ -302,9 +319,9 @@ class MyForm(QtGui.QMainWindow):
         for i in range(self.ui.tableWidget_FGStimulus.rowCount()):
             keystr = self.ui.tableWidget_FGStimulus.item(i,0)
             valstr = self.ui.tableWidget_FGStimulus.item(i,1)
-            if keystr is not None:
+            if (keystr is not None) and (keystr.text() not in ("",'',None)):
                 fgsweepstr = "fgSweep['"+keystr.text()+"']="+valstr.text()
-                script.add(fgsweepstr)  
+                script.add(fgsweepstr)
 
         #CREATE FORAGING INSTANCE
         foragingstr = "g=Foraging(window=window,terrain=terrain," + \
@@ -325,7 +342,7 @@ class MyForm(QtGui.QMainWindow):
 
         if self.bgStimText is not None: exec(self.bgStimText)
         if self.fgStimText is not None: exec(self.fgStimText)
-
+        ##TODO: SET PARAMETERS FOR FIRST SWEEP
         while True:
             for keys in event.getKeys(timeStamped=True):
                 if keys[0]in ['escape','q']:

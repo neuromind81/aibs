@@ -1,0 +1,6 @@
+#STIMULUS
+bgStim = visual.GratingStim(window,tex=None,color='gray')
+bgFrame = {}       
+#PARAMETERS
+bgSweep = {}
+bgSweep['Color']=(['gray'],0)

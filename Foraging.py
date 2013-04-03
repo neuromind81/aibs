@@ -71,7 +71,6 @@ class Foraging(SweepStim):
         self.wwidth = window.size[0]
         self.wheight = window.size[1]
         self.monitor = monitors.Monitor('testMonitor')
-        self.ni = True
         
         #CREATE SYNCRONIZATION SQUARE (used for precise frame time measurement via photodiode)
         if self.syncsqr:
@@ -107,6 +106,8 @@ class Foraging(SweepStim):
         self.offscreen = self.off_screen_distance(45) #constant for now
         self.updateTerrain()
         
+        self.ni = True
+
         #INITIALIZE ENCODER
         ##TODO: read args from config file
         try:
@@ -147,6 +148,7 @@ class Foraging(SweepStim):
         
         #NO NI BOARD? TURN ON KEYBOARD CONTROL (CHECKING KEYS HURTS PERFORMACE)
         if not self.ni:
+            print "Switching to key control..."
             self.keys = key.KeyStateHandler()
             self.window.winHandle.push_handlers(self.keys)
 

@@ -1,5 +1,6 @@
 from aibs.SweepStim import SweepStim
 from psychopy import visual, core, event, logging, misc, monitors
+import numpy as np
 
 """
 This is a sample script that sets up a basic gratings experiment.  This should be performed by the GUI eventually.
@@ -35,9 +36,8 @@ window = visual.Window(units='norm',monitor='testMonitor', fullscr = True, scree
 window.setColor(params['bgcolor'])
 
 #CREATE BACKGROUND STIMULUS
-
-grating = visual.GratingStim(window,tex="sin",mask="None",texRes=64,
-       size=[80,80], sf=1, ori = 0, name='grating', autoLog=False, units = 'deg')
+grating = visual.GratingStim(window,tex="sin",mask='raisedCos',texRes=512,
+       size=[20,20], sf=1, ori = 0, name='grating', autoLog=False, units = 'deg',maskParams={'fringeWidth':0.5})
        
 #CREATE BACKGROUND FRAME PARAMETERS (what changes between frames and how much)
 bgFrame = {}
