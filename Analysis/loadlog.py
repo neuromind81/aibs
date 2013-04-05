@@ -123,4 +123,4 @@ def loadsweeptimesnogap(path):
  
 if __name__ == '__main__':
     path = r"C:\Users\saskiad\Documents\ephys\20130228_M10_Sparse2\20130228_M10_Sparse2"
-    sweeptest = loadsweeptimes(path)
+    sweeptest = loadsweeptimesnogap(path)
