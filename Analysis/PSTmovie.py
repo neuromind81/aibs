@@ -67,7 +67,7 @@ def PSTmovie(datapath, logpath, syncpath, modality, subX, subY):
     temp = np.zeros((sz1, sz2, sweeplength))
     moviecon = []
     contemp = np.empty((sweeplength,1))
-    #movie = np.empty((sz2, sz1, (sweeplength*len(conditions))))
+    
     for t in range(len(conditions)):
         conditions[t] = syncsub[transitions[t],4]
     for cond in range(len(conditions)):    
@@ -106,7 +106,7 @@ def PSTmovie(datapath, logpath, syncpath, modality, subX, subY):
 
 def plotmov(movie, condition, frame):
     movieslice = movie[:,:,frame]
-    texttoshow = str(int(condition[frame])) + " Deg"     
+    texttoshow = str(int(condition[frame])) + u"\N{DEGREE SIGN}".encode("iso-8859-1")     
     imshow(movieslice, cmap="gray",vmin=0, vmax=50)
     xticks([])
     yticks([])
