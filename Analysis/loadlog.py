@@ -55,21 +55,21 @@ def loadsweeptimes(path):
     vsynctrace = datareshaped[(channels-2),:]
     diodetrace = datareshaped[(channels-1),:]
     
-    #sweep start and end times   
-    sweep = findlevels(sweeptrace, 4000, 80000)
-    sweepdown = findlevelsdown(sweeptrace, -4000, 80000)
+    #sweep start and end times
+    sthr = np.ptp(sweeptrace)/4
+    sweep = findlevels(sweeptrace, sthr, 40000, 'up')
+    sweepdown = findlevels(sweeptrace, (-1*sthr), 40000, 'down')
     if sweepdown[0] > sweep[0]:
         sweep = np.column_stack([sweep, sweepdown])
     elif sweepdown[0] <= sweep[0]:
         sweep = np.column_stack([sweep, sweepdown[1:]])
     
-    vsync = findlevelsdown(vsynctrace, -4000, 300)
+    vsync = findlevels(vsynctrace, -4000, 300, 'down')
     
-    dthr = (np.amax(diodetrace)-np.amin(diodetrace))/4    
-    diode = findlevels(diodetrace, dthr, 400)
-    diode = np.append(diode, findlevelsdown(diodetrace, dthr, 400))
-    diode.sort()
-    diode = np.delete(diode,[0,1],0)
+    dthr = np.ptp(diodetrace)/4    
+    diode = findlevels(diodetrace, dthr, 200, 'both')
+    diode = np.reshape(diode, (len(diode)/2, 2))
+    diode = np.delete(diode,0,0)
     
     #corrects for delay between computer and monitor
     sweep -= (vsync[0]-diode[0])
@@ -97,19 +97,19 @@ def loadsweeptimesnogap(path):
     vsynctrace = datareshaped[(channels-2),:]
     diodetrace = datareshaped[(channels-1),:]
     
-    temp = findlevel(sweeptrace, 4000)
+    temp = findlevel(sweeptrace, 4000, 'up')
     
-    sweep = findlevels(sweeptrace, -5000, 4000)
-    sweep.insert( 0, temp)
-    sweep = np.column_stack([sweep, findlevelsdown(sweeptrace, -5000, 4000)])
+    sthr = -1*(np.ptp(sweeptrace)/4)    
+    sweep = findlevels(sweeptrace, sthr, 4000, 'up')
+    sweep = insert(sweep, 0, temp)
+    sweep = np.column_stack([sweep, findlevels(sweeptrace, sthr, 4000, 'down')])
     sweep = delete(sweep, len(sweep)-1, 0)
     
-    vsync = findlevelsdown(vsynctrace, -4000, 300)
+    vsync = findlevels(vsynctrace, -4000, 300, 'down')
     
-    dthr = (np.amax(diodetrace)-np.amin(diodetrace))/4    
-    diode = findlevels(diodetrace, dthr, 400)
-    diode = np.append(diode, findlevelsdown(diodetrace, dthr, 400))
-    diode.sort()
+    dthr = np.ptp(diodetrace)/4    
+    diode = findlevels(diodetrace, dthr, 200, 'both')
+    #diode = np.reshape(diode, (len(diode)/2, 2))
     diode = np.delete(diode,[0,1],0)
     
     #corrects for delay between computer and monitor
@@ -122,5 +122,5 @@ def loadsweeptimesnogap(path):
     
  
 if __name__ == '__main__':
-    path = r"C:\Users\saskiad\Documents\ephys\20130228_M10_Sparse2\20130228_M10_Sparse2"
-    sweeptest = loadsweeptimesnogap(path)
+    path = r"C:\Users\saskiad\Documents\ephys\20130228_M10_Ori4\20130228_M10_Ori4"
+    sweeptest = loadsweeptimes(path)

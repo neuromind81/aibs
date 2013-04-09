@@ -106,7 +106,7 @@ def PSTmovie(datapath, logpath, syncpath, modality, subX, subY):
 
 def plotmov(movie, condition, frame):
     movieslice = movie[:,:,frame]
-    texttoshow = str(int(condition[frame])) + u"\N{DEGREE SIGN}".encode("iso-8859-1")     
+    texttoshow = str(int(condition[frame]))+" Deg"     
     imshow(movieslice, cmap="gray",vmin=0, vmax=50)
     xticks([])
     yticks([])

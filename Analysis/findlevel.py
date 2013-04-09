@@ -7,8 +7,6 @@ Created on Fri Feb 15 09:45:01 2013
 import numpy as np
 from pylab import *
 
-
-
 def findlevelbuffer(inwave, threshold, endbuffer):
     inwave = insert(inwave,0,0)
     inwave = append(inwave,endbuffer)
@@ -19,7 +17,7 @@ def findlevelbuffer(inwave, threshold, endbuffer):
 #            return i-1
     
 
-def findlevel(inwave, threshold, direction):
+def findlevel(inwave, threshold, direction='both'):
     temp = inwave - threshold
     if (direction.find("up")+1):
         crossings = np.nonzero(np.ediff1d(np.sign(temp), to_begin=0)>0)
@@ -30,12 +28,11 @@ def findlevel(inwave, threshold, direction):
     return crossings[0][0]
     
     
-def findlevels(inwave, threshold, window, direction):
+def findlevels(inwave, threshold, window, direction='both'):
     duplicates = []
     temp = inwave - threshold
 
     if (direction.find("up")+1):
-        print "up"
         crossings = np.nonzero(np.ediff1d(np.sign(temp), to_begin=0)>0)
         zdiff = np.ediff1d(crossings, to_begin=(window*2))
         for i in range(size(zdiff)):
@@ -43,7 +40,6 @@ def findlevels(inwave, threshold, window, direction):
                 duplicates.append(i)
         levels = np.delete(crossings, duplicates)        
     elif (direction.find("down")+1):
-        print "down"
         crossings = np.nonzero(np.ediff1d(np.sign(temp), to_begin=0)<0)
         zdiff = np.ediff1d(crossings, to_begin=(window*2))
         for i in range(size(zdiff)):
@@ -51,7 +47,6 @@ def findlevels(inwave, threshold, window, direction):
                 duplicates.append(i)
         levels = np.delete(crossings, duplicates)
     else:
-        print "both"
         crossings = np.nonzero(np.ediff1d(np.sign(temp), to_begin=0))
         zdiff = np.ediff1d(crossings, to_begin=(window*2))
         for i in range(size(zdiff)):

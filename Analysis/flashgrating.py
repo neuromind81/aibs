@@ -9,7 +9,7 @@ from pylab import *
 import scipy as sp
 #import scipy.io as sio
 import numpy as np
-from loadlog import *
+#from loadlog import *
 from getSweepTimes import *
 from loadclu import *
 from scipy.optimize import curve_fit
@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 must indicate which modality is being varied in the given data set, using following code:
     sf = spatial frequency
     tf = temporal frequency
-    conrev = contrast reverse
+    sftf = spatial and temporal frequency combined
     ori = orientation
     
 '''
@@ -30,76 +30,88 @@ def flashgrating (datapath, logpath, modality, numbins, showflag):
     print "loading data from:",datapath
     numberofshanks = 8
     '''get data'''    
-    sweeptiming = loadsweeptimes(datapath)
+    #sweeptiming = loadsweeptimes(datapath)
     (spiketimes, cellnumber) = loadclu(datapath, numberofshanks)
     nc = size(spiketimes,1)
     
     '''get log'''
-    #(sweeporder, sweeptable, bgdimnames) = loadlog(logpath)
-    (sweeporder, sweeptable, bgdimnames) = getSweepTimesEP(logpath)    
+    #(sweeporder, sweeptable, bgdimnames) = getSweepTimesEP(logpath)
+    (stimc, duration, constring) = getSweepTimesEP(logpath, datapath, modality)    
     
-    '''relevant parameters'''
-    '''based on log file for ORI4'''    
-    spfreq = float(sweeptable[0][bgdimnames.index('SF')])
-    duration = round(sweeptiming[0,1]-sweeptiming[0,0])
-    tfreq = float(sweeptable[0][bgdimnames.index('TF')])    
-    ori = sweeptable [0][bgdimnames.index('Ori')]
-    con = sweeptable[0][bgdimnames.index('Contrast')]
-    
+    tfreq = stimc[0,3]  
     
     if (modality.find("sf")+1):
-        sortcondition = bgdimnames.index('SF')
         tlabel = "Spatial frequency (Cyc/Deg)"
         ticks = range(0, 0.6, 0.05)
         print tlabel
+        print constring
+        orivals = np.unique(stim[:,1])
+        for i in range(len(orivals)):
+            stimuluscondition = stimc[np.where(stimc[:,1] == orival[i])]
+            ostr = str(orival[i])+"Deg"            
+            constring = constring + " at " + ostr 
+            dotuning(stimuluscondition, spiketimes, cellnumber, 2, tlabel, ticks, constring, ostr, numbins, showflag)                
     elif (modality.find("tf")+1):
-        sortcondition = bgdimnames.index('TF')
         tlabel = "Temporal frequency (Cyc/Sec)"
         ticks = range(0,15,3)
         print tlabel
+        print constring
+        orivals = np.unique(stim[:,1])
+        for i in range(len(orivals)):
+            ostr = str(orival[i])+"Deg"
+            constring = constring + " at " + ostr
+            stimuluscondition = stimc[np.where(stimc[:,1] == orival[i])]
+            dotuning(stimuluscondition, spiketimes, cellnumber, 3, duration, tlabel, ticks, constring, ostr, numbins, showflag)
     elif (modality.find("ori")+1):
-        sortcondition = bgdimnames.index('Ori')
         tlabel = "Orientation (Deg)"
         ticks = range(0,360,45)
         print tlabel
-    elif (modality.find("conrev")+1):
-        sortcondition = bgdimnames.index('Phase')
-        tlabel =  "Phase"
-        print tlabel
+        print constring
+        stimuluscondition = stimc
+        ostr = "allori"
+        dotuning(stimuluscondition, spiketimes, cellnumber, 1, duration, tlabel, ticks, constring, ostr, numbins, showflag)
     else:
         print "No modality specified"
     
-    stimuluscondition = np.zeros((len(sweeptiming),2))
-    for i in range(0, len(sweeptiming)):    
-        j = sweeporder[i]
-        if j >= 0:
-            stimuluscondition[i,0] = sweeptable[j][sortcondition]
-            stimuluscondition[i,1] = sweeptiming[i,0]
-        elif j < 0:
-            stimuluscondition[i,0] = NaN
-            stimuluscondition[i,1] = sweeptiming[i,0]
+    fileout = datapath+'_cellnumber.dat'    
+    np.savetxt(fileout, cellnumber,'%f')
+        
+#    if modality.find('ori')<0:
+#        orivals = np.unique(stim[:,1])
+#        for i in range(len(orivals)):
+#            stimuluscondition = stimc[np.where(stimc[:,1] == orival[i])]
+#            dotuning(stimuluscondition, spiketimes, cellnumber, tlabel, ticks, numbins, showflag)
+#    else:
+#        stimuluscondition = stimc
+#        dotuning(stimuluscondition, spiketimes, cellnumber, 1, tlabel, ticks, numbins, showflag)
+    
+    
+    
+    '''make different script below'''
+    
+def dotuning(stimuluscondition, spiketimes, cellnumber, sortc, duration, tlabel, ticks, constring, ostr, numbins, showflag):
+    nc = size(spiketimes,1)
     
     '''sort sweep times by sort condition'''
-    stimuluscondition = stimuluscondition[stimuluscondition[:,0].argsort()]
+    #stimuluscondition = stimuluscondition[stimuluscondition[:,1].argsort()]
     
-    valuedifference = np.ediff1d(stimuluscondition[:,0], to_end=None, to_begin = 1)
+    valuedifference = np.ediff1d(stimuluscondition[:,sortc], to_end=None, to_begin = 1)
     '''difference between values'''
     transitions = argwhere(valuedifference)    
     '''indices for condition transitions'''
         
-    #rangeend = len(valuedifference) + 1
     transitions = append(transitions, len(valuedifference))
     
-
     f0 = np.zeros((len(stimuluscondition),nc))    
     f1 = np.zeros((len(stimuluscondition),nc))
     f2 = np.zeros((len(stimuluscondition),nc))
     for sweep in range(0,len(stimuluscondition)):
-        if (modality.find("tf")+1):
-            tfreq = stimuluscondition[sweep,0]        
+#        if (modality.find("tf")+1):
+#            tfreq = stimuluscondition[sweep,3]
+        tfreq = stimuluscondition[sweep,3]       
         starttimes = np.zeros((tfreq*duration,1))
         for cj in range(0,len(starttimes)):        
-            starttimes[cj] = stimuluscondition[sweep,1] + (cj/tfreq)
+            starttimes[cj] = stimuluscondition[sweep,0] + (cj/tfreq)
         binsize = (1/tfreq)/numbins
         spikepsth = multipsth(spiketimes, starttimes, (1/tfreq), numbins, showflag)
         '''makes psth for each cell per sweep'''
@@ -121,7 +133,7 @@ def flashgrating (datapath, logpath, modality, numbins, showflag):
     f2sem = np.zeros(((len(transitions)-1),nc))
     tuning = np.zeros(((len(transitions)-1),1))
     for t in range(len(tuning)):
-        tuning[t] = stimuluscondition[transitions[t],0]    
+        tuning[t] = stimuluscondition[transitions[t],sortc]    
     for cond in range(len(tuning)):
         firstpoint = transitions[cond]
         lastpoint = transitions[cond+1]
@@ -136,7 +148,8 @@ def flashgrating (datapath, logpath, modality, numbins, showflag):
         f2sem[cond,:] = temp.std(0)/sqrt(lastpoint-firstpoint)
     '''averages same stim condition measurements together'''
         
-    for s in range(1,numberofshanks+1):
+#    for s in range(1,numberofshanks+1):
+    for s in range(1,9):
         firstcell = findlevelbuffer(cellnumber, s, 100) 
         lastcell = findlevelbuffer(cellnumber, (s+1), 100) - 1
         if lastcell > firstcell:     
@@ -155,32 +168,30 @@ def flashgrating (datapath, logpath, modality, numbins, showflag):
                 ylabel("(spk/s)", fontsize=10)
                 text(1,1, str(c+1), fontsize=10)
                 tick_params(axis='both', which='major', labelsize=7)
-            suptitle("Shank #"+str(s), fontsize=14)
+            suptitle("Shank #"+str(s)+':'+constring, fontsize=14)
             legend(('f1','mean'),loc=4, prop={'size':10}) 
-            fname = datapath+'_tuning'+str(s)+'.png'
+            fname = datapath+'_'+ostr+'_tuning'+str(s)+'.png'
             savefig(fname)
             show()
     
-    '''save data'''
-    fileout = datapath+'_cellnumber.dat'    
-    np.savetxt(fileout, cellnumber,'%f')
-    fileout = datapath+'_tuning.dat'    
+    '''save data'''    
+    fileout = datapath+'_'+ostr+'_tuning.dat'    
     np.savetxt(fileout, tuning,'%f')
-    fileout = datapath+'_F0mean.dat'    
+    fileout = datapath+'_'+ostr+'_F0mean.dat'    
     np.savetxt(fileout, f0mean,'%f')
-    fileout = datapath+'_F0sem.dat'    
+    fileout = datapath+'_'+ostr+'_F0sem.dat'    
     np.savetxt(fileout, f0sem,'%f')
-    fileout = datapath+'_F1mean.dat'    
+    fileout = datapath+'_'+ostr+'_F1mean.dat'    
     np.savetxt(fileout, f1mean,'%f')
-    fileout = datapath+'_F1sem.dat'    
+    fileout = datapath+'_'+ostr+'_F1sem.dat'    
     np.savetxt(fileout, f1sem,'%f')
-    fileout = datapath+'_F1mean.dat'    
+    fileout = datapath+'_'+ostr+'_F1mean.dat'    
     np.savetxt(fileout, f1mean,'%f')
-    fileout = datapath+'_F2mean.dat'    
+    fileout = datapath+'_'+ostr+'_F2mean.dat'    
     np.savetxt(fileout, f2mean,'%f')
-    fileout = datapath+'_F1mean.dat'    
+    fileout = datapath+'_'+ostr+'_F1mean.dat'    
     np.savetxt(fileout, f1mean,'%f')
-    fileout = datapath+'_F2sem.dat'    
+    fileout = datapath+'_'+ostr+'_F2sem.dat'    
     np.savetxt(fileout, f2sem,'%f')
     
     return (cellnumber, tuning, f0mean, f0sem, f1mean, f1sem, f2mean, f2sem)
