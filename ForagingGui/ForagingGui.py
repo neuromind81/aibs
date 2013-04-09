@@ -48,7 +48,7 @@ class MyForm(QtGui.QMainWindow):
         self.params = {}
         self.bgSweep = {}
         self.fgSweep = {}
-        self.terrainText = None
+        self.terrainText = None #currently unused
         self.bgStimText = None
         self.fgStimText = None
 
@@ -181,7 +181,7 @@ class MyForm(QtGui.QMainWindow):
         except Exception, e:
             print "Couldn't open file:",e
         
-    def _loadTerrain(self):
+    def _loadTerrain(self, fname=None):
         """Load a terrain file as the terrain."""
         self.ui.tableWidget_terrain.clear()
         if fname is not None:
@@ -197,14 +197,14 @@ class MyForm(QtGui.QMainWindow):
                         self.ui.tableWidget_terrain.setItem(index,0,QtGui.QTableWidgetItem(str(k)))
                         self.ui.tableWidget_terrain.setItem(index,1,QtGui.QTableWidgetItem(str(v)))
                         index +=1
-                    self.ui.tableWidget_experiment.sortByColumn(0,0)
+                    self.ui.tableWidget_experiment.sortByColumn(0,0) #sorts the dictionary
                     _,tail = os.path.split(str(fname)) #get just the file name
-                    self.ui.groupBox_terrain.setTitle(tail)
+                    self.ui.groupBox_terrain.setTitle(tail) #sets the title
                 except Exception, e:
                     print "Data is incorreclty formatted.",e
         except Exception, e:
             print "Couldn't open file:",e
-    
+
     def _experimentChanged(self):
         """Experiment parameter changed callback. """
         current = str(self.ui.groupBox_experiment.title())
@@ -286,7 +286,7 @@ class MyForm(QtGui.QMainWindow):
         script.add()
         
         #ADD TERRAIN
-        script.add("\nterrain = Terrain(['color','orientation'])")
+        script.add("\nterrain = Terrain()")
         for i in range(self.ui.tableWidget_terrain.rowCount()):
             keystr = self.ui.tableWidget_terrain.item(i,0)
             valstr = self.ui.tableWidget_terrain.item(i,1)
