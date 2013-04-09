@@ -328,6 +328,15 @@ class Foraging(SweepStim):
                 filename = os.path.join(self.framefolder,str(self.vsynccount)+'.tif')
                 self.window.saveMovieFrames(fileName=filename)
 
+    def check_keys(self):
+        """Checks key input"""
+        for keys in event.getKeys(timeStamped=True):
+            if keys[0]in ['i']:
+                    if self.ni: self.reward.reward()
+                    self.rewards.append((time.clock(), self.vsynccount))
+            elif keys[0]in ['escape','q']:
+                self.cleanup()
+
     def run(self):
         """ Main stimuilus setup and loop """
         #FLIP TO GET READY FOR FIRST FRAME
@@ -370,9 +379,7 @@ class Foraging(SweepStim):
                     self.checkEncoder()
                     self.fgStim.setPos([self.x,self.fgStim.pos[1]]) #set fgStim position every frame
                     self.fgStim.draw()
-                for keys in event.getKeys(timeStamped=True):
-                    if keys[0]in ['escape','q']:
-                        self.cleanup()
+                self.check_keys()
                 if self.syncsqr: self.flipSyncSqr()
                 self.flip()
                 self.vsynccount += 1
@@ -386,9 +393,7 @@ class Foraging(SweepStim):
                     self.checkEncoder()
                     self.fgStim.setPos([self.x,self.fgStim.pos[1]])
                     self.fgStim.draw()
-                for keys in event.getKeys(timeStamped=True):
-                    if keys[0]in ['escape','q']:
-                        self.cleanup()
+                self.check_keys()
                 if self.syncsqr: self.flipSyncSqr()
                 self.flip()
                 self.vsynccount += 1
