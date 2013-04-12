@@ -19,10 +19,10 @@ def getSweepTimesOP(path, modality):
     postexpsec = 60 * genericparams['postexpsec']
     postsweepsec = 60 * genericparams['postsweepsec']
     
-    spfreq = float(bgsweeptable[0][bgdimnames.index('SF')])
-    tfreq = float(bgsweeptable[0][bgdimnames.index('TF')])    
-    ori = bgsweeptable [0][bgdimnames.index('Ori')]
-    con = bgsweeptable[0][bgdimnames.index('Contrast')]
+#    spfreq = float(bgsweeptable[0][bgdimnames.index('SF')])
+#    tfreq = float(bgsweeptable[0][bgdimnames.index('TF')])    
+#    ori = bgsweeptable [0][bgdimnames.index('Ori')]
+#    con = bgsweeptable[0][bgdimnames.index('Contrast')]
     xp = bgdimnames.index('PosX')
     yp = bgdimnames.index('PosY')
     
@@ -48,9 +48,9 @@ def getSweepTimesOP(path, modality):
     stimuluscondition = np.zeros((len(bgsweeporder),5))    
     for i in range(len(bgsweeporder)):
         #sweep start        
-        stimuluscondition[i,0] = (preexpsec + (i*sweeplength) + (i*postsweepsec))
+        stimuluscondition[i,0] = int(preexpsec + (i*sweeplength) + (i*postsweepsec))
         #sweep end        
-        stimuluscondition[i,1] = (preexpsec + (i*sweeplength) + (i*postsweepsec) + sweeplength)
+        stimuluscondition[i,1] = int(preexpsec + (i*sweeplength) + (i*postsweepsec) + sweeplength)
         #sweep conditions (xp, yp, ori)
         si = bgsweeporder[i]
         if si >= 0:
@@ -59,8 +59,8 @@ def getSweepTimesOP(path, modality):
             stimuluscondition[i,4] = bgsweeptable[si][sortcondition]
     
     if postsweepsec > 0:
-        for i in range(1, len(stimuluscondition), 2):
-            tin = array([(stimuluscondition[i-1,1]+1), stimuluscondition([i+1,0]-1), stimuluscondition[i-1,2], stimuluscondition[i-1,3], NaN])
+        for i in range(1, len(stimuluscondition)*2-1, 2):
+            tin = array([stimuluscondition[(i-1),1]+1, stimuluscondition[i,0]-1, stimuluscondition[(i-1),2], stimuluscondition[(i-1),3], stimuluscondition[(i-1),4]+1])
             stimuluscondition = insert(stimuluscondition, i, tin, 0)
     
     '''sorts on xp, yp, sortcondition'''     
@@ -80,8 +80,8 @@ def getSweepTimesEP(logpath, datapath, modality):
     '''relevant parameters'''  
     spfreq = float(bgsweeptable[0][bgdimnames.index('SF')])
     tfreq = float(bgsweeptable[0][bgdimnames.index('TF')])    
-    ori = bgsweeptable [0][bgdimnames.index('Ori')]
-    con = bgsweeptable[0][bgdimnames.index('Contrast')]
+#    ori = bgsweeptable [0][bgdimnames.index('Ori')]
+#    con = bgsweeptable[0][bgdimnames.index('Contrast')]
     
     if (modality.find("sf")+1):
         sortcondition = 2
@@ -94,9 +94,6 @@ def getSweepTimesEP(logpath, datapath, modality):
         constring= str(tfreq)+' Cyc/Sec and '+str(spfreq)+' Cyc/Deg'
     elif (modality.find("sftf")+1):
         constring = ''
-#    elif (modality.find("conrev")+1):
-#        sortcondition = bgdimnames.index('Phase')
-#        constring = str(spfreq)+' Cyc/Deg'
     else:
         print "No modality specified"
     
@@ -110,8 +107,8 @@ def getSweepTimesEP(logpath, datapath, modality):
             stimuluscondition[i,3] = bgsweeptable[j][bgdimnames.index('TF')]            
         elif j < 0:
             stimuluscondition[i,0] = sweeptiming[i,0]            
-            stimuluscondition[i,1] = NaN
-            stimuluscondition[i,2] = NaN
+            stimuluscondition[i,1] = 1111
+            stimuluscondition[i,2] = 1111
             stimuluscondition[i,3] = bgsweeptable[(bgsweeporder[i-1])][bgdimnames.index('TF')]
     
     '''sort sweep times by orientation, spatial frequency, temporal frequency'''
@@ -120,12 +117,37 @@ def getSweepTimesEP(logpath, datapath, modality):
     
     return (stimuluscondition, duration, constring)
     #return (bgsweeporder, bgsweeptable, bgdimnames)
+    
+def getSweepTimesEPrf(path):
+    print "Getting sweep info from:",path
+    f = open(path, 'r')
+    exec(f.read())
+    f.close()
+    
+    '''sweep parameters in number of frames'''
+    sweeplength = genericparams['sweeplength']
+    preexpsec = genericparams['preexpsec']
+    postexpsec = genericparams['postexpsec']
+    postsweepsec = genericparams['postsweepsec']
+    
+    stimtiming = np.zeros((len(bgsweeporder),2))    
+    for i in range(len(bgsweeporder)):
+        #sweep start        
+        stimtiming[i,0] = ((i*sweeplength) + (i*postsweepsec))
+        #sweep end        
+        stimtiming[i,1] = ((i*sweeplength) + (i*postsweepsec) + sweeplength)
+    
+    
+    return (bgsweeporder, bgsweeptable, bgdimnames, stimtiming)
 
 
 if __name__ == '__main__':
-    #logpath = r'I:\CA153_130307\130307124929-CA153_130307_b.log'
-    #(stimuluscondition, sweeplength) = getSweepTimesOP(logpath, 'ori')
+#    logpath = r'Z:\ImageData\CA211_130331_OriAleena_pos_-50_20b\130331135955-CA211_130331_OriAleena_pos_-50_20b.log'
+#    (stimuluscondition, sweeplength) = getSweepTimesOP(logpath, 'ori')
     
-    logpath = r'C:\Users\saskiad\Documents\ephys\ORI4\130228134828-M10.log'
-    datapath = r"C:\Users\saskiad\Documents\ephys\20130228_M10_Ori4\20130228_M10_Ori4"
-    (stimuluscondition, duration, constring) = getSweepTimesEP(logpath, datapath, 'ori')
+#    logpath = r'C:\Users\saskiad\Documents\ephys\ORI4\130228134828-M10.log'
+#    datapath = r"C:\Users\saskiad\Documents\ephys\20130228_M10_Ori4\20130228_M10_Ori4"
+#    (stimuluscondition, duration, constring) = getSweepTimesEP(logpath, datapath, 'ori')
+
+    path = r"E:\CLUtoANALYZE25mars2013\M14logs\SPARSE1\130314145849-M14.log"
+    (bgsweeporder, bgsweeptable, bgdimnames, stimtiming) = getSweepTimesEPrf(path)

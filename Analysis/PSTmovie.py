@@ -12,7 +12,7 @@ from getSweepTimes import getSweepTimesOP
 import os, sys
 import matplotlib.pyplot as plt
 
-def PSTmovie(datapath, logpath, syncpath, modality, subX, subY):
+def PSTmovie(datapath, logpath, syncpath, modality, moviename, subX, subY):
     '''load stimulus log'''
     print "loading stimulus log from:",logpath    
     (stimuluscondition, sweeplength) = getSweepTimesOP(logpath, modality)
@@ -33,27 +33,10 @@ def PSTmovie(datapath, logpath, syncpath, modality, subX, subY):
     data = np.swapaxes(data,0,2)
     data = np.swapaxes(data,0,1)
     
-    '''load sync data'''
-    print "loading stimulus sync from:",syncpath
-    sync = sio.loadmat(syncpath)
-    syncframe = sync['syncframe']
+    '''stimuluscondition to synccondition'''
+    synccondition = getsync(syncpath, stimuluscondition)
     
-    '''stimulus frame to acquisition frame'''
-    synccondition = np.zeros((len(stimuluscondition),5))
-
-    for i in range(len(stimuluscondition)):
-        start = stimuluscondition[i,0]
-        end = stimuluscondition[i,1]
-        temp = []
-        temp = np.where(syncframe[0][:] == start)
-        synccondition[i,0] = floor(temp[0][0]/256/8)
-        temp = []
-        temp = np.where(syncframe[0][:] == end)        
-        synccondition[i,1] = floor(temp[0][0]/256/8)
-
-    synccondition[:,2:] = stimuluscondition[:,2:]
-    
-    '''select specific region'''
+    '''select specific (subX, subY) region'''
     temp = []
     temp = np.where(np.logical_and(synccondition[:,2]==subX, synccondition[:,3]==subY))
     syncsub = synccondition[temp[0][:]]
@@ -95,29 +78,55 @@ def PSTmovie(datapath, logpath, syncpath, modality, subX, subY):
         plt.clf()
  
     try: 
-        os.system("del movie.avi")
+        os.system("del", moviename)
     except:
-        print "movie.avi not found, a new one will be created."
+        print moviename + "not found, a new one will be created."
 
-    os.system("ffmpeg -f image2 -i _tmp%05d.png movie.avi")
+    os.system("ffmpeg -f image2 -i _tmp%05d.png " + moviename)
     os.system("del _tmp*.png")
 
     return (stimuluscondition, syncsub)
 
+def getsync(syncpath, stimuluscondition):
+    '''load sync data'''
+    print "loading stimulus sync from:",syncpath
+    sync = sio.loadmat(syncpath)
+    syncframe = sync['syncframe']
+    
+    '''stimulus frame to acquisition frame'''
+    synccondition = np.zeros((size(stimuluscondition,0),size(stimuluscondition,1)))
+
+    for i in range(len(stimuluscondition)):
+        start = stimuluscondition[i,0]
+        end = stimuluscondition[i,1]
+        temp = []
+        temp = np.where(syncframe[0][:] == start)
+        synccondition[i,0] = floor(temp[0][0]/256/8)
+        temp = []
+        temp = np.where(syncframe[0][:] == end)        
+        synccondition[i,1] = floor(temp[0][0]/256/8)
+
+    synccondition[:,2:] = stimuluscondition[:,2:]
+    return synccondition
+
 def plotmov(movie, condition, frame):
     movieslice = movie[:,:,frame]
-    texttoshow = str(int(condition[frame]))+" Deg"     
+    if np.mod(condition[frame],5)>0:
+        texttoshow = ''
+    else:
+        texttoshow = str(int(condition[frame]))+" Deg"     
     imshow(movieslice, cmap="gray",vmin=0, vmax=50)
     xticks([])
     yticks([])
     text(50, 500, texttoshow, fontsize=12, color='white')    
 
 if __name__=='__main__':
-    datapath = r'C:\Users\saskiad\Documents\Concat_Downsampled_CA153_130307_32X_b_ch2_026_f00026.h5'
-    logpath = r'I:\CA153_130307\130307124929-CA153_130307_b.log'
-    syncpath = r'I:\CA153_130307\b_syncdata.mat'
+    datapath = r'Z:\ImageData\CA211_130331_OriAleena_pos_-50_20b\CA211_130331_OriAleena_pos_-50_20b_ch2_006_Downsampled\Concat\Concat_Downsampled_CA211_130331_OriAleena_pos_-50_20b_ch2_006_f00084.h5'
+    logpath = r'Z:\ImageData\CA211_130331_OriAleena_pos_-50_20b\130331135955-CA211_130331_OriAleena_pos_-50_20b.log'
+    syncpath = r'Z:\ImageData\CA211_130331_OriAleena_pos_-50_20b\Sync\syncdata.mat'
     modality = 'ori'
-    subX = 25
+    moviename = 'CA211_Orib_movie.avi'
+    subX = -50
     subY = 20
     
-    (stimuluscondition, syncsub) = PSTmovie(datapath, logpath, syncpath, modality, subX, subY)
+    (stimuluscondition, syncsub) = PSTmovie(datapath, logpath, syncpath, modality, moviename, subX, subY)

@@ -18,12 +18,20 @@ import matplotlib.animation as manimation
 
 def maprf(datapath, logpath, staflag):
     print "loading data from:",datapath    
-    sweeptiming = loadsweeptimesnogap(datapath)
+    #sweeptiming = loadsweeptimesnogap(datapath)
+    sweeptimes = loadsweeptimesnogap(datapath)
+    print "sweeptiming"
+    print str(len(sweeptimes))
     numberofshanks = 8
     (spiketimes, cellnumber) = loadclu(datapath, numberofshanks)
-    (sweeporder, sweeptable, bgdimnames) = getSweepTimesEP(logpath)
+    (sweeporder, sweeptable, bgdimnames, sweeptiming) = getSweepTimesEPrf(logpath)
+    #sweeptiming in this call to use stimulus frames to set sweeptimes
+    sweeptiming += sweeptimes[0,0]
     nc = size(spiketimes,1)
-
+    
+    print "sweeporder"
+    print str(len(sweeporder))
+    
     col = bgdimnames.index('Color')
     xi = bgdimnames.index('PosX')
     yi = bgdimnames.index('PosY')
@@ -32,15 +40,16 @@ def maprf(datapath, logpath, staflag):
     stimuluscondition = np.zeros((len(sweeporder),3))
     for i in range(0, len(sweeporder)):    
         j = sweeporder[i]        
-        stimuluscondition[i,0] = sweeptable[i][col]
-        stimuluscondition[i,1] = sweeptable[i][xi]
-        stimuluscondition[i,2] = sweeptable[i][yi]
+        stimuluscondition[i,0] = sweeptable[j][col]
+        stimuluscondition[i,1] = sweeptable[j][xi]
+        stimuluscondition[i,2] = sweeptable[j][yi]
     
     '''number of xpositions and ypositions'''
     nxp = ((amax(stimuluscondition[:,1])-amin(stimuluscondition[:,1]))/5)+1
     nyp = ((amax(stimuluscondition[:,2])-amin(stimuluscondition[:,2]))/5)+1
     
     if staflag == 0:
+        print "2D Histogram"
         '''on and off count maps'''
         offrf = np.zeros((nxp,nyp,nc))
         offcount = np.zeros((nxp,nyp))
@@ -65,15 +74,20 @@ def maprf(datapath, logpath, staflag):
             elif ci > 0:
                 spikecount = np.column_stack([spikecount, onecount])
 
-
-        for i in range(0,len(stimuluscondition)):
+        print "making rf maps"
+        for i in range(0,len(sweeptiming)):
+            xp = (stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5
+            yp = (stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5            
             if stimuluscondition[i,0] == -1:
-                offrf[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5),:] += spikecount[i,:]            
-                offcount[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5)] += 1
-            if stimuluscondition[i,0] == 1:
-                onrf[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5),:] += spikecount[i,:]            
-                oncount[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5)] += 1
-
+#                offrf[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5),:] += spikecount[i,:]            
+#                offcount[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5)] += 1
+                offrf[xp,yp,:] += spikecount[i,:]
+                offcount[xp,yp] += 1
+            elif stimuluscondition[i,0] == 1:
+#                onrf[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5),:] += spikecount[i,:]            
+#                oncount[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5)] += 1
+                onrf[xp,yp,:] += spikecount[i,:]
+                oncount[xp,yp] += 1
         if amin(offcount) == amax(offcount):
             offrf /= amin(offcount)
         else:
@@ -112,12 +126,14 @@ def maprf(datapath, logpath, staflag):
                     #ylabel("Y position", fontsize=10)
                     xticks([])
                     yticks([])
+                    tight_layout()
                     text(0,0, str(int(floor(c/2)+2)), fontsize=10, color='white')
                     #tick_params(labelsize=10)
                     cbar = colorbar()
                     cbar.ax.set_ylabel('(spk/s)', fontsize=8)
                     for t in cbar.ax.get_yticklabels():
                         t.set_fontsize(8)
+                subplots_adjust(top=0.9)
                 suptitle("Shank #"+str(s), fontsize=14)
                 fname = datapath+'_ONRF'+str(s)+'.png'
                 savefig(fname)
@@ -189,8 +205,6 @@ def maprf(datapath, logpath, staflag):
         return rfsta
                       
 
-
-
 def plotRF(RF, frame):
     rfi = RF[:,:,frame]        
     imshow(rfi, cmap="RdBu", vmin=0.498, vmax=0.502)
@@ -198,6 +212,6 @@ def plotRF(RF, frame):
     
     
 if __name__ == '__main__':    
-    datapath = r"C:\Users\saskiad\Documents\ephys\20130228_M10_Sparse2\20130228_M10_Sparse2"
-    logpath = r"C:\Users\saskiad\Documents\ephys\SPARSE2\130228143420-M9.log"
+    datapath = r"E:\CLUtoANALYZE25mars2013\SPANOIs\M14\2013_03_14_M14_SPARSE1"
+    logpath = r"E:\CLUtoANALYZE25mars2013\M14logs\SPARSE1\130314145849-M14.log"
     (onrf, offrf) = maprf(datapath, logpath, 0)

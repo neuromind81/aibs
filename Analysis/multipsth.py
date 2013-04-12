@@ -24,7 +24,6 @@ def multipsth(spiketimes, starttimes, duration, numbins, showflag):
 
     numcells = size(spiketimes,1)
     numstim = size(starttimes)
-    #edges = arange(0, duration, (duration/numbins))
     psthraw = np.zeros((numbins,numcells),dtype=float)
     
     for ci in range(0, numcells):
@@ -33,30 +32,10 @@ def multipsth(spiketimes, starttimes, duration, numbins, showflag):
         cellspikes = cellspikes[np.logical_not(np.isnan(cellspikes))]
         '''deletes the NaNs'''
 
-        #onecell = []
-          
-#        for i in range(0, numstim):
-#            firstspike = findlevel(cellspikes, (starttimes[i]))
-#            if amax(cellspikes) > (starttimes[i] + duration):
-#                lastspike = findlevel(cellspikes, (starttimes[i]+duration))
-#            elif amax(cellspikes) < (starttimes[i] + duration):
-#                lastspike = int(argwhere(cellspikes==amax(cellspikes)))
-#            '''first and last spikes for one sweep''' 
         output = []
         for t in starttimes:
             output.extend([x - t for x in cellspikes if t <= x < (t + duration)])
-            
-            
-#            onesweep = []            
-#            #onesweep.append(cellspikes[firstspike:lastspike])
-#            onesweep.extend(cellspikes[firstspike:lastspike])
-#            onesweep[:] = [x - (starttimes[i]) for x in onesweep]
-#            '''all spikes from one sweep zeroed on the start of that sweep'''
-#            #onecell.append(onesweep)
-#            onecell.extend(onesweep)
-        
         psthraw[:,ci], edges = np.histogram(output, bins=numbins, range=(0.0, duration))        
-        #psthraw[:,ci], edges = np.histogram(onecell, bins=numbins, range=(0.0, duration))
         '''creates histogram for one cell'''
     
     psthnorm = psthraw / (duration/numbins) / numstim
@@ -67,10 +46,7 @@ def multipsth(spiketimes, starttimes, duration, numbins, showflag):
     for i in range(1,(numcells+1)):    
         A[:,i] = psthnorm[:,(i-1)]
     '''creates array of PSTHs for each cell'''
-    
-    #np.savetxt(fileout,A,'%f')
-    #return A 
-    
+  
     '''plots histograms'''
     if showflag==1:
         figure(0)
@@ -86,7 +62,6 @@ def multipsth(spiketimes, starttimes, duration, numbins, showflag):
     
     return A
     
-
 if __name__=='__main__':  
     spikes = 'C:\Users\saskiad\Documents\spiketimes.dat'
     starts = 'C:\Users\saskiad\Documents\starttimes.dat'

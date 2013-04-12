@@ -11,7 +11,7 @@ import numpy as np
 from findlevel import *
 
 def loadclu(path, numberoffiles):
-    for i in range(1,(numberoffiles+1)):
+    for i in range(1,(numberoffiles+1)):     
         cluin = path +'.clu.' + str(i)
         resin = path + '.res.' + str(i)
         celllist = np.loadtxt(cluin, dtype = int)
@@ -26,7 +26,7 @@ def loadclu(path, numberoffiles):
         #spikearray = np.delete(spikearray,len(spikearray)-1,0)
     
         if i == 1:
-            nc = size(celllist)
+            nc = 3*size(celllist)
             spikelistlong = np.zeros((nc,0))
             cellnumber = np.zeros((0))
     
@@ -61,6 +61,11 @@ def loadclu(path, numberoffiles):
                 if spikelist[xi,yi] == 0:
                     spikelist[xi,yi] = nan
 
+    '''delete column if all Nans'''
+    dellist = np.where(np.isnan(spikelist[0,:]))
+    spikelist = np.delete(spikelist, dellist, axis=1)
+    cellnumber = np.delete(cellnumber, dellist)
+
     '''sampled at 20kHz, from bin number to seconds'''
     spikelist += 0.0    
     spikelist/=20000
@@ -68,6 +73,6 @@ def loadclu(path, numberoffiles):
     return (spikelist, cellnumber)
 
 if __name__ == '__main__':
-    path = r"C:\Users\saskiad\Documents\ephys\20130228_M10_Ori4\20130228_M10_Ori4"
+    path = r"E:\CLUtoANALYZE25mars2013\ORIs\M11\2013_0307_M11_Ori1"
     numberoffiles = 8
     (spikelist, cellnumber) = loadclu(path, numberoffiles)
