@@ -389,10 +389,6 @@ class WarpWindow(visual.Window):
             GL.glTexCoord2f( 0.0, 1.0 ) ; GL.glVertex2f( -1.0,1.0 )
             GL.glTexCoord2f( 1.0, 1.0 ) ; GL.glVertex2f( 1.0,1.0 )
             GL.glTexCoord2f( 1.0, 0.0 ) ; GL.glVertex2f( 1.0,-1.0 )
-            GL.glTexCoord2f( 0.1, 0.1 ) ; GL.glVertex2f( -0.8,-0.9 )
-            GL.glTexCoord2f( 0.1, 0.9 ) ; GL.glVertex2f( -0.8,0.8 )
-            GL.glTexCoord2f( 0.9, 0.9 ) ; GL.glVertex2f( 0.8,0.8 )
-            GL.glTexCoord2f( 0.9, 0.1 ) ; GL.glVertex2f( 0.8,-0.8 )
             GL.glEnd()
             
 
@@ -576,7 +572,7 @@ if __name__ == "__main__":
     from psychopy import visual, logging, event, core
     
     #create a window to draw in
-    myWin = WarpWindow((600,600), allowGUI=False, fullscr = True, screen = 1)
+    myWin = WarpWindow((600,600), allowGUI=False, fullscr = True, screen = 0)
     logging.console.setLevel(logging.DEBUG)
     
     #INITIALISE SOME STIMULI

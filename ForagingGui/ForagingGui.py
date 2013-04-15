@@ -2,6 +2,10 @@
 Created on Oct 18, 2012
 
 @author: derricw
+
+This PyQt4 gui is designed to allow a user to select a background and foreground stimulus,
+    then create a set of training criteria to train the mouse to find the correct stimulus.
+
 '''
 
 import os
@@ -9,12 +13,16 @@ import sys
 from PyQt4 import QtCore as qt, QtGui
 from PyQt4.QtCore import QObject as qo
 from ForagingGuiLayout import Ui_MainWindow
-from RewardDiagLayout import Ui_Form
+from rewarddiaglayout import Ui_Form
 from psychopy import visual
 from ScriptGenerator import Script
 import subprocess
 from datetime import datetime
 from aibs.Terrain import Terrain
+try:
+    from aibs.Reward import Reward
+except Exception,e:
+    print "Couldn't import reward:",e
 from aibs.Core import *
 
  
@@ -366,12 +374,32 @@ class RewardDiagnostic(QtGui.QWidget):
     
         self.ui.pushButton_dispense.clicked.connect(self._dispense)
         self.ui.pushButton_calibrate.clicked.connect(self._calibrate)
+        
+        try:
+            reward = Reward()
+        except Exception, e:
+            print "Could not create reward object:",e
+        
+        ##TODO: Get calibration from file
+        self.calibration = 1000 #uL/s
 
     def _dispense(self):
-        pass
+        """Dispenses using the selected settings."""
+        reward.start()
+        value = float(self.ui.lineEdit_volume.text())
+        unit = str(self.ui.comboBox_unit.selectedItem())
+        if unit is "uL":
+            reward.rewardtime = value*self.calibration
+            reward.reward()
+        elif unit is "sec":
+            reward.rewardtime = value
+            reward.reward()
+        reward.stop()
 
     def _calibrate(self):
-        pass
+        """Calibrates the dispense volume."""
+        print "Calibrating dispense volume..."
+        #do calibration
 
 
 if __name__ == "__main__":

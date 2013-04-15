@@ -5,6 +5,7 @@ Created on Wed Feb 20 21:10:51 2013
 @author: derricw
 """
 
+import os
 from psychopy import visual
 
 def replay(logstringarray, saveframes = False, framelist = []):
@@ -33,7 +34,10 @@ def replay(logstringarray, saveframes = False, framelist = []):
     if saveframes:
         g.saveframes = True
         g.framelist = framelist
-        
+        try:
+            os.mkdir(r"C:\SavedFrames")
+        except:
+            pass     
     #rerun experiment
     g.run()
 
@@ -63,12 +67,6 @@ def getFrameInfo(logstringarray):
     postsweepframes = int(params['postsweepsec']*60)
     
     #build frame matrix
-    
-    
-            
-    
-    
-
     
     
 if __name__=="__main__":
