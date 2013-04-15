@@ -16,6 +16,7 @@ def getsync(syncpath, stimuluscondition):
     print "loading stimulus sync from:",syncpath
     sync = sio.loadmat(syncpath)
     syncframe = sync['syncframe']
+    del sync
     
     '''stimulus frame to acquisition frame'''
     synccondition = np.zeros((size(stimuluscondition,0),size(stimuluscondition,1)))
@@ -44,7 +45,7 @@ def OPtraceave(celltraces, starttimes, duration, showflag):
     temp = np.empty((duration, numstim))
     for ci in range(numcells):        
         for i in range(numstim):
-            temp[:,i] = celltraces[ci][starttimes[i]:starttimes[i]+duration]
+            temp[:,i] = celltraces[ci, starttimes[i]:starttimes[i]+duration]
         traceave[:,ci] = temp.mean(1)
         tracesem[:, ci] = temp.std(1)/sqrt(numstim)
     return (traceave, tracesem)

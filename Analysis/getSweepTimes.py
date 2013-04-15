@@ -19,8 +19,8 @@ def getSweepTimesOP(path, modality):
     postexpsec = 60 * genericparams['postexpsec']
     postsweepsec = 60 * genericparams['postsweepsec']
     
-#    spfreq = float(bgsweeptable[0][bgdimnames.index('SF')])
-#    tfreq = float(bgsweeptable[0][bgdimnames.index('TF')])    
+    spfreq = float(bgsweeptable[0][bgdimnames.index('SF')])
+    tfreq = float(bgsweeptable[0][bgdimnames.index('TF')])    
 #    ori = bgsweeptable [0][bgdimnames.index('Ori')]
 #    con = bgsweeptable[0][bgdimnames.index('Contrast')]
     xp = bgdimnames.index('PosX')
@@ -29,13 +29,16 @@ def getSweepTimesOP(path, modality):
     if (modality.find("sf")+1):
         sortcondition = bgdimnames.index('SF')
         tlabel = "Spatial frequency (Cyc/Deg)"
+        constring = str(tfreq)+' Cyc/Sec'
         print tlabel
     elif (modality.find("tf")+1):
         sortcondition = bgdimnames.index('TF')
         tlabel = "Temporal frequency (Cyc/Sec)"
+        constring = str(spfreq)+' Cyc/Deg'
         print tlabel
     elif (modality.find("ori")+1):
         sortcondition = bgdimnames.index('Ori')
+        constring= str(tfreq)+' Cyc/Sec and '+str(spfreq)+' Cyc/Deg'
         tlabel = "Orientation (Deg)"
         print tlabel
     elif (modality.find("conrev")+1):
@@ -66,7 +69,7 @@ def getSweepTimesOP(path, modality):
     '''sorts on xp, yp, sortcondition'''     
     stimuluscondition = stimuluscondition[np.lexsort((stimuluscondition[:,4], stimuluscondition[:,3], stimuluscondition[:,2]))]
 
-    return (stimuluscondition, sweeplength)
+    return (stimuluscondition, sweeplength, constring)
 
 def getSweepTimesEP(logpath, datapath, modality):
     sweeptiming = loadsweeptimes(datapath)

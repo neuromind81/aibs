@@ -140,9 +140,10 @@ def dotuning(stimuluscondition, spiketimes, cellnumber, sortc, duration, tlabel,
                 ax2.set_ylim(bottom=0)
                 for tl in ax2.get_yticklabels():
                     tl.set_color('b')                
-                #if (modality.find("sf")+1) or (modality.find("tf")+1):
+                if (modality.find("sf")+1) or (modality.find("tf")+1):
                     #ax1.set_xscale('log')
                     #ax2.set_xscale('log')
+                    set_xscale('log')
                 xticks(ticks)             
                 xlabel(tlabel, fontsize=10)
                 text(0,0, str(c+1), fontsize=10)

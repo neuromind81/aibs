@@ -8,6 +8,7 @@ Created on Fri Feb 15 09:32:07 2013
 import scipy as sp
 import scipy.io as sio
 import numpy as np
+import h5py
 from findlevel import *
 
 
@@ -110,7 +111,12 @@ def loadtraces(matpath):
     mat = sio.loadmat(matpath)
     traces = mat['cell_traces_raw'].tolist()
     return traces
-    
+
+def loadh5(datapath, name):   
+    f = h5py.File(datapath, 'r')
+    d = f[name]
+    data = d[...]
+    return data
     
 def loadsweep(datapath):
     '''loads sweep and diode data - old version based on output from Jay's Matlab algorithm'''
