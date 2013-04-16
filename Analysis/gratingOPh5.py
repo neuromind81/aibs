@@ -39,10 +39,6 @@ def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX, s
     print "Number of Cells:", nc
     tfreq = 3.0
     
-    newpath = os.path.join(savepath, 'Data')
-    if os.path.exists(newpath) == False:
-        os.mkdir(newpath)
-    
     if (modality.find("sf")+1):
         tlabel = "Spatial frequency (Cyc/Deg)"
         ticks = np.arange(0, 0.62, 0.1)
@@ -98,6 +94,12 @@ def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX, s
     else:
         print "No modality specified"
         
+    newpath = os.path.join(savepath, '\Data')
+    if os.path.exists(newpath) == False:
+        os.mkdir(newpath)
+    else:
+        print "folder already exists"
+        
     '''plot data'''
     if showflag:
         for s in range(int(ceil(nc/9))):
@@ -125,7 +127,7 @@ def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX, s
             subplots_adjust(top=0.9)
             suptitle(constring + " Cells "+ str(firstcell+1) + " to " + str(lastcell+1), fontsize=14)
             if (modality.find("sf")+1) or (modality.find("tf")+1):
-                legend(['0 deg','120 deg','240 deg'], loc='upper right', fancybox=True, fontsize = 7)
+                legend(['0 deg','120 deg','240 deg'], loc='best', fancybox=True, fontsize = 7)
             filename = savepath + ostr+'_tuning'+str(s)+'.png'
             fullfilename = os.path.join(newpath, filename) 
             savefig(fullfilename)

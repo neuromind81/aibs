@@ -31,13 +31,12 @@ def getSweepTimesOP(path, modality):
     else:
         print "No modality specified"
     
+    '''makes stimuluscondition table'''
+    '''sweep start, sweep end, xpos, ypos, ori, sf, tf'''    
     stimuluscondition = np.zeros((len(bgsweeporder),7))    
-    for i in range(len(bgsweeporder)):
-        #sweep start        
-        stimuluscondition[i,0] = int(preexpsec + (i*sweeplength) + (i*postsweepsec))
-        #sweep end        
+    for i in range(len(bgsweeporder)):       
+        stimuluscondition[i,0] = int(preexpsec + (i*sweeplength) + (i*postsweepsec))     
         stimuluscondition[i,1] = int(preexpsec + (i*sweeplength) + (i*postsweepsec) + sweeplength)
-        #sweep conditions (xp, yp, ori, sf, tf)
         si = bgsweeporder[i]
         if si >= 0:
             stimuluscondition[i,2] = bgsweeptable[si][bgdimnames.index('PosX')]
@@ -45,7 +44,7 @@ def getSweepTimesOP(path, modality):
             stimuluscondition[i,4] = bgsweeptable[si][bgdimnames.index('Ori')]
             stimuluscondition[i,5] = bgsweeptable[si][bgdimnames.index('SF')]
             stimuluscondition[i,6] = bgsweeptable[si][bgdimnames.index('TF')]
-     
+    '''inter-sweep intervals''' 
     if postsweepsec > 0:
         for i in range(1, len(stimuluscondition)*2-1, 2):
             tin = array([stimuluscondition[(i-1),1]+1, stimuluscondition[i,0]-1, stimuluscondition[(i-1),2], stimuluscondition[(i-1),3], stimuluscondition[(i-1),4]+1, 1111, 1111])

@@ -11,6 +11,7 @@ import scipy.io as sio
 from getSweepTimes import getSweepTimesOP
 import os, sys
 import matplotlib.pyplot as plt
+from loadlog import loadh5
 
 def PSTmovie(datapath, logpath, syncpath, modality, moviename, subX, subY):
     '''load stimulus log'''
@@ -21,10 +22,11 @@ def PSTmovie(datapath, logpath, syncpath, modality, moviename, subX, subY):
     
     '''load h5 movie'''
     print "loading data from:",datapath    
-    f = h5py.File(datapath, 'r')
-    print f.keys()
-    d = f['data']
-    data = d[...]
+#    f = h5py.File(datapath, 'r')
+#    print f.keys()
+#    d = f['data']
+#    data = d[...]
+    data = loadh5(datapath, 'data')
     
     sz0 = size(data,0) #time dimension
     sz1 = size(data,1) #x dimension
