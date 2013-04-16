@@ -128,6 +128,8 @@ def dotuning(stimuluscondition, spiketimes, cellnumber, sortc, duration, tlabel,
             for c in range(sn):
                 sp = c + firstcell
                 ax1 = subplot(ceil(sqrt(sn)), round(sqrt(sn)), c+1)
+                if (modality.find("sf")+1) or (modality.find("tf")+1):
+                    ax1.set_xscale('log')
                 ax1.errorbar(tuning, f1mean[:,sp], yerr=f1sem[:,sp], fmt = 'ro', capsize=2, linestyle='-')
                 ax1.set_ylabel('F1', color='r', fontsize=10)
                 ax1.set_ylim(bottom=0)
@@ -140,10 +142,6 @@ def dotuning(stimuluscondition, spiketimes, cellnumber, sortc, duration, tlabel,
                 ax2.set_ylim(bottom=0)
                 for tl in ax2.get_yticklabels():
                     tl.set_color('b')                
-                if (modality.find("sf")+1) or (modality.find("tf")+1):
-                    #ax1.set_xscale('log')
-                    #ax2.set_xscale('log')
-                    set_xscale('log')
                 xticks(ticks)             
                 xlabel(tlabel, fontsize=10)
                 text(0,0, str(c+1), fontsize=10)
@@ -201,11 +199,11 @@ def gratingfourier(spiketimes, stimuluscondition, duration, numbins, showflag):
 
 
 if __name__ == '__main__':
-    datapath = r"E:\CLUtoANALYZE25mars2013\SFs\M14\2013_03_14_M14_SF1"
-    logpath = r"E:\CLUtoANALYZE25mars2013\M14logs\SF1\130314151946-M14.log"
+    datapath = r"C:\Users\saskiad\Documents\ephys\20130228_M10_Ori4\20130228_M10_Ori4"
+    logpath = r"C:\Users\saskiad\Documents\ephys\ORI4\130228134828-M10.log"
     numbins = 64.0
     showflag = 0
-    modality = 'sf'
+    modality = 'ori'
     #binsize as 128 bins per stimulus cycle?
     (cellnumber, tuning, f0mean, f0sem, f1mean, f1sem, f2mean, f2sem) = flashgrating (datapath, logpath, modality, numbins, showflag)
 

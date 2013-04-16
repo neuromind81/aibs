@@ -15,9 +15,10 @@ from getSweepTimes import getSweepTimesOP
 from OPTools import *
 
 
-def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX, subY):
+def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX, subY, dang):
     print "loading traces from:", datapath    
-    celltraces = loadh5(datapath, 'data_t')
+    #celltraces = loadh5(datapath, 'data_t')
+    celltraces = loadtraces(datapath)
     
     print "loading stimulus log from:",logpath 
     (stimuluscondition, sweeplength, constring) = getSweepTimesOP(logpath, modality)
@@ -29,56 +30,76 @@ def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX, s
     temp=[]
     temp = np.where(np.logical_and(syncc[:,2]==subX, syncc[:,3]==subY))
     syncsubtemp = syncc[temp[0][:]]
-    temp2 = np.where(np.logical_not(mod(syncsubtemp[:,4],45)))
+    '''stimuli with stimulus in position (subX, subY)'''
+    temp2 = np.where(np.logical_not(mod(syncsubtemp[:,4], dang)))
     syncsub = syncsubtemp[temp2[0][:]]
+    '''only conditions with grating - not the inter-sweep interval'''
     
     nc = len(celltraces)
     print "Number of Cells:", nc
     tfreq = 3.0
     
-#    if (modality.find("sf")+1):
-#        tlabel = "Spatial frequency (Cyc/Deg)"
-#        ticks = np.arange(0, 0.62, 0.1)
-#        print tlabel
-#        #print constring
-#        orivals = np.unique(stimc[:,1])
-#        orivals = np.delete(orivals, 3, 0)
-#        for i in range(len(orivals)):
-#            stimuluscondition = stimc[np.where(stimc[:,1] == orivals[i])]
-#            ostr = str(orivals[i])+"Deg"            
-#            constring = constring + " at " + ostr
-#            print ostr
-#            (tuning, f0mean, f0sem, f1mean, f1sem, f2mean, f2sem) = dotuning(stimuluscondition, spiketimes, cellnumber, 2, duration, tlabel, ticks, constring, ostr, showflag)                
-#    elif (modality.find("tf")+1):
-#        tlabel = "Temporal frequency (Cyc/Sec)"
-#        ticks = range(0,15,3)
-#        print tlabel
-#        #print constring
-#        orivals = np.unique(stimc[:,1])
-#        orivals = np.delete(orivals, 3, 0)
-#        for i in range(len(orivals)):
-#            ostr = str(orivals[i])+"Deg"
-#            constring = constring + " at " + ostr
-#            stimuluscondition = stimc[np.where(stimc[:,1] == orivals[i])]
-#            print ostr
-#            (tuning, f0mean, f0sem, f1mean, f1sem, f2mean, f2sem) = dotuning(stimuluscondition, spiketimes, cellnumber, 3, duration, tlabel, ticks, constring, ostr, showflag)
-    if (modality.find("ori")+1):
-        tlabel = "Orientation (Deg)"
-        ticks = range(0,361,90)
-        #print tlabel
-        #print constring
-        synccondition = syncsub
-        ostr = "allori"
-        (tuning, f0mean, f0sem) = dotuningOP(syncsub, celltraces, sweeplength, tlabel, ticks, ostr, showflag)
-    else:
-        print "No modality specified"
-        
     newpath = os.path.join(savepath, 'Data')
     if os.path.exists(newpath) == False:
         os.mkdir(newpath)
     
+    if (modality.find("sf")+1):
+        tlabel = "Spatial frequency (Cyc/Deg)"
+        ticks = np.arange(0, 0.62, 0.1)
+        print tlabel
+        print constring
+        sortc = 5
+        orivals = np.unique(syncsub[:,4])
+        if len(orivals)>3:
+            orivals = np.delete(orivals, 3, 0)
+        for i in range(len(orivals)):
+            synccondition = syncsub[np.where(syncsub[:,4] == orivals[i])]
+            ostr = str(orivals[i])+"Deg"            
+            #constring = constring + " at " + ostr
+            print ostr
+            (tuning, f0m, f0s) = dotuningOP(synccondition, celltraces, sortc, sweeplength, showflag)
+            if i == 0:
+                f0mean = np.empty((size(f0m,0), size(f0m,1), len(orivals)))
+                f0sem = np.empty((size(f0m,0), size(f0m,1), len(orivals)))
+            f0mean[:,:,i] = f0m[:,:]
+            f0sem[:,:,i] = f0s[:,:]                
+    elif (modality.find("tf")+1):
+        tlabel = "Temporal frequency (Cyc/Sec)"
+        ticks = range(0,16,3)
+        print tlabel
+        print constring
+        sortc = 6
+        orivals = np.unique(syncsub[:,4])
+        if len(orivals)>3:
+            orivals = np.delete(orivals, 3, 0)
+        for i in range(len(orivals)):
+            ostr = str(orivals[i])+"Deg"
+            #constring = constring + " at " + ostr
+            synccondition = syncsub[np.where(syncsub[:,4] == orivals[i])]             
+            print ostr
+            (tuning, f0m, f0s) = dotuningOP(synccondition, celltraces, sortc, sweeplength, showflag)
+            if i == 0:
+                f0mean = np.empty((size(f0m,0), size(f0m,1), len(orivals)))
+                f0sem = np.empty((size(f0m,0), size(f0m,1), len(orivals)))
+            f0mean[:,:,i] = f0m[:,:]
+            f0sem[:,:,i] = f0s[:,:]            
+    elif (modality.find("ori")+1):
+        tlabel = "Orientation (Deg)"
+        ticks = range(0,361,90)
+        print tlabel
+        print constring
+        sortc = 4
+        synccondition = syncsub
+        ostr = "allori"
+        #constring = constring + " at " + ostr
+        (tuning, f0m, f0s) = dotuningOP(synccondition, celltraces, sortc, sweeplength, showflag)
+        f0mean = f0m
+        f0sem = f0s
+    else:
+        print "No modality specified"
+        
     '''plot data'''
-    if showflag:    
+    if showflag:
         for s in range(int(ceil(nc/9))):
             firstcell = (s*9)
             lastcell = firstcell+8
@@ -87,19 +108,24 @@ def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX, s
                 sp = firstcell + c
                 if sp<nc:
                     ax1 = subplot(3, 3, c+1)
-                    ax1.errorbar(tuning, f0mean[:,sp], yerr=f0sem[:,sp], fmt = 'ro', capsize=2, linestyle='-')
+                    if (modality.find("sf")+1) or (modality.find("tf")+1):
+#                       ax1.set_xscale('log')
+                        ax1.errorbar(tuning, f0mean[:,sp,0], yerr=f0sem[:,sp,0], fmt = 'ro', capsize=2, linestyle='-')
+                        ax1.errorbar(tuning, f0mean[:,sp,1], yerr=f0sem[:,sp,1], fmt = 'bo', capsize=2, linestyle='-')
+                        ax1.errorbar(tuning, f0mean[:,sp,2], yerr=f0sem[:,sp,2], fmt = 'go', capsize=2, linestyle='-')
+                    else:
+                        ax1.errorbar(tuning, f0mean[:,sp], yerr=f0sem[:,sp], fmt = 'ro', capsize=2, linestyle='-')
                     ax1.set_ylabel('Mean DF/F', fontsize=10)
                     ax1.set_ylim(bottom=0)
                     xlabel(tlabel, fontsize=10)
-                    #if (modality.find("sf")+1) or (modality.find("tf")+1):
-                        #ax1.set_xscale('log')
-                        #ax2.set_xscale('log')
                     xticks(ticks)             
                     text(0,0, str(sp+1), fontsize=10)
                     tick_params(axis='both', which='major', labelsize=7)
                 tight_layout()
             subplots_adjust(top=0.9)
-            suptitle(constring + "Cells "+ str(firstcell+1) + " to " + str(lastcell+1), fontsize=14)
+            suptitle(constring + " Cells "+ str(firstcell+1) + " to " + str(lastcell+1), fontsize=14)
+            if (modality.find("sf")+1) or (modality.find("tf")+1):
+                legend(['0 deg','120 deg','240 deg'], loc='upper right', fancybox=True, fontsize = 7)
             filename = savepath + ostr+'_tuning'+str(s)+'.png'
             fullfilename = os.path.join(newpath, filename) 
             savefig(fullfilename)
@@ -123,15 +149,15 @@ def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX, s
 #    np.savetxt(fileout, f2sem,'%f')
         
     
-    
 
-def dotuningOP(synccondition, celltraces, sweeplength, tlabel, ticks, ostr, showflag):
+#def dotuningOP(synccondition, celltraces, sortc, sweeplength, tlabel, ticks, constring, ostr, newpath, showflag):
+def dotuningOP(synccondition, celltraces, sortc, sweeplength, showflag):
     nc = len(celltraces)
     print 'Calculating Tuning'    
     
     '''sort sweep times by sort condition'''
     '''difference between values'''
-    valuedifference = np.ediff1d(synccondition[:,4], to_end=None, to_begin = 1)
+    valuedifference = np.ediff1d(synccondition[:,sortc], to_end=None, to_begin = 1)
     '''indices for condition transitions'''
     transitions = argwhere(valuedifference)    
     transitions = append(transitions, len(valuedifference))
@@ -144,7 +170,7 @@ def dotuningOP(synccondition, celltraces, sweeplength, tlabel, ticks, ostr, show
     
     '''mean +- sem for each same stim condition'''
     for t in range(len(tuning)):
-        tuning[t] = synccondition[transitions[t],4]    
+        tuning[t] = synccondition[transitions[t],sortc]    
     for cond in range(len(tuning)):
         firstpoint = transitions[cond]
         lastpoint = transitions[cond+1]
@@ -162,7 +188,7 @@ def dotuningOP(synccondition, celltraces, sweeplength, tlabel, ticks, ostr, show
 #        temp = f2[firstpoint:lastpoint,:]
 #        f2mean[cond,:] = temp.mean(0)
 #        f2sem[cond,:] = temp.std(0)/sqrt(lastpoint-firstpoint+1)
-        
+
     return (tuning, f0mean, f0sem)
     
 
@@ -185,12 +211,13 @@ def gratingfourierOP(celltraces, synccondition, sweeplength, showflag):
         return (f0, f1, f2)
         
 if __name__=='__main__':
-    datapath = r'Z:\ImageData\CA211_130331_OriAleena_pos_-50_20b\CA211_130331_OriAleena_pos_-50_20b_ch2_006_Downsampled\Concat\Traces\Traces_Concat_Downsampled_CA211_130331_OriAleena_pos_-50_20b_ch2_006_f00084.h5'
-    logpath = r'Z:\ImageData\CA211_130331_OriAleena_pos_-50_20b\130331135955-CA211_130331_OriAleena_pos_-50_20b.log'
-    syncpath = r'Z:\ImageData\CA211_130331_OriAleena_pos_-50_20b\Sync\syncdata.mat'
-    savepath = r'Z:\ImageData\CA211_130331_OriAleena_pos_-50_20b\CA211_130331_OriAleena_pos_-50_20b_ch2_006_Downsampled\Concat\Traces'
-    modality = 'ori'
+    datapath = r'I:\CA153_130307\a_raw_traces.mat'
+    logpath = r'I:\CA153_130307\130307124033-CA153_130307_a.log'
+    syncpath = r'I:\CA153_130307\a_syncdata.mat'
+    savepath = r'I:\CA153_130307'
+    modality = 'tf'
     showflag = 1
-    subX = -50
+    subX = -25
     subY = 20
-    (tuning, f0mean, f0sem) = gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX, subY)
+    dang = 30
+    (tuning, f0mean, f0sem) = gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX, subY, dang)

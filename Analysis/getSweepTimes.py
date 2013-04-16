@@ -21,54 +21,38 @@ def getSweepTimesOP(path, modality):
     
     spfreq = float(bgsweeptable[0][bgdimnames.index('SF')])
     tfreq = float(bgsweeptable[0][bgdimnames.index('TF')])    
-#    ori = bgsweeptable [0][bgdimnames.index('Ori')]
-#    con = bgsweeptable[0][bgdimnames.index('Contrast')]
-    xp = bgdimnames.index('PosX')
-    yp = bgdimnames.index('PosY')
     
     if (modality.find("sf")+1):
-        sortcondition = bgdimnames.index('SF')
-        tlabel = "Spatial frequency (Cyc/Deg)"
         constring = str(tfreq)+' Cyc/Sec'
-        print tlabel
     elif (modality.find("tf")+1):
-        sortcondition = bgdimnames.index('TF')
-        tlabel = "Temporal frequency (Cyc/Sec)"
         constring = str(spfreq)+' Cyc/Deg'
-        print tlabel
     elif (modality.find("ori")+1):
-        sortcondition = bgdimnames.index('Ori')
         constring= str(tfreq)+' Cyc/Sec and '+str(spfreq)+' Cyc/Deg'
-        tlabel = "Orientation (Deg)"
-        print tlabel
-    elif (modality.find("conrev")+1):
-        sortcondition = bgdimnames.index('Phase')
-        tlabel =  "Phase"
-        print tlabel
     else:
         print "No modality specified"
     
-    stimuluscondition = np.zeros((len(bgsweeporder),5))    
+    stimuluscondition = np.zeros((len(bgsweeporder),7))    
     for i in range(len(bgsweeporder)):
         #sweep start        
         stimuluscondition[i,0] = int(preexpsec + (i*sweeplength) + (i*postsweepsec))
         #sweep end        
         stimuluscondition[i,1] = int(preexpsec + (i*sweeplength) + (i*postsweepsec) + sweeplength)
-        #sweep conditions (xp, yp, ori)
+        #sweep conditions (xp, yp, ori, sf, tf)
         si = bgsweeporder[i]
         if si >= 0:
-            stimuluscondition[i,2] = bgsweeptable[si][xp]
-            stimuluscondition[i,3] = bgsweeptable[si][yp]
-            stimuluscondition[i,4] = bgsweeptable[si][sortcondition]
-    
+            stimuluscondition[i,2] = bgsweeptable[si][bgdimnames.index('PosX')]
+            stimuluscondition[i,3] = bgsweeptable[si][bgdimnames.index('PosY')]
+            stimuluscondition[i,4] = bgsweeptable[si][bgdimnames.index('Ori')]
+            stimuluscondition[i,5] = bgsweeptable[si][bgdimnames.index('SF')]
+            stimuluscondition[i,6] = bgsweeptable[si][bgdimnames.index('TF')]
+     
     if postsweepsec > 0:
         for i in range(1, len(stimuluscondition)*2-1, 2):
-            tin = array([stimuluscondition[(i-1),1]+1, stimuluscondition[i,0]-1, stimuluscondition[(i-1),2], stimuluscondition[(i-1),3], stimuluscondition[(i-1),4]+1])
+            tin = array([stimuluscondition[(i-1),1]+1, stimuluscondition[i,0]-1, stimuluscondition[(i-1),2], stimuluscondition[(i-1),3], stimuluscondition[(i-1),4]+1, 1111, 1111])
             stimuluscondition = insert(stimuluscondition, i, tin, 0)
     
-    '''sorts on xp, yp, sortcondition'''     
-    stimuluscondition = stimuluscondition[np.lexsort((stimuluscondition[:,4], stimuluscondition[:,3], stimuluscondition[:,2]))]
-
+    '''sorts on xp, yp, ori, sf, tf'''     
+    stimuluscondition = stimuluscondition[np.lexsort((stimuluscondition[:,6], stimuluscondition[:,5], stimuluscondition[:,4], stimuluscondition[:,3], stimuluscondition[:,2]))]
     return (stimuluscondition, sweeplength, constring)
 
 def getSweepTimesEP(logpath, datapath, modality):

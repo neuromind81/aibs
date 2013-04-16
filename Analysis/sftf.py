@@ -58,20 +58,8 @@ def sftftuning(stimuluscondition, spiketimes, cellnumber, sortc, duration, const
     for cond in range(len(transitions)-1):
         firstpoint = transitions[cond]
         lastpoint = transitions[cond+1]
-#        tp = stimuluscondition[firstpoint, 3]
-#        sp = stimuluscondition[firstpoint, 2]
-        if stimuluscondition[firstpoint,3] == 1:
-            tp = 0
-        elif stimuluscondition[firstpoint,3] == 4:
-            tp = 1
-        elif stimuluscondition[firstpoint,3] == 15:
-            tp = 2
-        if stimuluscondition[firstpoint,2] == 0.05:
-            sp = 0
-        elif stimuluscondition[firstpoint,2] == 0.1:
-            sp = 1
-        elif  stimuluscondition[firstpoint,2] == 0.2:
-            sp = 2
+        sp = int(floor(10*stimuluscondition[firstpoint, 2]))
+        tp = int(sqrt(stimuluscondition[firstpoint,3]))
         temp = f0[firstpoint:lastpoint,:]
         f0mean[tp,sp,:] = temp.mean(0)
         f0sem[tp,sp,:] = temp.std(0)/sqrt(lastpoint-firstpoint+1)        
@@ -93,9 +81,11 @@ def sftftuning(stimuluscondition, spiketimes, cellnumber, sortc, duration, const
             for c in range(sn):
                 sp = c + firstcell
                 subplot(ceil(sqrt(sn)), round(sqrt(sn)), c+1)
-                imshow(f1mean[:,:,sp], origin='lower',cmap='gray')
                 #set_xscale('log')
                 #set_yscale('log')
+                imshow(f1mean[:,:,sp], origin='lower',cmap='gray')
+                set_xscale('log')
+                set_yscale('log')
                 #xticks([1,4,15])
                 #yticks([0.05, 0.1, 0.2])
                 xlabel('TF (Cyc/Sec)', fontsize=10)
