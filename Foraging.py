@@ -57,9 +57,14 @@ class Foraging(SweepStim):
         
         #MONITOR INFO
         ##TODO: Get monitor from script
+        self.wwidth = window.size[0]
+        self.wheight = window.size[1]
+        self.monitor = window.monitor
+
         self.window = window
         self.window.winHandle.set_exclusive_mouse()
         self.window.winHandle.set_exclusive_keyboard()
+
         #TURN OFF MOUSE
         self.mouse = event.Mouse()
         self.mouse.setVisible(0) 
@@ -68,9 +73,6 @@ class Foraging(SweepStim):
             setpriority()
         except Exception, e:
             print "Could not set OS priority to high.", e
-        self.wwidth = window.size[0]
-        self.wheight = window.size[1]
-        self.monitor = monitors.Monitor('testMonitor')
         
         #CREATE SYNCRONIZATION SQUARE (used for precise frame time measurement via photodiode)
         if self.syncsqr:
@@ -107,6 +109,15 @@ class Foraging(SweepStim):
         self.updateTerrain()
         
         self.ni = True
+
+        #READ CONFIG FILE, SET ATTRIBUTES
+        try:
+            f = open('foraging.cfg','r')
+            for rl in f.readlines():
+                (k,v) = rl.split(' = ')
+                setattr(self,k,eval(v))
+        except Exception,e:
+            print "Error reading config file: ",e
 
         #INITIALIZE ENCODER
         ##TODO: read args from config file
@@ -429,7 +440,7 @@ if __name__ == "__main__":
     params['rewardtime'] = 0.03 #length of reward for mouse
     params['logdir'] = "C:\\ForagingLogs\\" #where to put the log
     params['backupdir'] = None #backup to network
-    params['mouseid'] = "Spock" #name of the mouse
+    params['mouseid'] = "test" #name of the mouse
     params['userid'] = "derricw" #name of the user
     params['task'] = "Virtual Foraging" #task type
     params['stage'] = "Acrylic Wheel" #stage

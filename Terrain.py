@@ -71,6 +71,7 @@ class Terrain(object):
         self.lapdistance = 1920 #distance between stimuli in pixels (should be higher than screen size /2)
         self.speedgain = 1 #gain of encoder degrees to pixels
         self.objectwidthDeg = 20 #width of stimulus object
+        self.objectheightDeg = 20 #height of stimulus object
         
         self.iscorrect = False #state variable for whether or not current stimulus is correct
         

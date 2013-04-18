@@ -45,6 +45,7 @@ def getMonitorInfo(monitor):
     info['sizepix'] = monitor.getSizePix()
     info['widthcm'] = monitor.getWidth()
     info['calibrationdate'] = str(monitor.getCalibDate())
+    info['name'] = monitor.name
     return info
     
 def getSweepFrames(sweeporder,sweeptime,preexpsec,postexpsec,postsweepsec):

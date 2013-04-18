@@ -139,17 +139,20 @@ class ailogger(object):
 
     def backup(self):
         """ Saves a copy of the file to another directory. """
-        try:
-            directory = self.backupFileDir
-            if not os.path.exists(directory): os.makedirs(directory)
-            fullbackuppath = os.path.join(directory,self.filename)
-            shutil.copy(self.fullPath, fullbackuppath)
-            if self.genmatfile:
-                filename,_ = os.path.splitext(fullbackuppath)
-                shutil.copy(self.matfilepath,filename+".mat")
-            print "Backup to",self.backupFileDir,"performed successfully!"
-        except:
-            print "BACKUP COULD NOT BE PERFORMED!  Ensure that the directory is accessible!"
+        if not "test" in self.filename.lower():
+            try:
+                directory = self.backupFileDir
+                if not os.path.exists(directory): os.makedirs(directory)
+                fullbackuppath = os.path.join(directory,self.filename)
+                shutil.copy(self.fullPath, fullbackuppath)
+                if self.genmatfile:
+                    filename,_ = os.path.splitext(fullbackuppath)
+                    shutil.copy(self.matfilepath,filename+".mat")
+                print "Backup to",self.backupFileDir,"performed successfully!"
+            except Exception, e:
+                print "BACKUP COULD NOT BE PERFORMED!  Ensure that the directory is accessible!",e
+        else:
+            print "No backup log was generated..."
 
     def generateMatFile(self):
         """ Saves a copy of the data as a .mat file. """

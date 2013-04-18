@@ -59,7 +59,7 @@ class SweepStim(object):
         setpriority()
         self.wwidth = window.size[0]
         self.wheight = window.size[1]
-        self.monitor = monitors.Monitor('testMonitor')
+        self.monitor = window.monitor
         self.ni = True
         
         #CREATE SYNC SQUARE (used for frame time measurement via photodiode)
