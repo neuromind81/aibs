@@ -9,6 +9,8 @@ from pylab import *
 import scipy as sp
 import scipy.io as sio
 import numpy as np
+import os
+import h5py
 
 
 def getsync(syncpath, stimuluscondition):
@@ -50,4 +52,21 @@ def OPtraceave(celltraces, starttimes, duration, showflag):
         traceave[:,ci] = temp.mean(1)
         tracesem[:, ci] = temp.std(1)/sqrt(numstim)
     return (traceave, tracesem)
+
+def loaddata(datapath, logpath, syncpath, modality):
+    print "loading traces from:", datapath    
+    #celltraces = loadh5(datapath, 'data_t')
+    celltraces = loadtraces(datapath)
     
+    print "loading stimulus log from:",logpath 
+    (stimuluscondition, _, _) = getSweepTimesOP(logpath, modality)
+    syncc = getsync(syncpath, stimuluscondition)
+    
+    return (celltraces, stimuluscondition, syncc)
+    
+def saveh5(savepath, filename, data):
+    fullfilename = os.path.join(savepath, filename)
+    f = h5py.File(fullfilename)
+    dset = f.create_dataset("data", data.shape, 'f')
+    dset[...] = data
+    f.close()

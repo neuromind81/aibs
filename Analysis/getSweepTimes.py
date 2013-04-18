@@ -28,6 +28,8 @@ def getSweepTimesOP(path, modality):
         constring = str(spfreq)+' Cyc/Deg'
     elif (modality.find("ori")+1):
         constring= str(tfreq)+' Cyc/Sec and '+str(spfreq)+' Cyc/Deg'
+    elif (modality.find("sftf")+1):
+        constring = ''
     else:
         print "No modality specified"
     

@@ -15,7 +15,11 @@ from getSweepTimes import getSweepTimesOP
 from OPTools import *
 
 
-def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX, subY, dang):
+def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX=None, subY=None):
+    '''grating analysis for ori, sf, tf grating stimulus for Optical Imaging'''
+    '''modality must be either: 'ori', 'sf', 'tf' '''
+    
+    '''load data and stimulus information'''    
     print "loading traces from:", datapath    
     #celltraces = loadh5(datapath, 'data_t')
     celltraces = loadtraces(datapath)
@@ -26,6 +30,17 @@ def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX, s
     sweeplength = int((sweeplength/60)*4)
     '''stimuluscondition to synccondition'''
     syncc = getsync(syncpath, stimuluscondition)
+    
+    '''get appropriate subset of stimuli'''
+    if subX is None:
+        subX = stimuluscondition[0,2]
+    if subY is None:
+        subY = stimuluscondition[0,3]
+    print "subX: ", subX
+    print "subY: ", subY
+
+    ang = stimuluscondition[np.nonzero(stimuluscondition[:,4]),4]
+    dang = amin(ang)
     
     temp=[]
     temp = np.where(np.logical_and(syncc[:,2]==subX, syncc[:,3]==subY))
@@ -51,7 +66,6 @@ def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX, s
         for i in range(len(orivals)):
             synccondition = syncsub[np.where(syncsub[:,4] == orivals[i])]
             ostr = str(orivals[i])+"Deg"            
-            #constring = constring + " at " + ostr
             print ostr
             (tuning, f0m, f0s) = dotuningOP(synccondition, celltraces, sortc, sweeplength, showflag)
             if i == 0:
@@ -70,7 +84,6 @@ def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX, s
             orivals = np.delete(orivals, 3, 0)
         for i in range(len(orivals)):
             ostr = str(orivals[i])+"Deg"
-            #constring = constring + " at " + ostr
             synccondition = syncsub[np.where(syncsub[:,4] == orivals[i])]             
             print ostr
             (tuning, f0m, f0s) = dotuningOP(synccondition, celltraces, sortc, sweeplength, showflag)
@@ -101,56 +114,58 @@ def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX, s
         print "folder already exists"
         
     '''plot data'''
-    if showflag:
-        for s in range(int(ceil(nc/9))):
-            firstcell = (s*9)
-            lastcell = firstcell+8
-            figure(s)
-            for c in range(9):
-                sp = firstcell + c
-                if sp<nc:
-                    ax1 = subplot(3, 3, c+1)
-                    if (modality.find("sf")+1) or (modality.find("tf")+1):
+    for s in range(int(ceil(nc/9))+1):
+        firstcell = (s*9)
+        lastcell = firstcell+8
+        figure(s)
+        for c in range(9):
+            sp = firstcell + c
+            if sp<nc:
+                ax1 = subplot(3, 3, c+1)
+                if (modality.find("sf")+1) or (modality.find("tf")+1):
 #                       ax1.set_xscale('log')
-                        ax1.errorbar(tuning, f0mean[:,sp,0], yerr=f0sem[:,sp,0], fmt = 'ro', capsize=2, linestyle='-')
-                        ax1.errorbar(tuning, f0mean[:,sp,1], yerr=f0sem[:,sp,1], fmt = 'bo', capsize=2, linestyle='-')
-                        ax1.errorbar(tuning, f0mean[:,sp,2], yerr=f0sem[:,sp,2], fmt = 'go', capsize=2, linestyle='-')
-                    else:
-                        ax1.errorbar(tuning, f0mean[:,sp], yerr=f0sem[:,sp], fmt = 'ro', capsize=2, linestyle='-')
-                    ax1.set_ylabel('Mean DF/F', fontsize=10)
-                    ax1.set_ylim(bottom=0)
-                    xlabel(tlabel, fontsize=10)
-                    xticks(ticks)             
-                    text(0,0, str(sp+1), fontsize=10)
-                    tick_params(axis='both', which='major', labelsize=7)
-                tight_layout()
-            subplots_adjust(top=0.9)
-            suptitle(constring + " Cells "+ str(firstcell+1) + " to " + str(lastcell+1), fontsize=14)
-            if (modality.find("sf")+1) or (modality.find("tf")+1):
-                legend(['0 deg','120 deg','240 deg'], loc='best', fancybox=True, fontsize = 7)
-            filename = savepath + ostr+'_tuning'+str(s)+'.png'
-            fullfilename = os.path.join(newpath, filename) 
-            savefig(fullfilename)
-            show()
+                    ax1.errorbar(tuning, f0mean[:,sp,0], yerr=f0sem[:,sp,0], fmt = 'ro', capsize=2, linestyle='-')
+                    ax1.errorbar(tuning, f0mean[:,sp,1], yerr=f0sem[:,sp,1], fmt = 'bo', capsize=2, linestyle='-')
+                    ax1.errorbar(tuning, f0mean[:,sp,2], yerr=f0sem[:,sp,2], fmt = 'go', capsize=2, linestyle='-')
+                else:
+                    ax1.errorbar(tuning, f0mean[:,sp], yerr=f0sem[:,sp], fmt = 'ro', capsize=2, linestyle='-')
+                ax1.set_ylabel('Mean DF/F', fontsize=10)
+                ax1.set_ylim(bottom=0)
+                xlabel(tlabel, fontsize=10)
+                xticks(ticks)             
+                text(0,0, str(sp+1), fontsize=10)
+                tick_params(axis='both', which='major', labelsize=7)
+            tight_layout()
+        subplots_adjust(top=0.9)
+        suptitle(constring + " Cells "+ str(firstcell+1) + " to " + str(lastcell+1), fontsize=14)
+        if (modality.find("sf")+1) or (modality.find("tf")+1):
+            figtext(0.1, 0.92, '0 Deg', color='red')
+            figtext(0.2, 0.92, '120 Deg', color = 'blue')
+            figtext(0.3, 0.92, '240 Deg', color = 'green')            
+        filename = savepath + modality + '_tuning'+str(s)+'.png'
+        fullfilename = os.path.join(newpath, filename) 
+        savefig(fullfilename)
+        if showflag:            
+            show(False)
+    
+    '''save data'''
+    filename = modality + "Data.h5"    
+    fullfilename = os.path.join(savepath, filename)
+    f = h5py.File(fullfilename)
+    dset = f.create_dataset("f0mean", f0mean.shape, 'f')
+    dset[...] = f0mean
+    dset.attrs["mask"] = (subX, subY)
+    dset.attrs["orivalues"] = orivals
+    dset.attrs["datapath"] = datapath
+    dset.attrs["logpath"] = logpath
+    dset.attrs["syncpath"] = syncpath
+    dset2 = f.create_dataset("f0sem", f0sem.shape, 'f')
+    dset2[...] = f0sem
+    dset3 = f.create_dataset("tuning", tuning.shape, 'f')
+    dset3[...] = tuning
+    f.close()    
+    
     return (tuning, f0mean, f0sem)
-    
-    '''save data'''    
-#    fileout = matpath+'_'+ostr+'_tuning.dat'    
-#    np.savetxt(fileout, tuning,'%f')
-#    fileout = matpath+'_'+ostr+'_F0mean.dat'    
-#    np.savetxt(fileout, f0mean,'%f')
-#    fileout = matpath+'_'+ostr+'_F0sem.dat'    
-#    np.savetxt(fileout, f0sem,'%f')
-#    fileout = matpath+'_'+ostr+'_F1mean.dat'    
-#    np.savetxt(fileout, f1mean,'%f')
-#    fileout = matpath+'_'+ostr+'_F1sem.dat'    
-#    np.savetxt(fileout, f1sem,'%f')
-#    fileout = matpath+'_'+ostr+'_F2mean.dat'    
-#    np.savetxt(fileout, f2mean,'%f')
-#    fileout = matpath+'_'+ostr+'_F2sem.dat'    
-#    np.savetxt(fileout, f2sem,'%f')
-        
-    
 
 #def dotuningOP(synccondition, celltraces, sortc, sweeplength, tlabel, ticks, constring, ostr, newpath, showflag):
 def dotuningOP(synccondition, celltraces, sortc, sweeplength, showflag):
@@ -221,5 +236,4 @@ if __name__=='__main__':
     showflag = 1
     subX = -25
     subY = 20
-    dang = 30
-    (tuning, f0mean, f0sem) = gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX, subY, dang)
+    (tuning, f0mean, f0sem) = gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX, subY)

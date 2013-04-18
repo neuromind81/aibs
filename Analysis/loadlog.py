@@ -89,8 +89,10 @@ def loadsweeptimesnogap(path):
     sweep = findlevels(sweeptrace, sthr, 3000, 'up')
     sweep = insert(sweep, 0, temp)
     sweep = delete(sweep, len(sweep)-1, 0)
-    sweep = np.column_stack([sweep, findlevels(sweeptrace, sthr, 3000, 'down')])
-    #sweep = delete(sweep, len(sweep)-1, 0)
+    sweepdown = findlevels(sweeptrace, sthr, 3000, 'down')
+    if len(sweepdown) > len(sweep):
+        sweepdown = delete(sweepdown, len(sweepdown)-1, 0)
+    sweep = np.column_stack([sweep, sweepdown])
     
     vsync = findlevels(vsynctrace, -4000, 300, 'down')
     

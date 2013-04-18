@@ -4,6 +4,7 @@ Created on Tue Feb 12 15:15:32 2013
 
 @author: saskiad
 """
+import h5py
 import matplotlib
 from pylab import *
 import scipy as sp
@@ -16,7 +17,9 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as manimation
 
 
-def maprf(datapath, logpath, staflag):
+def maprf(datapath, logpath, showflag, staflag):
+    '''maps receptive field for EPhys Data'''
+    '''inputs: datapath, logpath, showflag (1=show, 0=no), staflag(1=sta, 0=2DHistogram)'''
     print "loading data from:",datapath    
     #sweeptiming = loadsweeptimesnogap(datapath)
     sweeptimes = loadsweeptimesnogap(datapath)
@@ -57,35 +60,22 @@ def maprf(datapath, logpath, staflag):
         oncount = np.zeros((nxp,nyp))
         
         '''count spikes per sweep'''
-        spikecount = []   
-        for ci in range(nc):
-            cellspikes = sort(spiketimes[:,ci])
-            '''gets sorted spike times for one cell'''
-            cellspikes = cellspikes[np.logical_not(np.isnan(cellspikes))]
-            '''deletes the NaNs'''
-            onecount = np.zeros((len(sweeptiming),1))
-            for i in range(len(sweeptiming)):
-                for j in range(len(cellspikes)):
-                    if ((cellspikes[j] >= sweeptiming[i,0]) and (cellspikes[j] < sweeptiming[i,1])):
-                        onecount[i] += 1
-                onecount[i] /= (sweeptiming[i,1] - sweeptiming[i,0])
-            if ci == 0:
-                spikecount = onecount
-            elif ci > 0:
-                spikecount = np.column_stack([spikecount, onecount])
-
+        spikecount = np.zeros((len(sweeptiming), nc))
+        cellspikes = sort(spiketimes, axis=0)
+        for i in range(len(sweeptiming)):
+            (spy, spx) = np.where(np.logical_and(cellspikes >= sweeptiming[i,0], cellspikes < sweeptiming[i,1]))
+            for sp in range(len(spx)):
+                cn = spx[sp]
+                spikecount[i,cn] += 1
+        
         print "making rf maps"
         for i in range(0,len(sweeptiming)):
             xp = (stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5
             yp = (stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5            
             if stimuluscondition[i,0] == -1:
-#                offrf[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5),:] += spikecount[i,:]            
-#                offcount[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5)] += 1
                 offrf[xp,yp,:] += spikecount[i,:]
                 offcount[xp,yp] += 1
             elif stimuluscondition[i,0] == 1:
-#                onrf[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5),:] += spikecount[i,:]            
-#                oncount[((stimuluscondition[i,1]-amin(stimuluscondition[:,1]))/5),((stimuluscondition[i,2]-amin(stimuluscondition[:,2]))/5)] += 1
                 onrf[xp,yp,:] += spikecount[i,:]
                 oncount[xp,yp] += 1
         if amin(offcount) == amax(offcount):
@@ -114,7 +104,6 @@ def maprf(datapath, logpath, staflag):
                     sp = c + firstcell
                     ncol = 2 * floor(sqrt(sn/2))
                     nrow = ceil(sn/ncol)
-                    #subplot(ceil(sqrt(sn)), round(sqrt(sn)), c+1)
                     subplot(nrow, ncol, c+1)
                     if np.logical_not(mod(c,2)):                    
                         imshow(onrf[:,:,sp/2])
@@ -135,11 +124,22 @@ def maprf(datapath, logpath, staflag):
                         t.set_fontsize(8)
                 subplots_adjust(top=0.9)
                 suptitle("Shank #"+str(s), fontsize=14)
-                fname = datapath+'_ONRF'+str(s)+'.png'
+                fname = datapath+'_RF'+str(s)+'.png'
                 savefig(fname)
-                show()
+                if showflag:
+                    show(False)
             
-        
+        fullfilename = datapath + '_RFData.h5'
+        f = h5py.File(fullfilename)
+        dset = f.create_dataset("offRF", offrf.shape, 'f')
+        dset[...] = offrf
+        dset.attrs["NumberPositions"] = (nxp, nyp)
+        dset.attrs["datapath"] = datapath
+        dset.attrs["logpath"] = logpath
+        dset2 = f.create_dataset("onRF", onrf.shape, 'f')
+        dset2[...]=onrf
+        f.close()
+    
 #        fileout = datapath+'_ONRF.dat'    
 #        np.savetxt(fileout, onrf,'%f')
 #        fileout = datapath+'_OFFRF.dat'    
@@ -212,6 +212,7 @@ def plotRF(RF, frame):
     
     
 if __name__ == '__main__':    
-    datapath = r"E:\CLUtoANALYZE25mars2013\SPANOIs\M14\2013_03_14_M14_SPARSE1"
-    logpath = r"E:\CLUtoANALYZE25mars2013\M14logs\SPARSE1\130314145849-M14.log"
-    (onrf, offrf) = maprf(datapath, logpath, 0)
+    datapath = r"C:\Users\saskiad\Documents\ephys\20130228_M10_Sparse2\20130228_M10_Sparse2"
+    logpath = r"C:\Users\saskiad\Documents\ephys\SPARSE2\130228143420-M9.log"
+    showflag = 1
+    (onrf, offrf) = maprf(datapath, logpath, showflag, 0)
