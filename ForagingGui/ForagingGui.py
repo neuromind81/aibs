@@ -125,12 +125,12 @@ class MyForm(QtGui.QMainWindow):
         
     def _loadExperiment(self,fname=False):
         """Load an experiment file."""
-        self.ui.tableWidget_experiment.clear()
         if fname is False:
             fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.experimentslib)
         self.expfile = fname
         try:
             f = open(fname, 'r')
+            self.ui.tableWidget_experiment.clear()
             with f:        
                 data = f.read()
                 try:
@@ -150,12 +150,12 @@ class MyForm(QtGui.QMainWindow):
     
     def _loadBG(self,fname=False):
         """Load a stimulus file as the background stimulus."""
-        self.ui.tableWidget_BGStimulus.clear()
         if fname is False:
             fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.stimulilib)
         self.bgfile = fname
         try:
             f = open(fname, 'r')
+            self.ui.tableWidget_BGStimulus.clear()
             with f:        
                 data = f.read()
                 stim = data.split('PARAMETERS',1) #only care about parameters
@@ -178,12 +178,12 @@ class MyForm(QtGui.QMainWindow):
     
     def _loadFG(self,fname=False):
         """Load a stimulus file as the foreground stimulus."""
-        self.ui.tableWidget_FGStimulus.clear()
         if fname is False:
             fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.stimulilib)
         self.fgfile = fname
         try:
             f = open(fname, 'r')
+            self.ui.tableWidget_FGStimulus.clear()
             with f:        
                 data = f.read()
                 stim = data.split('PARAMETERS',1) #only care about parameters
@@ -206,12 +206,12 @@ class MyForm(QtGui.QMainWindow):
         
     def _loadTerrain(self, fname=False):
         """Load a terrain file as the terrain."""
-        self.ui.tableWidget_terrain.clear()
         if fname is False:
             fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.terrainlib)
         self.terrainfile = fname
         try:
             f = open(fname, 'r')
+            self.ui.tableWidget_terrain.clear()
             with f:        
                 data = f.read()
                 try:
@@ -268,7 +268,7 @@ class MyForm(QtGui.QMainWindow):
         #self._checkScript()
         print "Saving script..."
         dt = datetime.now().strftime('%y%m%d%H%M%S')
-        path = os.path.join(self.scriptlog,dt+str(self.ui.lineEdit_mouseid.text())+".py")
+        path = os.path.join(self.scriptlog,dt+"-"+str(self.ui.lineEdit_mouseid.text())+".py")
         script.save(path)
         print "Script saved at",path
         print "Running experiment..."
