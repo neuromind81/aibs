@@ -81,11 +81,7 @@ def sftftuning(stimuluscondition, spiketimes, cellnumber, sortc, duration, const
             for c in range(sn):
                 sp = c + firstcell
                 subplot(ceil(sqrt(sn)), round(sqrt(sn)), c+1)
-                #set_xscale('log')
-                #set_yscale('log')
                 imshow(f1mean[:,:,sp], origin='lower',cmap='gray')
-                #set_xscale('log')
-                #set_yscale('log')
                 xticks(range(3), ['1', '4', '15'])
                 yticks(range(3), ['0.05','0.1','0.2'])
                 xlabel('TF (Cyc/Sec)', fontsize=10)

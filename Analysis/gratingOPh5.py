@@ -107,7 +107,7 @@ def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX=No
     else:
         print "No modality specified"
         
-    newpath = os.path.join(savepath, '\Data')
+    newpath = os.path.join(savepath, 'Data')
     if os.path.exists(newpath) == False:
         os.mkdir(newpath)
     else:
@@ -123,7 +123,7 @@ def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX=No
             if sp<nc:
                 ax1 = subplot(3, 3, c+1)
                 if (modality.find("sf")+1) or (modality.find("tf")+1):
-#                       ax1.set_xscale('log')
+#                    ax1.set_xscale('log')
                     ax1.errorbar(tuning, f0mean[:,sp,0], yerr=f0sem[:,sp,0], fmt = 'ro', capsize=2, linestyle='-')
                     ax1.errorbar(tuning, f0mean[:,sp,1], yerr=f0sem[:,sp,1], fmt = 'bo', capsize=2, linestyle='-')
                     ax1.errorbar(tuning, f0mean[:,sp,2], yerr=f0sem[:,sp,2], fmt = 'go', capsize=2, linestyle='-')
@@ -142,7 +142,7 @@ def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX=No
             figtext(0.1, 0.92, '0 Deg', color='red')
             figtext(0.2, 0.92, '120 Deg', color = 'blue')
             figtext(0.3, 0.92, '240 Deg', color = 'green')            
-        filename = savepath + modality + '_tuning'+str(s)+'.png'
+        filename = modality + '_tuning'+str(s)+'.png'
         fullfilename = os.path.join(newpath, filename) 
         savefig(fullfilename)
         if showflag:            
@@ -150,12 +150,13 @@ def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX=No
     
     '''save data'''
     filename = modality + "Data.h5"    
-    fullfilename = os.path.join(savepath, filename)
-    f = h5py.File(fullfilename)
+    fullfilename = os.path.join(newpath, filename)
+    f = h5py.File(fullfilename, 'w')
     dset = f.create_dataset("f0mean", f0mean.shape, 'f')
     dset[...] = f0mean
-    dset.attrs["mask"] = (subX, subY)
-    dset.attrs["orivalues"] = orivals
+    dset.attrs["mask"] = (subX, subY)    
+    if (modality.find("sf")+1) or (modality.find("tf")+1):     
+        dset.attrs["orivalues"] = orivals
     dset.attrs["datapath"] = datapath
     dset.attrs["logpath"] = logpath
     dset.attrs["syncpath"] = syncpath
@@ -233,7 +234,7 @@ if __name__=='__main__':
     syncpath = r'I:\CA153_130307\a_syncdata.mat'
     savepath = r'I:\CA153_130307'
     modality = 'tf'
-    showflag = 1
+    showflag = 0
     subX = -25
     subY = 20
     (tuning, f0mean, f0sem) = gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX, subY)

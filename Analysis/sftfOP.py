@@ -14,6 +14,7 @@ from getSweepTimes import getSweepTimesOP
 from OPTools import *
 
 def sftfOP(datapath, logpath, syncpath, savepath, showflag, subX=None, subY=None):
+    '''SF X TF stimulus analysis for Optical Imaging'''    
     '''load data and stimulus information'''    
     print "loading traces from:", datapath    
     #celltraces = loadh5(datapath, 'data_t')
@@ -60,11 +61,11 @@ def sftfOP(datapath, logpath, syncpath, savepath, showflag, subX=None, subY=None
         f0mean[:,:,:,i] = f0m
         f0sem[:,:,:,i] = f0s
     
-    newpath = os.path.join(savepath, '\Data')
-    if os.path.exists(newpath) == False:
+    newpath = os.path.join(savepath, 'SFTFData')
+    if os.path.isdir(newpath) == False:
         os.mkdir(newpath)
     elif os.path.exists(newpath) == True:
-        print "folder already exists"    
+        print "folder already exists"
     
     '''make figures'''
     for s in range(int(ceil(nc/4))+1):
@@ -95,7 +96,7 @@ def sftfOP(datapath, logpath, syncpath, savepath, showflag, subX=None, subY=None
         figtext(0.2, 0.92,'0 Deg')
         figtext(0.5, 0.92, '120 Deg')
         figtext(0.8, 0.92, '240 Deg')
-        filename = savepath + 'sftf_tuning'+str(s)+'.png'            
+        filename = 'sftf_tuning' + str(s) + '.png'            
         fullfilename = os.path.join(newpath, filename) 
         savefig(fullfilename)
         if showflag:            
@@ -104,8 +105,8 @@ def sftfOP(datapath, logpath, syncpath, savepath, showflag, subX=None, subY=None
     '''save data'''    
 #    saveh5(savepath, 'sftf_f0mean.h5', f0mean)
 #    saveh5(savepath, 'sftf_f0sem.h5', f0sem)
-    fullfilename = os.path.join(savepath, "sftfData.h5")
-    f = h5py.File(fullfilename)
+    fullfilename = os.path.join(newpath, "sftfData.h5")
+    f = h5py.File(fullfilename, 'w')
     dset = f.create_dataset("f0mean", f0mean.shape, 'f')
     dset[...] = f0mean
     dset.attrs["mask"] = (subX, subY)
@@ -155,5 +156,5 @@ if __name__=='__main__':
     savepath = r'I:\CA153_130307'
     subX = -25
     subY = 20
-    showflag = 1
+    showflag = 0
     (f0mean, f0sem) = sftfOP(datapath, logpath, syncpath, savepath, showflag, subX, subY)
