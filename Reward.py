@@ -30,16 +30,14 @@ class Reward(object):
 
     def __init__(self, device = 'Dev1', port = 1, rewardline = 0):
         '''Construct reward '''
-        ##TODO:  Update to only write specific line using do.WriteBit()
+        ##TODO:  Update to only write specific line using dout.WriteBit()
         self.device = device
         self.port = port
         self.rewardline = rewardline
         self.dout = do(device,port)
-        deviceLines = len(GetDOLines(device))
-        self.on = np.ones(deviceLines,dtype = np.uint8)
-        self.on[rewardline] = 0
-        self.off = np.ones(deviceLines,dtype = np.uint8)
-        self.rewardtime = 1
+        self.on = 0
+        self.off = 1
+        self.rewardtime = 0.2
         self.rewardcount = 0
         
     def __repr__(self):
@@ -60,14 +58,14 @@ class Reward(object):
 
     def reward(self):
         '''Dispenses reward and starts timer'''
-        self.dout.Write(self.on)
-        t = Timer(self.rewardtime,self.endreward)
+        self.dout.WriteBit(self.rewardline,self.on)
+        t = Timer(self.rewardtime,self._endreward)
         self.rewardcount += 1
         t.start()
         
-    def endreward(self):
+    def _endreward(self):
         '''Ends the reward after timer ticks '''
-        self.dout.Write(self.off)
+        self.dout.WriteBit(self.rewardline,self.off)
         
 def main():
     reward = Reward('Dev1',1,0)  #create a reward object

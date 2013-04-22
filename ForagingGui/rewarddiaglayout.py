@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'rewarddiag.ui'
 #
-# Created: Tue Apr 02 14:52:42 2013
+# Created: Thu Apr 18 16:48:30 2013
 #      by: PyQt4 UI code generator 4.9.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -49,7 +49,7 @@ class Ui_Form(object):
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
-        Form.setWindowTitle(_translate("Form", "Form", None))
+        Form.setWindowTitle(_translate("Form", "Reward Diagnostics", None))
         self.pushButton_dispense.setText(_translate("Form", "Dispense", None))
         self.pushButton_calibrate.setText(_translate("Form", "Calibrate", None))
         self.groupBox_volume.setTitle(_translate("Form", "Volume/Time", None))

@@ -272,6 +272,8 @@ class Foraging(SweepStim):
         #DISPLAY SOME STUFF
         print "Actual sweeps completed:", str(self.sweepsdisplayed)
         self.printFrameInfo()
+        #PRINT REWARD COUNT
+        print "Rewards dispensed:",len(self.rewards)
         #LOG INFORMATION
         if not self.replay: self.logMeta()
         #CLOSE EVERYTHING

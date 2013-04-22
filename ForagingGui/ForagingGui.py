@@ -43,14 +43,6 @@ class MyForm(QtGui.QMainWindow):
         self.stimulilib = os.path.join(self.library,'Stimuli')
         self.terrainlib = os.path.join(self.library,'Terrain')
         self.scriptlog = os.path.join(self.library,'ScriptLog')
-
-        ''' Delete if above works on windows
-        self.library = "C:\\AibsStim\\"
-        self.logDir = "C:\\BehaviorLogs\\"
-        self.experiments = "C:\\AibsStim\\Experiments\\"
-        self.stimuli = "C:\\AibsStim\\Stimuli\\"
-        self.terrain = "C:\\AibsStim\\Terrain\\"
-        '''
         
         # Set up some important variables
         self.params = {}
@@ -59,6 +51,9 @@ class MyForm(QtGui.QMainWindow):
         self.terrainText = None #currently unused
         self.bgStimText = None
         self.fgStimText = None
+
+        # Set up some file names to remember
+        self.expfile,self.bgfile,self.fgfile,self.terrain = "","","",""
 
         # Set up some defaults (can be overwritten by config file)
         self.nidevice = 'Dev1'
@@ -105,19 +100,37 @@ class MyForm(QtGui.QMainWindow):
 
     def _loadLast(self):
         """Loads the last experiment that was run."""
-        pass
+        try:
+            f = open('last.dat','r+')
+            lines = f.readlines()
+            self.ui.lineEdit_mouseid.setText(lines[0].strip("\n"))
+            self._loadExperiment(lines[1].strip("\n"))
+            self._loadBG(lines[2].strip("\n"))
+            self._loadFG(lines[3].strip("\n"))
+            self._loadTerrain(lines[4].strip("\n"))
+        except Exception, e:
+            print "Could not load last experiment.",e
 
     def _saveLast(self):
         """Saves the last experiment that was run."""
-        pass
+        try:
+            f = open('last.dat','w+')
+            f.write(str(self.ui.lineEdit_mouseid.text())+"\n")
+            f.write(self.expfile+"\n")
+            f.write(self.bgfile+"\n")
+            f.write(self.fgfile+"\n")
+            f.write(self.terrainfile+"\n")
+        except Exception, e:
+            print "Couldn't save last.dat file:",e
         
-    def _loadExperiment(self,fname=None):
+    def _loadExperiment(self,fname=False):
         """Load an experiment file."""
-        self.ui.tableWidget_experiment.clear()
-        if fname is not None:
+        if fname is False:
             fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.experimentslib)
+        self.expfile = fname
         try:
             f = open(fname, 'r')
+            self.ui.tableWidget_experiment.clear()
             with f:        
                 data = f.read()
                 try:
@@ -135,13 +148,14 @@ class MyForm(QtGui.QMainWindow):
         except Exception, e:
             print "Couldn't open file:",e
     
-    def _loadBG(self,fname=None):
+    def _loadBG(self,fname=False):
         """Load a stimulus file as the background stimulus."""
-        self.ui.tableWidget_BGStimulus.clear()
-        if fname is not None:
+        if fname is False:
             fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.stimulilib)
+        self.bgfile = fname
         try:
             f = open(fname, 'r')
+            self.ui.tableWidget_BGStimulus.clear()
             with f:        
                 data = f.read()
                 stim = data.split('PARAMETERS',1) #only care about parameters
@@ -162,13 +176,14 @@ class MyForm(QtGui.QMainWindow):
         except Exception, e:
             print "Couldn't open file:",e
     
-    def _loadFG(self,fname=None):
+    def _loadFG(self,fname=False):
         """Load a stimulus file as the foreground stimulus."""
-        self.ui.tableWidget_FGStimulus.clear()
-        if fname is not None:
+        if fname is False:
             fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.stimulilib)
+        self.fgfile = fname
         try:
             f = open(fname, 'r')
+            self.ui.tableWidget_FGStimulus.clear()
             with f:        
                 data = f.read()
                 stim = data.split('PARAMETERS',1) #only care about parameters
@@ -189,13 +204,14 @@ class MyForm(QtGui.QMainWindow):
         except Exception, e:
             print "Couldn't open file:",e
         
-    def _loadTerrain(self, fname=None):
+    def _loadTerrain(self, fname=False):
         """Load a terrain file as the terrain."""
-        self.ui.tableWidget_terrain.clear()
-        if fname is not None:
+        if fname is False:
             fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.terrainlib)
+        self.terrainfile = fname
         try:
             f = open(fname, 'r')
+            self.ui.tableWidget_terrain.clear()
             with f:        
                 data = f.read()
                 try:
@@ -252,12 +268,13 @@ class MyForm(QtGui.QMainWindow):
         #self._checkScript()
         print "Saving script..."
         dt = datetime.now().strftime('%y%m%d%H%M%S')
-        path = os.path.join(self.scriptlog,dt+str(self.ui.lineEdit_mouseid.text())+".py")
+        path = os.path.join(self.scriptlog,dt+"-"+str(self.ui.lineEdit_mouseid.text())+".py")
         script.save(path)
         print "Script saved at",path
         print "Running experiment..."
         execstring = "python "+path
         sp = subprocess.Popen(execstring.split())
+        self._saveLast() #saves last experiment
         
 
         
@@ -346,18 +363,28 @@ class MyForm(QtGui.QMainWindow):
         """Generates a preview in a small window"""
         from psychopy import visual,event,monitors,misc
 
-        window = visual.Window(monitor = 'testMonitor')
+        window = visual.Window(monitor='testMonitor')
+        width,height = window.size
+        esctext = visual.TextStim(window,text='Press ESC or Q to exit...',
+            pos=[-(width/2),(height/2-20)],color='red',units='pix',
+            alignHoriz='left')
 
         if self.bgStimText is not None: exec(self.bgStimText)
         if self.fgStimText is not None: exec(self.fgStimText)
         ##TODO: SET PARAMETERS FOR FIRST SWEEP
         while True:
-            for keys in event.getKeys(timeStamped=True):
-                if keys[0]in ['escape','q']:
-                    window.close()
-            if self.bgStimText is not None: bgStim.draw()
-            if self.fgStimText is not None: fgStim.draw()
-            window.flip()            
+            try:
+                if self.bgStimText is not None: bgStim.draw()
+                if self.fgStimText is not None: fgStim.draw()
+                esctext.draw()
+                window.flip()
+                for keys in event.getKeys(timeStamped=True):
+                    if keys[0]in ['escape','q']:
+                        window.close()
+            except Exception, e:
+                print "Exiting preview window...",e
+                break
+                      
 
     def _rewarddiag(self):
         if self.rewarddiag is None:
@@ -375,6 +402,7 @@ class RewardDiagnostic(QtGui.QWidget):
         self.ui.pushButton_dispense.clicked.connect(self._dispense)
         self.ui.pushButton_calibrate.clicked.connect(self._calibrate)
         
+        #TODO: Get reward settings from config file
         try:
             reward = Reward()
         except Exception, e:
