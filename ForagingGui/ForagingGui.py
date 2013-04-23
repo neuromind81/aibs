@@ -407,9 +407,20 @@ class RewardDiagnostic(QtGui.QWidget):
             reward = Reward()
         except Exception, e:
             print "Could not create reward object:",e
-        
-        ##TODO: Get calibration from file
+
+        ##TODO: Get/set calibration from/to file
         self.calibration = 1000 #uL/s
+
+        # Read config file
+        try:
+            f = open("foraging.cfg")
+            for rl in f.readlines():
+                if "rewardcal" in rl:
+                    line = rl.split("=")
+                    setattr(self,line[0], eval(line[1]))
+            f.close()
+        except:
+            print "Could not read config file.  Using default calibration values."
 
     def _dispense(self):
         """Dispenses using the selected settings."""
@@ -427,7 +438,8 @@ class RewardDiagnostic(QtGui.QWidget):
     def _calibrate(self):
         """Calibrates the dispense volume."""
         print "Calibrating dispense volume..."
-        #do calibration
+        self._dispense()
+        
 
 
 if __name__ == "__main__":
