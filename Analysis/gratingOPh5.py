@@ -39,16 +39,21 @@ def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX=No
     print "subX: ", subX
     print "subY: ", subY
 
+    '''finds the minimum angle size - but not 0 or 1'''    
     ang = stimuluscondition[np.nonzero(stimuluscondition[:,4]),4]
+    ang = ang[np.where(ang>1)]
     dang = amin(ang)
     
+    '''stimuli with stimulus in position (subX, subY)'''
     temp=[]
     temp = np.where(np.logical_and(syncc[:,2]==subX, syncc[:,3]==subY))
     syncsubtemp = syncc[temp[0][:]]
-    '''stimuli with stimulus in position (subX, subY)'''
-    temp2 = np.where(np.logical_not(mod(syncsubtemp[:,4], dang)))
-    syncsub = syncsubtemp[temp2[0][:]]
     '''only conditions with grating - not the inter-sweep interval'''
+    gratingsweeps = np.where(np.logical_not(mod(syncsubtemp[:,4], dang)))
+    syncsub = syncsubtemp[gratingsweeps[0][:]]
+    '''only the inter-sweep intervals''' 
+    intersweeps = np.where(mod(syncsubtemp[:,4], dang))
+    syncinter = syncsubtemp[intersweeps[0][:]]  
     
     nc = len(celltraces)
     print "Number of Cells:", nc
@@ -64,9 +69,8 @@ def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX=No
         if len(orivals)>3:
             orivals = np.delete(orivals, 3, 0)
         for i in range(len(orivals)):
-            synccondition = syncsub[np.where(syncsub[:,4] == orivals[i])]
-            ostr = str(orivals[i])+"Deg"            
-            print ostr
+            synccondition = syncsub[np.where(syncsub[:,4] == orivals[i])]          
+            print str(orivals[i])+"Deg" 
             (tuning, f0m, f0s) = dotuningOP(synccondition, celltraces, sortc, sweeplength, showflag)
             if i == 0:
                 f0mean = np.empty((size(f0m,0), size(f0m,1), len(orivals)))
@@ -83,9 +87,8 @@ def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX=No
         if len(orivals)>3:
             orivals = np.delete(orivals, 3, 0)
         for i in range(len(orivals)):
-            ostr = str(orivals[i])+"Deg"
             synccondition = syncsub[np.where(syncsub[:,4] == orivals[i])]             
-            print ostr
+            print str(orivals[i])+"Deg" 
             (tuning, f0m, f0s) = dotuningOP(synccondition, celltraces, sortc, sweeplength, showflag)
             if i == 0:
                 f0mean = np.empty((size(f0m,0), size(f0m,1), len(orivals)))
@@ -99,11 +102,12 @@ def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX=No
         print constring
         sortc = 4
         synccondition = syncsub
-        ostr = "allori"
-        #constring = constring + " at " + ostr
-        (tuning, f0m, f0s) = dotuningOP(synccondition, celltraces, sortc, sweeplength, showflag)
-        f0mean = f0m
-        f0sem = f0s
+        (tuning, f0mean, f0sem) = dotuningOP(synccondition, celltraces, sortc, sweeplength, showflag)
+        ( _ , imean, isem) = dotuningOP(syncinter, celltraces, sortc, sweeplength, showflag)
+#        if len(imean) < len(f0mean):
+#            tin = np.zeros((1,size(imean,1)))
+#            imean = insert(imean, len(imean), tin, 0)
+#            isem = insert(isem, len(isem), tin, 0)
     else:
         print "No modality specified"
         
@@ -129,6 +133,7 @@ def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX=No
                     ax1.errorbar(tuning, f0mean[:,sp,2], yerr=f0sem[:,sp,2], fmt = 'go', capsize=2, linestyle='-')
                 else:
                     ax1.errorbar(tuning, f0mean[:,sp], yerr=f0sem[:,sp], fmt = 'ro', capsize=2, linestyle='-')
+                    ax1.errorbar(tuning, imean[:,sp], yerr=isem[:,sp], fmt = 'ko', capsize=2, linestyle='-')
                 ax1.set_ylabel('Mean DF/F', fontsize=10)
                 ax1.set_ylim(bottom=0)
                 xlabel(tlabel, fontsize=10)
@@ -164,11 +169,12 @@ def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX=No
     dset2[...] = f0sem
     dset3 = f.create_dataset("tuning", tuning.shape, 'f')
     dset3[...] = tuning
+    dset4 = f.create_dataset("synccondition", syncc.shape, 'f')
+    dset4[...] = syncc
     f.close()    
     
-    return (tuning, f0mean, f0sem)
+    return (tuning, f0mean, f0sem, syncc)
 
-#def dotuningOP(synccondition, celltraces, sortc, sweeplength, tlabel, ticks, constring, ostr, newpath, showflag):
 def dotuningOP(synccondition, celltraces, sortc, sweeplength, showflag):
     nc = len(celltraces)
     print 'Calculating Tuning'    
@@ -197,44 +203,35 @@ def dotuningOP(synccondition, celltraces, sortc, sweeplength, showflag):
         (traceave, tracesem) = OPtraceave(celltraces, starttimes, sweeplength, showflag)     
         f0mean[cond] = traceave.mean(0)
         f0sem[cond] = tracesem.mean(0)
-#        temp = f0[firstpoint:lastpoint,:]
-#        f0mean[cond,:] = temp.mean(0)
-#        f0sem[cond,:] = temp.std(0)/sqrt(lastpoint-firstpoint+1)        
-#        temp = f1[firstpoint:lastpoint,:]
-#        f1mean[cond,:] = temp.mean(0)
-#        f1sem[cond,:] = temp.std(0)/sqrt(lastpoint-firstpoint+1)
-#        temp = f2[firstpoint:lastpoint,:]
-#        f2mean[cond,:] = temp.mean(0)
-#        f2sem[cond,:] = temp.std(0)/sqrt(lastpoint-firstpoint+1)
 
     return (tuning, f0mean, f0sem)
     
 
-def gratingfourierOP(celltraces, synccondition, sweeplength, showflag):
-    nc = len(celltraces) 
-    f0 = f1 = f2 = np.zeros((len(synccondition),nc))
-    for sweep in range(0,len(synccondition)):
-        #tfreq = synccondition[sweep,3]
-        tfreq = 3.0/4
-        starttimes = np.zeros((tfreq*sweeplength,1))
-        for cj in range(0,len(starttimes)):        
-            starttimes[cj] = synccondition[sweep,0] + (cj/tfreq)
-        (traceave, tracesem) = OPtraceave(celltraces, starttimes, sweeplength, showflag)
-        fourier = abs(np.fft.fft(traceave,axis=0))
-        freq = np.fft.fftfreq(len(traceave), d=binsize)
-        '''fourier analysis'''
-        f0[sweep,:] = mean(traceave, axis=0)
-        f1[sweep,:] = fourier[argwhere(freq == tfreq)]
-        f2[sweep,:] = fourier[argwhere(freq == (2*tfreq))]
-        return (f0, f1, f2)
+#def gratingfourierOP(celltraces, synccondition, sweeplength, showflag):
+#    nc = len(celltraces) 
+#    f0 = f1 = f2 = np.zeros((len(synccondition),nc))
+#    for sweep in range(0,len(synccondition)):
+#        #tfreq = synccondition[sweep,3]
+#        tfreq = 3.0/4
+#        starttimes = np.zeros((tfreq*sweeplength,1))
+#        for cj in range(0,len(starttimes)):        
+#            starttimes[cj] = synccondition[sweep,0] + (cj/tfreq)
+#        (traceave, tracesem) = OPtraceave(celltraces, starttimes, sweeplength, showflag)
+#        fourier = abs(np.fft.fft(traceave,axis=0))
+#        freq = np.fft.fftfreq(len(traceave), d=binsize)
+#        '''fourier analysis'''
+#        f0[sweep,:] = mean(traceave, axis=0)
+#        f1[sweep,:] = fourier[argwhere(freq == tfreq)]
+#        f2[sweep,:] = fourier[argwhere(freq == (2*tfreq))]
+#        return (f0, f1, f2)
         
 if __name__=='__main__':
     datapath = r'I:\CA153_130307\a_raw_traces.mat'
     logpath = r'I:\CA153_130307\130307124033-CA153_130307_a.log'
     syncpath = r'I:\CA153_130307\a_syncdata.mat'
     savepath = r'I:\CA153_130307'
-    modality = 'tf'
+    modality = 'ori'
     showflag = 0
     subX = -25
     subY = 20
-    (tuning, f0mean, f0sem) = gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX, subY)
+    (tuning, f0mean, f0sem, synccondition) = gratingOP(datapath, logpath, syncpath, savepath, modality, showflag)

@@ -130,7 +130,7 @@ def maprf(datapath, logpath, showflag, staflag):
                     show(False)
             
         fullfilename = datapath + '_RFData.h5'
-        f = h5py.File(fullfilename)
+        f = h5py.File(fullfilename, 'w')
         dset = f.create_dataset("offRF", offrf.shape, 'f')
         dset[...] = offrf
         dset.attrs["NumberPositions"] = (nxp, nyp)

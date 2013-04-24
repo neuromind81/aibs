@@ -118,7 +118,7 @@ def sftfOP(datapath, logpath, syncpath, savepath, showflag, subX=None, subY=None
     dset2[...]=f0sem
     f.close()
 
-    return(f0mean, f0sem)
+    return(f0mean, f0sem, syncc)
         
 
 def sftfOPtuning(syncsub, celltraces, sweeplength, showflag):
@@ -157,4 +157,4 @@ if __name__=='__main__':
     subX = -25
     subY = 20
     showflag = 0
-    (f0mean, f0sem) = sftfOP(datapath, logpath, syncpath, savepath, showflag, subX, subY)
+    (f0mean, f0sem, synccondition) = sftfOP(datapath, logpath, syncpath, savepath, showflag, subX, subY)

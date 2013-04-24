@@ -18,22 +18,27 @@ def loadsweeptimes(path):
     datapath = path + ".dat"
     metapath = path + ".meta"
     
-    m = open(metapath)
-    meta = m.readlines()
-    
-    channels = int(meta[7].split(' = ')[1])
+    channels,_ = loadmeta(metapath)
+#    m = open(metapath)
+#    meta = m.readlines()
+#    
+#    channels = int(meta[7].split(' = ')[1])
     #samplerate = int(meta[10].split(' = ')[1])
     #duration = len(data)/channels/samplerate
     
+    data = loadbinary(datapath, channels=channels)
+    sweeptrace = np.array(data[:, (channels-3)])
+    vsynctrace = np.array(data[:, (channels-2)])
+    diodetrace = np.array(data[:, (channels-1)])    
     d = open(datapath)
-    data = np.fromfile(d,np.int16)    
-    datareshaped = np.transpose(np.reshape(data,(len(data)/channels,channels)))
-    del data
-    
-    sweeptrace = datareshaped[(channels-3),:]
-    vsynctrace = datareshaped[(channels-2),:]
-    diodetrace = datareshaped[(channels-1),:]
-    del datareshaped    
+#    data = np.fromfile(d,np.int16)    
+#    datareshaped = np.transpose(np.reshape(data,(len(data)/channels,channels)))
+#    del data
+#    
+#    sweeptrace = datareshaped[(channels-3),:]
+#    vsynctrace = datareshaped[(channels-2),:]
+#    diodetrace = datareshaped[(channels-1),:]
+#    del datareshaped    
     
     #sweep start and end times
     sthr = np.ptp(sweeptrace)/4
@@ -47,7 +52,8 @@ def loadsweeptimes(path):
     elif sweepdown[0] <= sweep[0]:
         sweep = np.column_stack([sweepup, sweepdown[1:]])
     
-    vsync = findlevels(vsynctrace, -4000, 300, 'down')
+    vthr = -1*(np.ptp(vsynctrace)/5)
+    vsync = findlevels(vsynctrace, vthr, 300, 'up')
     
     dthr = np.ptp(diodetrace)/4    
     diode = findlevels(diodetrace, dthr, 200, 'both')
@@ -55,8 +61,12 @@ def loadsweeptimes(path):
     diode = np.delete(diode,[0,1],0)
     
     #corrects for delay between computer and monitor
-    sweep -= (vsync[0]-diode[0])
-    #converts to time
+    delay = vsync[0] - diode[0] + 0.0
+    print "***Monitor lag:", (delay/20000)
+    if delay > 0:
+        print "ERROR: diode before vsync"
+    sweep -= delay
+    #converts to time in seconds
     sweeptiming = sweep + 0.0
     sweeptiming /= 20000    
     return sweeptiming
@@ -66,25 +76,29 @@ def loadsweeptimesnogap(path):
     datapath = path + ".dat"
     metapath = path + ".meta"
     
-    m = open(metapath)
-    meta = m.readlines()
+    channels,_ = loadmeta(metapath)
+#    m = open(metapath)
+#    meta = m.readlines()
+#    
+#    channels = int(meta[7].split(' = ')[1])
+#    #samplerate = int(meta[10].split(' = ')[1])
+#    #duration = len(data)/channels/samplerate
     
-    channels = int(meta[7].split(' = ')[1])
-    #samplerate = int(meta[10].split(' = ')[1])
-    #duration = len(data)/channels/samplerate
-    
-    d = open(datapath)
-    data = np.fromfile(d,np.int16)    
-    datareshaped = np.transpose(np.reshape(data,(len(data)/channels,channels)))
-    del data
-    
-    sweeptrace = datareshaped[(channels-3),:]
-    vsynctrace = datareshaped[(channels-2),:]
-    diodetrace = datareshaped[(channels-1),:]
-    del datareshaped   
+    data = loadbinary(datapath, channels=channels)
+    sweeptrace = np.array(data[:, (channels-3)])
+    vsynctrace = np.array(data[:, (channels-2)])
+    diodetrace = np.array(data[:, (channels-1)])
+#    d = open(datapath)
+#    data = np.fromfile(d,np.int16)    
+#    datareshaped = np.transpose(np.reshape(data,(len(data)/channels,channels)))
+#    del data
+#    
+#    sweeptrace = datareshaped[(channels-3),:]
+#    vsynctrace = datareshaped[(channels-2),:]
+#    diodetrace = datareshaped[(channels-1),:]
+#    del datareshaped   
     
     temp = findlevel(sweeptrace, 4000, 'up')
-    
     sthr = -1*(np.ptp(sweeptrace)/4)    
     sweep = findlevels(sweeptrace, sthr, 3000, 'up')
     sweep = insert(sweep, 0, temp)
@@ -94,15 +108,19 @@ def loadsweeptimesnogap(path):
         sweepdown = delete(sweepdown, len(sweepdown)-1, 0)
     sweep = np.column_stack([sweep, sweepdown])
     
-    vsync = findlevels(vsynctrace, -4000, 300, 'down')
+    vthr = -1*(np.ptp(vsynctrace)/5)
+    vsync = findlevels(vsynctrace, vthr, 300, 'up')
     
     dthr = np.ptp(diodetrace)/4    
     diode = findlevels(diodetrace, dthr, 200, 'both')
     #diode = np.reshape(diode, (len(diode)/2, 2))
     diode = np.delete(diode,[0,1],0)
-    
     #corrects for delay between computer and monitor
-    sweep -= (vsync[0]-diode[0])
+    delay = vsync[0] - diode[0] + 0.0
+    print "***monitor lag:", (delay/20000)
+    if delay > 0:
+        print "ERROR: diode before vsync"
+    sweep -= delay
     #converts to time
     sweeptiming = sweep + 0.0
     sweeptiming /= 20000    
@@ -120,6 +138,28 @@ def loadh5(datapath, name):
     data = d[...]
     return data
     
+def loadbinary(path, channels = 1, dtype = np.int16):  
+    f = open(path)
+    data = np.fromfile(f,dtype)
+    size = len(data)
+    del data
+    f.close()
+    print "Data length:", size
+    print "Channels:",channels
+
+    data = np.memmap(path, dtype=dtype,mode='r',shape=((size/channels),channels))
+    return data
+
+def loadmeta(path):
+    m = open(path)
+    meta = m.readlines()
+    channels = int(meta[7].split(' = ')[1])
+    samplerate = int(meta[10].split(' = ')[1])
+    
+#    for item in meta:
+#        print item.strip()
+    return channels, samplerate
+
 def loadsweep(datapath):
     '''loads sweep and diode data - old version based on output from Jay's Matlab algorithm'''
     mat = sio.loadmat(datapath)

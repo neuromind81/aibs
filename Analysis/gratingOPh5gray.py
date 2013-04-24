@@ -171,6 +171,10 @@ def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX=No
     dset3[...] = tuning
     dset4 = f.create_dataset("synccondition", syncc.shape, 'f')
     dset4[...] = syncc
+    dset5 = f.create_dataset("imean", imean.shape, 'f')
+    dset5[...] = imean
+    dset6 = f.create_dataset("isem", isem.shape, 'f')
+    dset6[...] = isem
     f.close()    
     
     return (tuning, f0mean, f0sem, syncc)

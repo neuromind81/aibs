@@ -34,19 +34,19 @@ if __name__ == "__main__":
     datapath = r"C:\Users\derricw\Documents\data\20130205_test7.dat"
     metapath = r"C:\Users\derricw\Documents\data\20130205_test7.meta"
     """    
-    datapath = r"C:\Users\derricw\Documents\data\2013_03_14_M14_SPARSE1.dat"
-    metapath = r"C:\Users\derricw\Documents\data\2013_03_14_M14_SPARSE1.meta"
+    datapath = r"C:\Users\saskiad\Documents\ephys\20130228_M10_Sparse2\20130228_M10_Sparse2.dat"
+    metapath = r"C:\Users\saskiad\Documents\ephys\20130228_M10_Sparse2\20130228_M10_Sparse2.meta"
     
        
     channels,_ = loadmeta(metapath)
     data = loadbinary(datapath, channels=channels)
 
     #Plot a small section of the data.
-    f = figure(0)
-    subset = np.array(data[39.2e6:39.30e6,64:67])
-    plot(subset)
-    xlabel('Sample')
-    ylabel('Voltage')
-    legend(['Sweep','Frame','Diode','Signal'])
-    title('All Channels')
-    show()
+#    f = figure(0)
+#    subset = np.array(data[39.2e6:39.30e6,64:67])
+#    plot(subset)
+#    xlabel('Sample')
+#    ylabel('Voltage')
+#    legend(['Sweep','Frame','Diode','Signal'])
+#    title('All Channels')
+#    show()
