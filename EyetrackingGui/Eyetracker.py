@@ -34,11 +34,15 @@ class Eyetracker(object):
             'exposure': -6.0    
         }
 
-        self.blur = 3
+        self.blur = 0
+        self.zoom = 0
         self.ledthresh = 240
         self.pupilthresh = 225
-        self.ledsize = (20,50)
-        self.pupilsize = (300,700)
+        self.ledsize = [20,50]
+        self.pupilsize = [300,700]
+
+        #locations
+        
 
         #create window
         
@@ -48,7 +52,7 @@ class Eyetracker(object):
         else:
             try:
                 for p in self.camproperties.keys():
-                    if p in self.prop_map:
+                    if p in self.cam.prop_map:
                         self.setCamProp(p)
             except:
                 print "Couldn't set initial camera properties"
@@ -59,6 +63,10 @@ class Eyetracker(object):
 
         self._tick = time.clock()
         self._tock = time.clock()
+
+        #get image size
+        f0 = self.cam.getImage()
+        self.width,self.height = f0.width,f0.height
 
     def setCamProp(self,prop):
         """Sets a camera property"""
@@ -78,6 +86,15 @@ class Eyetracker(object):
                 self._framecount=0
                 pass     
 
+            #GREYSCALE/NORMALIZE
+            i = i.grayscale().equalize()
+
+            #ZOOM?
+            if self.zoom is not 0:
+                z = self.zoom
+                i = i.regionSelect(z,z,self.width-z,self.height-z)
+
+            #BLUR?
             if self.blur is not 0:
                 i = i.blur(window=(self.blur,self.blur))
 
@@ -106,7 +123,7 @@ class Eyetracker(object):
 
             #DRAW FPS
             try:
-                self._tock = 1/(time.clock()-self._tick)
+                self._tock = int(1/(time.clock()-self._tick))
             except:
                 pass
             self._tick = time.clock()
@@ -117,3 +134,6 @@ class Eyetracker(object):
 
             #Update framecount
             self._framecount += 1     
+
+    def close(self):
+        self._disp.quit()

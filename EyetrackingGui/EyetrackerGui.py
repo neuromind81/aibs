@@ -26,12 +26,20 @@ class MyForm(QtGui.QMainWindow):
         self.ui.horizontalSlider_pupil_binary.sliderMoved.connect(self._pupilBinarySlider)
         self.ui.horizontalSlider_pupil_min.sliderMoved.connect(self._pupilMinSlider)
         self.ui.horizontalSlider_pupil_max.sliderMoved.connect(self._pupilMaxSlider)
+        
 
         #Create Eyetracker
         self.et = Eyetracker()
 
         #Set initial slider bar states (might should be before signals)
         self.ui.horizontalSlider_general_blur.setValue(self.et.blur)
+        self.ui.horizontalSlider_general_zoom.setValue(self.et.zoom)
+        self.ui.horizontalSlider_led_binary.setValue(self.et.ledthresh)
+        self.ui.horizontalSlider_led_min.setValue(self.et.ledsize[0])
+        self.ui.horizontalSlider_led_max.setValue(self.et.ledsize[1])
+        self.ui.horizontalSlider_pupil_binary.setValue(self.et.pupilthresh)
+        self.ui.horizontalSlider_pupil_min.setValue(self.et.pupilsize[0])
+        self.ui.horizontalSlider_pupil_max.setValue(self.et.pupilsize[1])
 
         #Timer setup
         self.ctimer = QtCore.QTimer()
@@ -43,31 +51,44 @@ class MyForm(QtGui.QMainWindow):
         self.et.blur = int(self.ui.horizontalSlider_general_blur.value())
 
     def _zoomSlider(self):
-        pass
+        self.et.zoom = int(self.ui.horizontalSlider_general_zoom.value())
 
     def _ledBinarySlider(self):
-        pass
+        self.et.ledthresh = int(self.ui.horizontalSlider_led_binary.value())
 
     def _ledMinSlider(self):
-        pass
+        newval = int(self.ui.horizontalSlider_led_min.value())
+        if newval <= self.et.ledsize[1]:
+            self.et.ledsize[0] = newval
 
     def _ledMaxSlider(self):
-        pass
+        newval = int(self.ui.horizontalSlider_led_max.value())
+        if newval >= self.et.ledsize[0]:
+            self.et.ledsize[1] = newval
 
     def _pupilBinarySlider(self):
-        pass
+        self.et.pupilthresh = int(self.ui.horizontalSlider_pupil_binary.value())
 
     def _pupilMinSlider(self):
-        pass
+        newval = int(self.ui.horizontalSlider_pupil_min.value())
+        if newval <= self.et.pupilsize[1]:
+            self.et.pupilsize[0] = newval
 
     def _pupilMaxSlider(self):
-        pass
+        newval = int(self.ui.horizontalSlider_pupil_max.value())
+        if newval >= self.et.pupilsize[0]:
+            self.et.pupilsize[1] = newval
 
     def _tick(self):
         self.et.nextFrame()
 
+    def closeEvent(self,evnt):
+        self.ctimer.stop()
+        self.et.close()
+        print "CLOSING..."
 
  
+
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
     myapp = MyForm()

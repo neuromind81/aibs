@@ -376,7 +376,7 @@
        <item row="1" column="1">
         <widget class="QSlider" name="horizontalSlider_general_zoom">
          <property name="maximum">
-          <number>10</number>
+          <number>100</number>
          </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -401,7 +401,7 @@
      <x>0</x>
      <y>0</y>
      <width>788</width>
-     <height>23</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

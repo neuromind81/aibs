@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Wed Apr 24 22:52:03 2013
-#      by: PyQt4 UI code generator 4.9.3
+# Created: Thu Apr 25 14:46:24 2013
+#      by: PyQt4 UI code generator 4.9.6
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,16 @@ from PyQt4 import QtCore, QtGui
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
-    _fromUtf8 = lambda s: s
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -190,7 +199,7 @@ class Ui_MainWindow(object):
         self.label_general_zoom.setObjectName(_fromUtf8("label_general_zoom"))
         self.gridLayout_3.addWidget(self.label_general_zoom, 1, 0, 1, 1)
         self.horizontalSlider_general_zoom = QtGui.QSlider(self.groupBox_general)
-        self.horizontalSlider_general_zoom.setMaximum(10)
+        self.horizontalSlider_general_zoom.setMaximum(100)
         self.horizontalSlider_general_zoom.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider_general_zoom.setObjectName(_fromUtf8("horizontalSlider_general_zoom"))
         self.gridLayout_3.addWidget(self.horizontalSlider_general_zoom, 1, 1, 1, 1)
@@ -200,7 +209,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.groupBox_general, 0, 1, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 788, 23))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 788, 21))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(MainWindow)
@@ -219,37 +228,37 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Eyetracker", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox_pupil.setTitle(QtGui.QApplication.translate("MainWindow", "Pupil", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_pupil_binary.setText(QtGui.QApplication.translate("MainWindow", "Binary Thresh", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_pupil_binary_value.setText(QtGui.QApplication.translate("MainWindow", "0.0", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_pupil_min.setText(QtGui.QApplication.translate("MainWindow", "Min Size", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_pupil_min_value.setText(QtGui.QApplication.translate("MainWindow", "0.0", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_pupil_max.setText(QtGui.QApplication.translate("MainWindow", "Max Size", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_pupil_max_value.setText(QtGui.QApplication.translate("MainWindow", "0.0", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox_camera.setTitle(QtGui.QApplication.translate("MainWindow", "Camera", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_camera_hue.setText(QtGui.QApplication.translate("MainWindow", "Hue", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_camera_hue_value.setText(QtGui.QApplication.translate("MainWindow", "0.0", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_camera_saturation.setText(QtGui.QApplication.translate("MainWindow", "Saturation", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_camera_saturation_value.setText(QtGui.QApplication.translate("MainWindow", "0.0", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_camera_brightness.setText(QtGui.QApplication.translate("MainWindow", "Brightness", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_camera_brightness_value.setText(QtGui.QApplication.translate("MainWindow", "0.0", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_camera_gain.setText(QtGui.QApplication.translate("MainWindow", "Gain", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_camera_gain_value.setText(QtGui.QApplication.translate("MainWindow", "0.0", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_camera_contrast.setText(QtGui.QApplication.translate("MainWindow", "Contrast", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_camera_contrast_value.setText(QtGui.QApplication.translate("MainWindow", "0.0", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_camera_exposure.setText(QtGui.QApplication.translate("MainWindow", "Exposure", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_camera_exposure_value.setText(QtGui.QApplication.translate("MainWindow", "0.0", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox_led.setTitle(QtGui.QApplication.translate("MainWindow", "LED", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_led_binary.setText(QtGui.QApplication.translate("MainWindow", "Binary Thresh", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_led_binary_value.setText(QtGui.QApplication.translate("MainWindow", "0.0", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_led_min.setText(QtGui.QApplication.translate("MainWindow", "Min Size", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_led_min_value.setText(QtGui.QApplication.translate("MainWindow", "0.0", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_led_max.setText(QtGui.QApplication.translate("MainWindow", "Max Size", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_led_max_value.setText(QtGui.QApplication.translate("MainWindow", "0.0", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox_general.setTitle(QtGui.QApplication.translate("MainWindow", "General", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_general_blur.setText(QtGui.QApplication.translate("MainWindow", "Blur", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_general_blur_value.setText(QtGui.QApplication.translate("MainWindow", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_general_zoom.setText(QtGui.QApplication.translate("MainWindow", "Zoom", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_general_zoom_value.setText(QtGui.QApplication.translate("MainWindow", "0", None, QtGui.QApplication.UnicodeUTF8))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Eyetracker", None))
+        self.groupBox_pupil.setTitle(_translate("MainWindow", "Pupil", None))
+        self.label_pupil_binary.setText(_translate("MainWindow", "Binary Thresh", None))
+        self.label_pupil_binary_value.setText(_translate("MainWindow", "0.0", None))
+        self.label_pupil_min.setText(_translate("MainWindow", "Min Size", None))
+        self.label_pupil_min_value.setText(_translate("MainWindow", "0.0", None))
+        self.label_pupil_max.setText(_translate("MainWindow", "Max Size", None))
+        self.label_pupil_max_value.setText(_translate("MainWindow", "0.0", None))
+        self.groupBox_camera.setTitle(_translate("MainWindow", "Camera", None))
+        self.label_camera_hue.setText(_translate("MainWindow", "Hue", None))
+        self.label_camera_hue_value.setText(_translate("MainWindow", "0.0", None))
+        self.label_camera_saturation.setText(_translate("MainWindow", "Saturation", None))
+        self.label_camera_saturation_value.setText(_translate("MainWindow", "0.0", None))
+        self.label_camera_brightness.setText(_translate("MainWindow", "Brightness", None))
+        self.label_camera_brightness_value.setText(_translate("MainWindow", "0.0", None))
+        self.label_camera_gain.setText(_translate("MainWindow", "Gain", None))
+        self.label_camera_gain_value.setText(_translate("MainWindow", "0.0", None))
+        self.label_camera_contrast.setText(_translate("MainWindow", "Contrast", None))
+        self.label_camera_contrast_value.setText(_translate("MainWindow", "0.0", None))
+        self.label_camera_exposure.setText(_translate("MainWindow", "Exposure", None))
+        self.label_camera_exposure_value.setText(_translate("MainWindow", "0.0", None))
+        self.groupBox_led.setTitle(_translate("MainWindow", "LED", None))
+        self.label_led_binary.setText(_translate("MainWindow", "Binary Thresh", None))
+        self.label_led_binary_value.setText(_translate("MainWindow", "0.0", None))
+        self.label_led_min.setText(_translate("MainWindow", "Min Size", None))
+        self.label_led_min_value.setText(_translate("MainWindow", "0.0", None))
+        self.label_led_max.setText(_translate("MainWindow", "Max Size", None))
+        self.label_led_max_value.setText(_translate("MainWindow", "0.0", None))
+        self.groupBox_general.setTitle(_translate("MainWindow", "General", None))
+        self.label_general_blur.setText(_translate("MainWindow", "Blur", None))
+        self.label_general_blur_value.setText(_translate("MainWindow", "0", None))
+        self.label_general_zoom.setText(_translate("MainWindow", "Zoom", None))
+        self.label_general_zoom_value.setText(_translate("MainWindow", "0", None))
 
