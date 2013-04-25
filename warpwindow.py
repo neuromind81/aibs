@@ -381,14 +381,17 @@ class WarpWindow(visual.Window):
             GL.glTexCoord2f( 1.0, 0.0 ) ; GL.glVertex2f( 1.0,-1.0 )
             GL.glEnd()
             '''
+
             GL.glActiveTexture(GL.GL_TEXTURE0)
             GL.glEnable(GL.GL_TEXTURE_2D)
             GL.glBindTexture(GL.GL_TEXTURE_2D, self.frameTexture)
             GL.glBegin( GL.GL_QUADS )
-            GL.glTexCoord2f( 0.0, 0.0 ) ; GL.glVertex2f( -1.0,-1.0 )
-            GL.glTexCoord2f( 0.0, 1.0 ) ; GL.glVertex2f( -1.0,1.0 )
-            GL.glTexCoord2f( 1.0, 1.0 ) ; GL.glVertex2f( 1.0,1.0 )
-            GL.glTexCoord2f( 1.0, 0.0 ) ; GL.glVertex2f( 1.0,-1.0 )
+
+            GL.glTexCoord2f( 0.0, 0.0 ) ; GL.glVertex3f( -1.0,-1.0, 0.0 )
+            GL.glTexCoord2f( 0.0, 1.0 ) ; GL.glVertex3f( -1.0,1.0, 0.0 )
+            GL.glTexCoord2f( 1.0, 1.0 ) ; GL.glVertex3f( 1.0,1.0, 0.0 )
+            GL.glTexCoord2f( 1.0, 0.0 ) ; GL.glVertex3f( 1.0,-1.0, 0.0 )
+
             GL.glEnd()
             
 
@@ -401,7 +404,7 @@ class WarpWindow(visual.Window):
             for dispatcher in self._eventDispatchers:
                 dispatcher._dispatch_events()
             self.winHandle.dispatch_events()#this might need to be done even more often than once per frame?
-            pyglet.media.dispatch_events()#for sounds to be processed
+            #pyglet.media.dispatch_events()#for sounds to be processed
             self.winHandle.flip()
             #self.winHandle.clear()
             GL.glLoadIdentity()
@@ -422,7 +425,7 @@ class WarpWindow(visual.Window):
             norm_rf_pos_y = self.viewPos[1]/scale[1]
             GL.glTranslatef( norm_rf_pos_x, norm_rf_pos_y, 0.0)
         if self.viewOri != None:
-            GL.glRotatef( self.viewOri, 0.0, 0.0, -1.0)
+            GL.glRotatef( self.viewOri, 0.0, 0.0, 0.0)
 
         if haveFB:
             #set rendering back to the framebuffer object
@@ -442,7 +445,7 @@ class WarpWindow(visual.Window):
             else:
                 GL.glVertex2i(10,10)#this corrupts text rendering on win with some ATI cards :-(
             GL.glEnd()
-            GL.glFinish()
+            GL.glFlush()
 
         #get timestamp
         now = logging.defaultClock.getTime()
@@ -513,14 +516,6 @@ class WarpWindow(visual.Window):
             self._progSignedTex = _shaders.compileProgram(_shaders.vertSimple, _shaders.fragSignedColorTex)
             self._progSignedTexMask1D = _shaders.compileProgram(_shaders.vertSimple, _shaders.fragSignedColorTexMask1D)
             self._progSignedTexFont = _shaders.compileProgram(_shaders.vertSimple, _shaders.fragSignedColorTexFont)
-#       elif self.winType=='pygame':#on PyOpenGL we should try to get an init value
-#            from OpenGL.GL.ARB import shader_objects
-#            if shader_objects.glInitShaderObjectsARB():
-#                self._haveShaders=True
-#                self._progSignedTexMask = _shaders.compileProgram(_shaders.vertSimple, _shaders.fragSignedColorTexMask)#fragSignedColorTexMask
-#                self._progSignedTex = _shaders.compileProgram(_shaders.vertSimple, _shaders.fragSignedColorTex)
-#            else:
-#                self._haveShaders=False
 
         GL.glClear(GL.GL_COLOR_BUFFER_BIT|GL.GL_DEPTH_BUFFER_BIT)
 
@@ -572,30 +567,22 @@ if __name__ == "__main__":
     from psychopy import visual, logging, event, core
     
     #create a window to draw in
-    myWin = WarpWindow((600,600), allowGUI=False, fullscr = True, screen = 0)
+    myWin = WarpWindow((600,600), allowGUI=False, fullscr = True, screen = 0,monitor='testMonitor')
     logging.console.setLevel(logging.DEBUG)
     
     #INITIALISE SOME STIMULI
     grating1 = visual.GratingStim(myWin,mask="None",
         color=[1.0,1.0,1.0],opacity=1.0,
-        size=(2.0,2.0), sf=(4,0), ori = 0,
+        size=(5,5), sf=4, ori = 0,
         autoLog=False)#this stim changes too much for autologging to be useful
-    grating2 = visual.GratingStim(myWin,mask="None",
-        color=[1.0,1.0,1.0],opacity=0.5,
-        size=(2.0,2.0), sf=(4,0), ori = 90,
-        autoLog=False)#this stim changes too much for autologging to be useful
-    
+
     trialClock = core.Clock()
     t = 0
     while t<20:#quits after 20 secs
     
         t=trialClock.getTime()
-    
         #grating1.setPhase(1*t)  #drift at 1Hz
         grating1.draw()  #redraw it
-    
-        #grating2.setPhase(2*t)    #drift at 2Hz
-        grating2.draw()  #redraw it
         
         myWin.flip()          #update the screen
     
