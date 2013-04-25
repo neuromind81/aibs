@@ -24,8 +24,8 @@ def getsync(syncpath, stimuluscondition):
     synccondition = np.zeros((size(stimuluscondition,0),size(stimuluscondition,1)))
 
     for i in range(len(stimuluscondition)):
-        start = stimuluscondition[i,0]
-        end = stimuluscondition[i,1]
+        start = stimuluscondition[i,0] + 3
+        end = stimuluscondition[i,1] + 3
         temp = []
         temp = np.where(syncframe[0][:] == start)
         synccondition[i,0] = int(floor(temp[0][0]/256/8))

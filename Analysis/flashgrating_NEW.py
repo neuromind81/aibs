@@ -114,12 +114,12 @@ def flashgrating (datapath, logpath, modality, numbins, showflag):
                 sp = c + firstcell
                 ax1 = subplot(ceil(sqrt(sn)), round(sqrt(sn)), c+1)
                 if (modality.find("sf")+1) or (modality.find("tf")+1):
-                    ax.set_xscale("log", nonposx='clip')
-                    ax1.errorbar(tuning, f1mean[:,sp], yerr=f1sem[:,sp], fmt = 'ro', capsize=2, linestyle='-')
+                    ax1.set_xscale("log", nonposx='clip')
+                    ax1.errorbar(tuning, f1mean[:,sp,0], yerr=f1sem[:,sp,0], fmt = 'ro', capsize=2, linestyle='-')
                     ax1.errorbar(tuning, f1mean[:,sp,1], yerr=f1sem[:,sp,1], fmt = 'bo', capsize=2, linestyle='-')
                     ax1.errorbar(tuning, f1mean[:,sp,2], yerr=f1sem[:,sp,2], fmt = 'go', capsize=2, linestyle='-')
                 else:              
-                    ax1.errorbar(tuning, f0mean[:,sp], yerr=f0sem[:,sp], fmt = 'ro', capsize=2, linestyle='-')
+                    ax1.errorbar(tuning, f1mean[:,sp], yerr=f1sem[:,sp], fmt = 'ro', capsize=2, linestyle='-')
                 ax1.set_ylabel('F1', fontsize=10)
                 ax1.set_ylim(bottom=0)
                 xticks(ticks)             
