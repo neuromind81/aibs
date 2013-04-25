@@ -18,7 +18,7 @@ import time
 import platform
 
 
-class EyeTracker(object):
+class Eyetracker(object):
     def __init__(self):
 
         self._framecount = 0
@@ -42,38 +42,35 @@ class EyeTracker(object):
 
         #create window
         
-        self.cam = Camera(prop_set=self.camproperties)
+        #self.cam = Camera(prop_set=self.camproperties)
         if (platform.system()=="Linux"):
             print "Running on Linux, can't change cam properties..."
         else:
             try:
                 for p in self.camproperties.keys():
                     if p in self.prop_map:
-                        self._setCamProp(p)
+                        self.setCamProp(p)
             except:
                 print "Couldn't set initial camera properties"
         
-        #self.cam = VirtualCamera(r"res/mouseeye.png",'image')
+        self.cam = VirtualCamera(r"res/mouseeye.png",'image')
 
-        self.disp = Display()
+        self._disp = Display()
 
-    def _setCamProp(self,prop):
+        self._tick = time.clock()
+        self._tock = time.clock()
+
+    def setCamProp(self,prop):
         """Sets a camera property"""
         cv.SetCaptureProperty(self.cam.capture,
             self.cam.prop_map[prop], self.camproperties[prop])
 
 
-    def run(self):
-        #TESTBED
+    def nextFrame(self):
+        #TEST
         #self._setCamProp('exposure') #should work on windows
 
-        #loop through grabbing frames
-        tick = time.clock()
-        tock = time.clock()
-
-        bm = BlobMaker() # create the blob extractor
-
-        while self.disp.isNotDone():
+        if self._disp.isNotDone():
             i = self.cam.getImage() #get camera image
 
             if self._framecount%10==0:
@@ -90,7 +87,7 @@ class EyeTracker(object):
                 maxsize=self.ledsize[1])
             if led:
                 if(len(led)>0): # if we got a blob
-                    led[-1].draw() # the -1 blob is the largest blob - draw it
+                    led[-1].draw(color=Color.GREEN) # the -1 blob is the largest blob - draw it
                     locationStr = "LED: ("+str(led[-1].x)+","+str(led[-1].y)+")"
                     # write the blob's centroid to the image
                     i.dl().text(locationStr,(0,0),color=Color.GREEN)
@@ -109,21 +106,14 @@ class EyeTracker(object):
 
             #DRAW FPS
             try:
-                tock = 1/(time.clock()-tick)
+                self._tock = 1/(time.clock()-self._tick)
             except:
                 pass
-            tick = time.clock()
-            i.drawText("FPS: "+str(tock),0,i.height-10)
+            self._tick = time.clock()
+            i.drawText("FPS: "+str(self._tock),0,i.height-10)
 
             #SHOW IMAGE
-            i.save(self.disp)
+            i.save(self._disp)
 
-            #ESCAPE?
-            if self.disp.mouseLeft:
-                break
-
+            #Update framecount
             self._framecount += 1     
-
-if __name__ == '__main__':
-    et = EyeTracker()
-    et.run()
