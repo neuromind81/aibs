@@ -42,11 +42,15 @@ class Eyetracker(object):
         self.pupilsize = [300,700]
 
         #locations
-        
+        self.pupil = [-1,-1]
+        self.led = [-1,-1]
 
         #create window
         
-        #self.cam = Camera(prop_set=self.camproperties)
+        self.cam = Camera(prop_set=self.camproperties) #actual camera
+        print self.cam.getAllProperties()
+        #self.cam = VirtualCamera(r"res/mouseeye.png",'image') #virtual camera uses image of mouse eye
+
         if (platform.system()=="Linux"):
             print "Running on Linux, can't change cam properties..."
         else:
@@ -56,8 +60,6 @@ class Eyetracker(object):
                         self.setCamProp(p)
             except:
                 print "Couldn't set initial camera properties"
-        
-        self.cam = VirtualCamera(r"res/mouseeye.png",'image')
 
         self._disp = Display()
 
@@ -75,8 +77,8 @@ class Eyetracker(object):
 
 
     def nextFrame(self):
+        """GETS NEXT FRAME AND PROCESSES IT"""
         #TEST
-        #self._setCamProp('exposure') #should work on windows
 
         if self._disp.isNotDone():
             i = self.cam.getImage() #get camera image
@@ -92,7 +94,8 @@ class Eyetracker(object):
             #ZOOM?
             if self.zoom is not 0:
                 z = self.zoom
-                i = i.regionSelect(z,z,self.width-z,self.height-z)
+                i = i.regionSelect(int(self.width/100*self.zoom),int(self.height/100*self.zoom),
+                    int(self.width-self.width/100*self.zoom),int(self.height-self.height/100*self.zoom))
 
             #BLUR?
             if self.blur is not 0:
@@ -105,8 +108,9 @@ class Eyetracker(object):
             if led:
                 if(len(led)>0): # if we got a blob
                     led[-1].draw(color=Color.GREEN) # the -1 blob is the largest blob - draw it
-                    locationStr = "LED: ("+str(led[-1].x)+","+str(led[-1].y)+")"
-                    # write the blob's centroid to the image
+                    self.led = [led[-1].x,led[-1].y]
+                    locationStr = "LED: ("+str(self.led[0])+","+str(self.led[1])+")"
+                    # write the led's centroid to the image
                     i.dl().text(locationStr,(0,0),color=Color.GREEN)
             
             #FIND PUPIL
@@ -116,8 +120,9 @@ class Eyetracker(object):
             if pupil:
                 if(len(pupil)>0): # if we got a blob
                     pupil[-1].draw(color=Color.RED) # the -1 blob is the largest blob - draw it
-                    locationStr = "PUPIL: ("+str(pupil[-1].x)+","+str(pupil[-1].y)+")"
-                    # write the blob's centroid to the image
+                    self.pupil = [pupil[-1].x,pupil[-1].y]
+                    locationStr = "PUPIL: ("+str(self.pupil[0])+","+str(self.pupil[1])+")"
+                    # write the pupil's centroid to the image
                     i.dl().text(locationStr,(0,10),color=Color.RED)
 
 
@@ -132,7 +137,7 @@ class Eyetracker(object):
             #SHOW IMAGE
             i.save(self._disp)
 
-            #Update framecount
+            #UPDATE FRAMECOUNT
             self._framecount += 1     
 
     def close(self):

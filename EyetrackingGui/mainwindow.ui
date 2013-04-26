@@ -138,6 +138,9 @@
        </item>
        <item row="1" column="1">
         <widget class="QSlider" name="horizontalSlider_camera_saturation">
+         <property name="maximum">
+          <number>150</number>
+         </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -159,6 +162,9 @@
        </item>
        <item row="2" column="1">
         <widget class="QSlider" name="horizontalSlider_camera_brightness">
+         <property name="maximum">
+          <number>200</number>
+         </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -229,7 +235,7 @@
           <number>-10</number>
          </property>
          <property name="maximum">
-          <number>0</number>
+          <number>10</number>
          </property>
          <property name="value">
           <number>0</number>
@@ -376,7 +382,7 @@
        <item row="1" column="1">
         <widget class="QSlider" name="horizontalSlider_general_zoom">
          <property name="maximum">
-          <number>100</number>
+          <number>49</number>
          </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>

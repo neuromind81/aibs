@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Thu Apr 25 14:46:24 2013
+# Created: Fri Apr 26 11:35:31 2013
 #      by: PyQt4 UI code generator 4.9.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -89,6 +89,7 @@ class Ui_MainWindow(object):
         self.label_camera_saturation.setObjectName(_fromUtf8("label_camera_saturation"))
         self.gridLayout_2.addWidget(self.label_camera_saturation, 1, 0, 1, 1)
         self.horizontalSlider_camera_saturation = QtGui.QSlider(self.groupBox_camera)
+        self.horizontalSlider_camera_saturation.setMaximum(150)
         self.horizontalSlider_camera_saturation.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider_camera_saturation.setObjectName(_fromUtf8("horizontalSlider_camera_saturation"))
         self.gridLayout_2.addWidget(self.horizontalSlider_camera_saturation, 1, 1, 1, 1)
@@ -99,6 +100,7 @@ class Ui_MainWindow(object):
         self.label_camera_brightness.setObjectName(_fromUtf8("label_camera_brightness"))
         self.gridLayout_2.addWidget(self.label_camera_brightness, 2, 0, 1, 1)
         self.horizontalSlider_camera_brightness = QtGui.QSlider(self.groupBox_camera)
+        self.horizontalSlider_camera_brightness.setMaximum(200)
         self.horizontalSlider_camera_brightness.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider_camera_brightness.setObjectName(_fromUtf8("horizontalSlider_camera_brightness"))
         self.gridLayout_2.addWidget(self.horizontalSlider_camera_brightness, 2, 1, 1, 1)
@@ -131,7 +133,7 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.label_camera_exposure, 5, 0, 1, 1)
         self.horizontalSlider_camera_exposure = QtGui.QSlider(self.groupBox_camera)
         self.horizontalSlider_camera_exposure.setMinimum(-10)
-        self.horizontalSlider_camera_exposure.setMaximum(0)
+        self.horizontalSlider_camera_exposure.setMaximum(10)
         self.horizontalSlider_camera_exposure.setProperty("value", 0)
         self.horizontalSlider_camera_exposure.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider_camera_exposure.setObjectName(_fromUtf8("horizontalSlider_camera_exposure"))
@@ -199,7 +201,7 @@ class Ui_MainWindow(object):
         self.label_general_zoom.setObjectName(_fromUtf8("label_general_zoom"))
         self.gridLayout_3.addWidget(self.label_general_zoom, 1, 0, 1, 1)
         self.horizontalSlider_general_zoom = QtGui.QSlider(self.groupBox_general)
-        self.horizontalSlider_general_zoom.setMaximum(100)
+        self.horizontalSlider_general_zoom.setMaximum(49)
         self.horizontalSlider_general_zoom.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider_general_zoom.setObjectName(_fromUtf8("horizontalSlider_general_zoom"))
         self.gridLayout_3.addWidget(self.horizontalSlider_general_zoom, 1, 1, 1, 1)

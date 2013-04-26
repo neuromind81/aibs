@@ -26,7 +26,12 @@ class MyForm(QtGui.QMainWindow):
         self.ui.horizontalSlider_pupil_binary.sliderMoved.connect(self._pupilBinarySlider)
         self.ui.horizontalSlider_pupil_min.sliderMoved.connect(self._pupilMinSlider)
         self.ui.horizontalSlider_pupil_max.sliderMoved.connect(self._pupilMaxSlider)
-        
+        self.ui.horizontalSlider_camera_hue.sliderMoved.connect(self._cameraHueSlider)
+        self.ui.horizontalSlider_camera_saturation.sliderMoved.connect(self._cameraSaturationSlider)
+        self.ui.horizontalSlider_camera_brightness.sliderMoved.connect(self._cameraBrightnessSlider)
+        self.ui.horizontalSlider_camera_gain.sliderMoved.connect(self._cameraGainSlider)
+        self.ui.horizontalSlider_camera_contrast.sliderMoved.connect(self._cameraContrastSlider)
+        self.ui.horizontalSlider_camera_exposure.sliderMoved.connect(self._cameraExposureSlider)
 
         #Create Eyetracker
         self.et = Eyetracker()
@@ -40,6 +45,20 @@ class MyForm(QtGui.QMainWindow):
         self.ui.horizontalSlider_pupil_binary.setValue(self.et.pupilthresh)
         self.ui.horizontalSlider_pupil_min.setValue(self.et.pupilsize[0])
         self.ui.horizontalSlider_pupil_max.setValue(self.et.pupilsize[1])
+
+        #and for the camera...
+        #self.ui.horizontalSlider_camera_hue.setValue(
+        #    self.et.camproperties['hue'])
+        self.ui.horizontalSlider_camera_saturation.setValue(
+            self.et.camproperties['saturation'])
+        self.ui.horizontalSlider_camera_brightness.setValue(
+            self.et.camproperties['brightness'])
+        #self.ui.horizontalSlider_camera_gain.setValue(
+        #    self.et.camproperties['gain'])
+        self.ui.horizontalSlider_camera_contrast.setValue(
+            self.et.camproperties['contrast'])
+        self.ui.horizontalSlider_camera_exposure.setValue(
+            self.et.camproperties['exposure'])
 
         #Timer setup
         self.ctimer = QtCore.QTimer()
@@ -78,6 +97,32 @@ class MyForm(QtGui.QMainWindow):
         newval = int(self.ui.horizontalSlider_pupil_max.value())
         if newval >= self.et.pupilsize[0]:
             self.et.pupilsize[1] = newval
+
+    def _cameraHueSlider(self):
+        pass
+
+    def _cameraSaturationSlider(self):
+        self.et.camproperties['saturation'] = int(
+            self.ui.horizontalSlider_camera_saturation.value())
+        self.et.setCamProp('saturation')
+
+    def _cameraBrightnessSlider(self):
+        self.et.camproperties['brightness'] = int(
+            self.ui.horizontalSlider_camera_brightness.value())
+        self.et.setCamProp('brightness')
+
+    def _cameraGainSlider(self):
+        pass
+
+    def _cameraContrastSlider(self):
+        self.et.camproperties['contrast'] = int(
+            self.ui.horizontalSlider_camera_contrast.value())
+        self.et.setCamProp('contrast')
+
+    def _cameraExposureSlider(self):
+        self.et.camproperties['exposure'] = int(
+            self.ui.horizontalSlider_camera_exposure.value())
+        self.et.setCamProp('exposure')
 
     def _tick(self):
         self.et.nextFrame()
