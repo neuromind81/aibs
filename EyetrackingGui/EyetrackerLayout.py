@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Fri Apr 26 11:35:31 2013
+# Created: Fri Apr 26 14:27:10 2013
 #      by: PyQt4 UI code generator 4.9.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -100,6 +100,7 @@ class Ui_MainWindow(object):
         self.label_camera_brightness.setObjectName(_fromUtf8("label_camera_brightness"))
         self.gridLayout_2.addWidget(self.label_camera_brightness, 2, 0, 1, 1)
         self.horizontalSlider_camera_brightness = QtGui.QSlider(self.groupBox_camera)
+        self.horizontalSlider_camera_brightness.setMinimum(0)
         self.horizontalSlider_camera_brightness.setMaximum(200)
         self.horizontalSlider_camera_brightness.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider_camera_brightness.setObjectName(_fromUtf8("horizontalSlider_camera_brightness"))
@@ -121,7 +122,8 @@ class Ui_MainWindow(object):
         self.label_camera_contrast.setObjectName(_fromUtf8("label_camera_contrast"))
         self.gridLayout_2.addWidget(self.label_camera_contrast, 4, 0, 1, 1)
         self.horizontalSlider_camera_contrast = QtGui.QSlider(self.groupBox_camera)
-        self.horizontalSlider_camera_contrast.setMaximum(20)
+        self.horizontalSlider_camera_contrast.setMinimum(0)
+        self.horizontalSlider_camera_contrast.setMaximum(80)
         self.horizontalSlider_camera_contrast.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider_camera_contrast.setObjectName(_fromUtf8("horizontalSlider_camera_contrast"))
         self.gridLayout_2.addWidget(self.horizontalSlider_camera_contrast, 4, 1, 1, 1)
@@ -132,7 +134,7 @@ class Ui_MainWindow(object):
         self.label_camera_exposure.setObjectName(_fromUtf8("label_camera_exposure"))
         self.gridLayout_2.addWidget(self.label_camera_exposure, 5, 0, 1, 1)
         self.horizontalSlider_camera_exposure = QtGui.QSlider(self.groupBox_camera)
-        self.horizontalSlider_camera_exposure.setMinimum(-10)
+        self.horizontalSlider_camera_exposure.setMinimum(-20)
         self.horizontalSlider_camera_exposure.setMaximum(10)
         self.horizontalSlider_camera_exposure.setProperty("value", 0)
         self.horizontalSlider_camera_exposure.setOrientation(QtCore.Qt.Horizontal)
@@ -227,6 +229,12 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.horizontalSlider_pupil_binary, QtCore.SIGNAL(_fromUtf8("sliderMoved(int)")), self.label_pupil_binary_value.setNum)
         QtCore.QObject.connect(self.horizontalSlider_pupil_max, QtCore.SIGNAL(_fromUtf8("sliderMoved(int)")), self.label_pupil_max_value.setNum)
         QtCore.QObject.connect(self.horizontalSlider_pupil_min, QtCore.SIGNAL(_fromUtf8("sliderMoved(int)")), self.label_pupil_min_value.setNum)
+        QtCore.QObject.connect(self.horizontalSlider_camera_hue, QtCore.SIGNAL(_fromUtf8("sliderMoved(int)")), self.label_camera_hue_value.setNum)
+        QtCore.QObject.connect(self.horizontalSlider_camera_saturation, QtCore.SIGNAL(_fromUtf8("sliderMoved(int)")), self.label_camera_saturation_value.setNum)
+        QtCore.QObject.connect(self.horizontalSlider_camera_brightness, QtCore.SIGNAL(_fromUtf8("sliderMoved(int)")), self.label_camera_brightness_value.setNum)
+        QtCore.QObject.connect(self.horizontalSlider_camera_gain, QtCore.SIGNAL(_fromUtf8("sliderMoved(int)")), self.label_camera_gain_value.setNum)
+        QtCore.QObject.connect(self.horizontalSlider_camera_contrast, QtCore.SIGNAL(_fromUtf8("sliderMoved(int)")), self.label_camera_contrast_value.setNum)
+        QtCore.QObject.connect(self.horizontalSlider_camera_exposure, QtCore.SIGNAL(_fromUtf8("sliderMoved(int)")), self.label_camera_exposure_value.setNum)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

@@ -16,6 +16,7 @@ from SimpleCV import *
 from pylab import *
 import time
 import platform
+import numpy as np
 
 
 class Eyetracker(object):
@@ -34,12 +35,12 @@ class Eyetracker(object):
             'exposure': -6.0    
         }
 
-        self.blur = 0
+        self.blur = 3
         self.zoom = 0
-        self.ledthresh = 240
-        self.pupilthresh = 225
-        self.ledsize = [20,50]
-        self.pupilsize = [300,700]
+        self.ledthresh = 233
+        self.pupilthresh = 246
+        self.ledsize = [34,81]
+        self.pupilsize = [330,929]
 
         #locations
         self.pupil = [-1,-1]
@@ -47,9 +48,9 @@ class Eyetracker(object):
 
         #create window
         
-        self.cam = Camera(prop_set=self.camproperties) #actual camera
-        print self.cam.getAllProperties()
-        #self.cam = VirtualCamera(r"res/mouseeye.png",'image') #virtual camera uses image of mouse eye
+        #self.cam = Camera(prop_set=self.camproperties) #actual camera
+        #print self.cam.getAllProperties()
+        self.cam = VirtualCamera(r"res/mouseeye.png",'image') #virtual camera uses image of mouse eye
 
         if (platform.system()=="Linux"):
             print "Running on Linux, can't change cam properties..."
@@ -96,7 +97,7 @@ class Eyetracker(object):
                 z = self.zoom
                 i = i.regionSelect(int(self.width/100*self.zoom),int(self.height/100*self.zoom),
                     int(self.width-self.width/100*self.zoom),int(self.height-self.height/100*self.zoom))
-
+                
             #BLUR?
             if self.blur is not 0:
                 i = i.blur(window=(self.blur,self.blur))
@@ -142,3 +143,54 @@ class Eyetracker(object):
 
     def close(self):
         self._disp.quit()
+
+class GazeTracker(object):
+    """docstring for GazeTracker"""
+    def __init__(self):
+        self.monitorsize=(49,40)
+        self.monitorresolution=(1920,1080)
+        self.monitordistance=11 #distance of mouse relative to screen
+        self.mousex=self.monitorsize[0]/2 #x position of mouse relative to screen
+        self.mousey=self.monitorsize[1]/2 #y position of mouse relative to screen
+        self.leddistance=5 #distance of LED from mouse
+        self.ledx=0 #x position of LED relative to mouse
+        self.ledy=0 #y position of LED relative to mouse
+        self.imgw=640
+        self.imgh=480
+        self.imgdiag=np.sqrt((self.imgw**2)+(self.imgh**2))
+        self.camfov=90
+        self.eyeradius=0.33
+
+
+
+    def gazeAngle(self,x):
+        fovd=self.leddistance*np.tan(np.radians(self.camfov/2))*2
+        pixpercm=self.imgdiag/fovd
+        xdist=x/pixpercm
+        return np.degrees(np.arctan(xdist/self.eyeradius))
+
+    def gazePix(self,angle):
+        return None
+
+    def pix2cm(self,pix):
+        pixpercm = self.monitorresolution[0]/self.monitorsize[0]
+        return pix/pixpercm*1.000
+
+    def pix2deg(self,pix):
+        cm = self.pix2cm(pix)
+        return self.cm2deg(cm)*1.000
+        
+    def cm2deg(self,cm):
+        return np.degrees(np.arctan(cm/self.monitordistance)*1.000)
+
+    def cm2pix(self,cm):
+        pixpercm = self.monitorresolution[0]/self.monitorsize[0]
+        return cm*pixpercm*1.000
+
+
+def main():
+    gt = GazeTracker()
+    print gt.gazeAngle(10)
+
+if __name__ == '__main__':
+    main()
