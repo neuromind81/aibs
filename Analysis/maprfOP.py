@@ -14,6 +14,7 @@ from getSweepTimes import *
 from findlevel import findlevel
 import matplotlib.pyplot as plt
 import matplotlib.animation as manimation
+from OPTools import *
 
 def maprfOP(datapath, logpath, syncpath, savepath, showflag):
     print "loading traces from:", datapath    
@@ -23,22 +24,25 @@ def maprfOP(datapath, logpath, syncpath, savepath, showflag):
     
     print "loading stimulus log from:",logpath
     (sweeporder, sweeptable, bgdimnames, sweeptiming) = getSweepTimesEPrf(logpath)
+    sweeptiming *= 60       #puts it into stimulus frame #
 
     '''arranges stimulus conditions'''    
     stimuluscondition = np.zeros((len(sweeporder),5))
-    stimuluscondition[:,0:1] = sweeptiming[:,:]
+    stimuluscondition[:,0:2] = sweeptiming[:,0:2]
     for i in range(0, len(sweeporder)):    
         j = sweeporder[i]        
         stimuluscondition[i,2] = sweeptable[j][bgdimnames.index('Color')]
         stimuluscondition[i,3] = sweeptable[j][bgdimnames.index('PosX')]
         stimuluscondition[i,4] = sweeptable[j][bgdimnames.index('PosY')]
-    stimuluscondition = stimuluscondition[np.lexsort((stimuluscondition[:,4], stimuluscondition[:,3], stimuluscondition[:,2]))]
+    stimuluscondition = stimuluscondition[np.lexsort((stimuluscondition[:,4], stimuluscondition[:,3], stimuluscondition[:,2]))] 
     
     syncc = getsync(syncpath, stimuluscondition)
     
     '''number of xpositions and ypositions'''
     nxp = ((amax(syncc[:,3])-amin(syncc[:,3]))/5)+1
     nyp = ((amax(syncc[:,4])-amin(syncc[:,4]))/5)+1
+    print "Number of X positions:", nxp
+    print "Number of Y positions:", nyp
     
     '''on and off count maps'''
     offrf = np.zeros((nxp,nyp,nc))
@@ -52,8 +56,8 @@ def maprfOP(datapath, logpath, syncpath, savepath, showflag):
     transitions = argwhere(valuedifference)    
     transitions = append(transitions, len(valuedifference))
     
-    sweeplength = syncc[0,1]-syncc[0,0]
-    for cond in range(len(transitions)):
+    sweeplength = int(syncc[0,1]-syncc[0,0] + 1)
+    for cond in range(len(transitions)-1):
         firstpoint = transitions[cond]
         lastpoint = transitions[cond+1]
         starttimes = syncc[firstpoint:lastpoint,0]
@@ -63,12 +67,12 @@ def maprfOP(datapath, logpath, syncpath, savepath, showflag):
         #f0sem[cond] = tracesem.mean(0)
         xp = (syncc[firstpoint,3]-amin(syncc[:,3]))/5
         yp = (syncc[firstpoint,4]-amin(syncc[:,4]))/5            
-        if synnc[firstpoint,0] == -1:
+        if syncc[firstpoint,2] == -1:
             offrf[xp,yp,:] = traceave.mean(0)
-            offsem[xp,yp,:] = tracesem.mean(0)
-        if synnc[firstpoint,0] == 1:
+            #offsem[xp,yp,:] = tracesem.mean(0)
+        if syncc[firstpoint,2] == 1:
             onrf[xp,yp,:] = traceave.mean(0)
-            onsem[xp,yp,:] = tracesem.mean(0)
+            #onsem[xp,yp,:] = tracesem.mean(0)
     
     newpath = os.path.join(savepath, 'RFData')
     if os.path.exists(newpath) == False:
@@ -101,7 +105,7 @@ def maprfOP(datapath, logpath, syncpath, savepath, showflag):
                     for t in cbar.ax.get_yticklabels():
                         t.set_fontsize(8)
                 subplots_adjust(top=0.9)
-                suptitle(constring + " Cells "+ str(firstcell+1) + " to " + str(lastcell+1), fontsize=14)
+                suptitle(" Cells "+ str(firstcell+1) + " to " + str(lastcell+1), fontsize=14)
                 fname = newpath + '_RF' + str(s) + '.png'
                 savefig(fname)
                 if showflag:
@@ -123,10 +127,10 @@ def maprfOP(datapath, logpath, syncpath, savepath, showflag):
     return (onrf, offrf)
 
 if __name__=='__main__':
-    datapath = r''
-    logpath = r''
-    syncpath = r''
-    savepath = r''
+    datapath = r'I:\CA153_130307\g_raw_traces.mat'
+    logpath = r'I:\CA153_130307\130307130646-CA153_130307_g.log'
+    syncpath = r'I:\CA153_130307\g_syncdata.mat'
+    savepath = r'I:\CA153_130307'
     showflag = 1
-    (onrf, offrf) = (datapath, logpath, syncpath, savepath, showflag)
+    (onrf, offrf) = maprfOP(datapath, logpath, syncpath, savepath, showflag)
     

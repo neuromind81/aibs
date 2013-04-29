@@ -16,7 +16,7 @@ from loadlog import loadh5
 def PSTmovie(datapath, logpath, syncpath, modality, moviename, subX, subY):
     '''load stimulus log'''
     print "loading stimulus log from:",logpath    
-    (stimuluscondition, sweeplength) = getSweepTimesOP(logpath, modality)
+    (stimuluscondition, sweeplength, _) = getSweepTimesOP(logpath, modality)
     sweeplength = (sweeplength/60)*4
     '''stimuluscondition is sorted on xp, yp and sortcondition'''
     

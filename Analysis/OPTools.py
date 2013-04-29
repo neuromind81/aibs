@@ -47,7 +47,7 @@ def OPtraceave(celltraces, starttimes, duration, showflag):
     temp = np.empty((duration, numstim))
     for ci in range(numcells):        
         for i in range(numstim):
-            temp[:,i] = celltraces[ci][starttimes[i]:starttimes[i]+duration]
+            temp[:,i] = celltraces[ci][starttimes[i]:(starttimes[i]+duration)]
             #fix this when using h5 file
         traceave[:,ci] = temp.mean(1)
         tracesem[:, ci] = temp.std(1)/sqrt(numstim)

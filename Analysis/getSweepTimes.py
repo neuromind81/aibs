@@ -121,9 +121,9 @@ def getSweepTimesEPrf(path):
     stimtiming = np.zeros((len(bgsweeporder),2))    
     for i in range(len(bgsweeporder)):
         #sweep start        
-        stimtiming[i,0] = ((i*sweeplength) + (i*postsweepsec))
+        stimtiming[i,0] = (preexpsec + (i*sweeplength) + (i*postsweepsec))
         #sweep end        
-        stimtiming[i,1] = ((i*sweeplength) + (i*postsweepsec) + sweeplength)
+        stimtiming[i,1] = (preexpsec + (i*sweeplength) + (i*postsweepsec) + sweeplength)
     
     
     return (bgsweeporder, bgsweeptable, bgdimnames, stimtiming)
