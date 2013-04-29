@@ -76,7 +76,7 @@ def sftfOP(datapath, logpath, syncpath, savepath, showflag, subX=None, subY=None
             sp = firstcell + c
             if sp < nc:
                 for ci in range(3):                    
-                    subplot(4,3,(3*c)+1+ci)
+                    subplot(4,4,(3*c)+1+ci)
                     #set_xscale('log')
                     #set_yscale('log')
                     imshow(f0mean[:,:,sp,ci], origin='lower',cmap='gray')
