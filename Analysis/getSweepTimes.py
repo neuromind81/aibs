@@ -82,6 +82,8 @@ def getSweepTimesEP(logpath, datapath, modality):
         constring= str(tfreq)+' Cyc/Sec and '+str(spfreq)+' Cyc/Deg'
     elif (modality.find("sftf")+1):
         constring = ''
+    elif (modality.find("conrev")+1):
+        constring = str(tfreq)+' Cyc/Sec and '+str(spfreq)+' Cyc/Deg'
     else:
         print "No modality specified"
     
@@ -127,6 +129,41 @@ def getSweepTimesEPrf(path):
     
     
     return (bgsweeporder, bgsweeptable, bgdimnames, stimtiming)
+    
+def getSweepTimesEPcr(logpath, datapath):
+    sweeptiming = loadsweeptimes(datapath)
+    duration = round(sweeptiming[0,1]-sweeptiming[0,0])
+    
+    print "Getting sweep info from:",logpath
+    f = open(logpath, 'r')
+    exec(f.read())
+    f.close()
+    
+    '''relevant parameters'''  
+    spfreq = float(bgsweeptable[0][bgdimnames.index('SF')])
+    tfreq = float(bgsweeptable[0][bgdimnames.index('TF')])    
+    
+    constring = str(tfreq)+' Cyc/Sec and '+str(spfreq)+' Cyc/Deg'
+
+    
+    stimuluscondition = np.zeros((len(sweeptiming),4))
+    for i in range(0, len(sweeptiming)):    
+        j = bgsweeporder[i]
+        if j >= 0:
+            stimuluscondition[i,0] = sweeptiming[i,0]            
+            stimuluscondition[i,1] = bgsweeptable[j][bgdimnames.index('Ori')]
+            stimuluscondition[i,2] = bgsweeptable[j][bgdimnames.index('Phase')]           
+        elif j < 0:
+            stimuluscondition[i,0] = sweeptiming[i,0]            
+            stimuluscondition[i,1] = 1111
+            stimuluscondition[i,2] = 1111
+    
+    '''sort sweep times by orientation, phase'''
+    #stimuluscondition = stimuluscondition[stimuluscondition[:,0].argsort()]
+    stimuluscondition = stimuluscondition[np.lexsort((stimuluscondition[:,2], stimuluscondition[:,1]))]
+    
+    return (stimuluscondition, duration, tfreq, constring)
+    #return (bgsweeporder, bgsweeptable, bgdimnames)
 
 
 if __name__ == '__main__':

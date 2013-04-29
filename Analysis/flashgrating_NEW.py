@@ -67,7 +67,7 @@ def flashgrating (datapath, logpath, modality, numbins, showflag):
             f2sem[:,:,i] = f2s[:,:]                        
     elif (modality.find("tf")+1):
         tlabel = "Temporal frequency (Cyc/Sec)"
-        ticks = range(0,15,3)
+        ticks = range(0,16,3)
         print tlabel
         print constring
         orivals = np.unique(stimc[:,1])
