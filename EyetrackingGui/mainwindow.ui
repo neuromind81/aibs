@@ -298,7 +298,7 @@
        <item row="2" column="1">
         <widget class="QSlider" name="horizontalSlider_led_max">
          <property name="minimum">
-          <number>20</number>
+          <number>5</number>
          </property>
          <property name="maximum">
           <number>200</number>
@@ -361,7 +361,7 @@
           <number>1</number>
          </property>
          <property name="maximum">
-          <number>500</number>
+          <number>1000</number>
          </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -385,10 +385,10 @@
        <item row="2" column="1">
         <widget class="QSlider" name="horizontalSlider_pupil_max">
          <property name="minimum">
-          <number>300</number>
+          <number>200</number>
          </property>
          <property name="maximum">
-          <number>1000</number>
+          <number>1500</number>
          </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>

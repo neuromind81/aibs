@@ -46,11 +46,8 @@ class Eyetracker(object):
         self.pupil = [-1,-1]
         self.led = [-1,-1]
 
-        #create window
-        
-        #self.cam = Camera(prop_set=self.camproperties) #actual camera
-        #print self.cam.getAllProperties()
-        self.cam = VirtualCamera(r"res/mouseeye.png",'image') #virtual camera uses image of mouse eye
+        #get cam
+        self.getNewCam()
 
         if (platform.system()=="Linux"):
             print "Running on Linux, can't change cam properties..."
@@ -71,26 +68,43 @@ class Eyetracker(object):
         f0 = self.cam.getImage()
         self.width,self.height = f0.width,f0.height
 
+        #create a gaze tracker instance
+        self.gt = GazeTracker()
+
+    def getNewCam(self):
+        #self.cam = Camera(prop_set=self.camproperties) #actual camera
+        #print self.cam.getAllProperties()
+        #self.cam = VirtualCamera(r"res/mouseeye.png",'image') #virtual camera uses image of mouse eye
+        self.cam = VirtualCamera(r'res/video1.wmv','video')
+
     def setCamProp(self,prop):
         """Sets a camera property"""
         cv.SetCaptureProperty(self.cam.capture,
             self.cam.prop_map[prop], self.camproperties[prop])
 
+    def getTriangle(self):
+        return self.led[0]-self.pupil[0],self.led[1]-self.pupil[1]
+
+    def getGaze(self):
+        """Returns the monitor pixel of the gaze
+            (0,0) is center of screen
+        """
+        x,y = self.getTriangle()
+        thetax,thetay = self.gt.gazePix(x),self.gt.gazePix(y)
+        return int(thetax),int(thetay)
 
     def nextFrame(self):
         """GETS NEXT FRAME AND PROCESSES IT"""
-        #TEST
 
         if self._disp.isNotDone():
             i = self.cam.getImage() #get camera image
 
             if self._framecount%10==0:
                 #if i want to do something every N frames
-                self._framecount=0
-                pass     
+                self._framecount=0    
 
-            #GREYSCALE/NORMALIZE
-            i = i.grayscale().equalize()
+            #GREYSCALE
+            i = i.grayscale()
 
             #ZOOM?
             if self.zoom is not 0:
@@ -101,6 +115,9 @@ class Eyetracker(object):
             #BLUR?
             if self.blur is not 0:
                 i = i.blur(window=(self.blur,self.blur))
+
+            #EQUALIZE
+            i = i.equalize()
 
             #FIND LED
             binary = i.binarize(thresh=self.ledthresh).invert() #get LED
@@ -162,35 +179,51 @@ class GazeTracker(object):
         self.eyeradius=0.33
 
 
-
     def gazeAngle(self,x):
+        """Converts camera pixel distance to monitor angle """
         fovd=self.leddistance*np.tan(np.radians(self.camfov/2))*2
         pixpercm=self.imgdiag/fovd
         xdist=x/pixpercm
         return np.degrees(np.arctan(xdist/self.eyeradius))
 
     def gazePix(self,angle):
-        return None
+        """Converts gaze angle to monitor pixel"""
+        return self.deg2pix(angle)
 
     def pix2cm(self,pix):
+        """Pixels to cm based on monitor properties """
         pixpercm = self.monitorresolution[0]/self.monitorsize[0]
         return pix/pixpercm*1.000
 
     def pix2deg(self,pix):
+        """Pixels to deg based on monitor properties """
         cm = self.pix2cm(pix)
         return self.cm2deg(cm)*1.000
+
+    def deg2pix(self,deg):
+        """Degrees to pixels based on monitor properties """
+        cm = self.deg2cm(deg)
+        return self.cm2pix(cm)
+
+    def deg2cm(self,deg):
+        """Degrees to cm based on monitor properties """
+        return self.monitordistance*np.tan(np.radians(deg))*1.000
         
     def cm2deg(self,cm):
+        """cm to degrees based on monitor properties"""
         return np.degrees(np.arctan(cm/self.monitordistance)*1.000)
 
     def cm2pix(self,cm):
+        """Cm to pix based on monitor properties"""
         pixpercm = self.monitorresolution[0]/self.monitorsize[0]
         return cm*pixpercm*1.000
 
 
+
 def main():
     gt = GazeTracker()
-    print gt.gazeAngle(10)
+    #print gt.gazeAngle(10)
+    print gt.gazePix(-20)
 
 if __name__ == '__main__':
     main()

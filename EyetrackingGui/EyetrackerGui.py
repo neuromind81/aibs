@@ -125,7 +125,12 @@ class MyForm(QtGui.QMainWindow):
         self.et.setCamProp('exposure')
 
     def _tick(self):
-        self.et.nextFrame()
+        try:
+            self.et.nextFrame()
+            print self.et.getGaze()
+        except:
+            self.et.getNewCam()
+
 
     def closeEvent(self,evnt):
         self.ctimer.stop()

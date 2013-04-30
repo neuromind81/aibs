@@ -52,6 +52,15 @@ class Foraging(SweepStim):
         for k,v in self.params.iteritems():
             setattr(self,k,v)
         
+        #READ CONFIG FILE, SET ATTRIBUTES
+        try:
+            f = open('foraging.cfg','r')
+            for rl in f.readlines():
+                (k,v) = rl.split(' = ')
+                setattr(self,k,eval(v))
+        except Exception,e:
+            print "Error reading config file: ",e
+
         #SET STIMULUS DOMAIN
         self.timedomain = False
         
@@ -110,21 +119,11 @@ class Foraging(SweepStim):
         
         self.ni = True
 
-        #READ CONFIG FILE, SET ATTRIBUTES
-        try:
-            f = open('foraging.cfg','r')
-            for rl in f.readlines():
-                (k,v) = rl.split(' = ')
-                setattr(self,k,eval(v))
-        except Exception,e:
-            print "Error reading config file: ",e
-
         #INITIALIZE ENCODER
-        ##TODO: read args from config file
         try:
             self.encoder = Encoder(self.nidevice,self.encodervinchannel,self.encodervsigchannel)
             self.encoder.start()
-            time.sleep(0.1)
+            time.sleep(0.1) #wait for first data buffer
             self.encDeg = self.encoder.getDegrees() #get initial state
         except Exception, e:
             print "Could not initialize Encoder.  Ensure that NI is connected properly.", e
@@ -136,7 +135,6 @@ class Foraging(SweepStim):
         self.crossedZero = True
         
         #INITIALIZE REWARD
-        ##TODO: read args from config file
         try:
             self.reward = Reward(self.nidevice,self.rewardport,self.rewardline)
             self.reward.rewardtime = self.rewardtime
