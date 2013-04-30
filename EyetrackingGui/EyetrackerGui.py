@@ -6,6 +6,7 @@ Created on Oct 18, 2012
 
  
 import sys
+import os
 from PyQt4 import QtCore, QtGui
 from EyetrackerLayout import Ui_MainWindow
 
@@ -16,6 +17,9 @@ class MyForm(QtGui.QMainWindow):
         QtGui.QWidget.__init__(self, parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
+        #ETC
+        self.output = False
         
         #Connect signals
         self.ui.horizontalSlider_general_blur.sliderMoved.connect(self._blurSlider)
@@ -32,6 +36,7 @@ class MyForm(QtGui.QMainWindow):
         self.ui.horizontalSlider_camera_gain.sliderMoved.connect(self._cameraGainSlider)
         self.ui.horizontalSlider_camera_contrast.sliderMoved.connect(self._cameraContrastSlider)
         self.ui.horizontalSlider_camera_exposure.sliderMoved.connect(self._cameraExposureSlider)
+        self.ui.pushButton_output.clicked.connect(self._outputToggle)
 
         #Create Eyetracker
         self.et = Eyetracker()
@@ -127,10 +132,23 @@ class MyForm(QtGui.QMainWindow):
     def _tick(self):
         try:
             self.et.nextFrame()
-            print self.et.getGaze()
+            if self.output:
+                self._output()
         except:
             self.et.getNewCam()
 
+    def _output(self):
+        out = str(self.et.getGaze())+'\n'
+        self.outputfile.write(out)
+
+    def _outputToggle(self):
+        if self.output:
+            self.output=False
+            self.outputfile.close()
+        else:
+            self.output=True
+            outdir = str(self.ui.lineEdit_output.text())
+            self.outputfile = open(outdir,'w+',os.O_NONBLOCK)
 
     def closeEvent(self,evnt):
         self.ctimer.stop()
