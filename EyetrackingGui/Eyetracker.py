@@ -112,7 +112,7 @@ class Eyetracker(object):
             #GREYSCALE
             i = i.grayscale()
 
-            #ROI
+            #ROI?
             if self.roi is not None:
                 i = i.regionSelect(*self.roi)
 
@@ -134,11 +134,8 @@ class Eyetracker(object):
                 maxsize=self.ledsize[1])
             if led:
                 if(len(led)>0): # if we got a blob
-                    led[-1].draw(color=Color.GREEN) # the -1 blob is the largest blob - draw it
                     self.led = [led[-1].x,led[-1].y]
-                    locationStr = "LED: ("+str(self.led[0])+","+str(self.led[1])+")"
-                    # write the led's centroid to the image
-                    i.dl().text(locationStr,(0,0),color=Color.GREEN)
+                    i.drawCircle(self.led,4,color=Color.GREEN,thickness=1)
             
             #FIND PUPIL
             binary = i.invert().binarize(thresh=self.pupilthresh).invert()
@@ -146,12 +143,8 @@ class Eyetracker(object):
                 maxsize=self.pupilsize[1])
             if pupil:
                 if(len(pupil)>0): # if we got a blob
-                    pupil[-1].draw(color=Color.RED) # the -1 blob is the largest blob - draw it
                     self.pupil = [pupil[-1].x,pupil[-1].y]
-                    locationStr = "PUPIL: ("+str(self.pupil[0])+","+str(self.pupil[1])+")"
-                    # write the pupil's centroid to the image
-                    i.dl().text(locationStr,(0,10),color=Color.RED)
-
+                    i.drawCircle(self.pupil,4,color=Color.RED,thickness=1)
 
             #DRAW FPS
             try:
@@ -249,9 +242,7 @@ class GazeTracker(object):
 
 
 def main():
-    gt = GazeTracker()
-    #print gt.gazeAngle(10)
-    print gt.gazePix(-20)
+    pass
 
 if __name__ == '__main__':
     main()

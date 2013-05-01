@@ -156,7 +156,6 @@ class MyForm(QtGui.QMainWindow):
         print "CLOSING..."
 
  
-
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
     myapp = MyForm()
