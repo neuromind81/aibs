@@ -21,7 +21,7 @@ import numpy as np
 
 class Eyetracker(object):
     def __init__(self):
-
+        """Docstring for Eyetracker"""
         self._framecount = 0
 
         self.camproperties = {
@@ -65,8 +65,14 @@ class Eyetracker(object):
         self._tock = time.clock()
 
         #get image size
-        f0 = self.cam.getImage()
-        self.width,self.height = f0.width,f0.height
+        f0 = self.cam.getImage() #get size of image camera is putting out
+        self.width,self.height = f0.width,f0.height #initialize image size
+        self.maxsize = (self.width,self.height) #get max size
+
+        #ROI
+        self.roi = None
+        self.up,self.dwn = None,None
+
 
         #create a gaze tracker instance
         self.gt = GazeTracker()
@@ -95,7 +101,7 @@ class Eyetracker(object):
 
     def nextFrame(self):
         """GETS NEXT FRAME AND PROCESSES IT"""
-
+        ##TODO: SPLIT THIS UP.  SHOULD BE SEVERAL COMPARTMENTALIZED FUNCTIONS
         if self._disp.isNotDone():
             i = self.cam.getImage() #get camera image
 
@@ -106,12 +112,15 @@ class Eyetracker(object):
             #GREYSCALE
             i = i.grayscale()
 
+            #ROI
+            if self.roi is not None:
+                i = i.regionSelect(*self.roi)
+
             #ZOOM?
             if self.zoom is not 0:
-                z = self.zoom
                 i = i.regionSelect(int(self.width/100*self.zoom),int(self.height/100*self.zoom),
                     int(self.width-self.width/100*self.zoom),int(self.height-self.height/100*self.zoom))
-                
+
             #BLUR?
             if self.blur is not 0:
                 i = i.blur(window=(self.blur,self.blur))
@@ -156,7 +165,26 @@ class Eyetracker(object):
             i.save(self._disp)
 
             #UPDATE FRAMECOUNT
-            self._framecount += 1     
+            self._framecount += 1  
+
+            #HANDLE CLICKS IN DISPLAY
+            dwn = self._disp.leftButtonDownPosition()
+            up = self._disp.leftButtonUpPosition()
+            right = self._disp.rightButtonDownPosition()
+
+            if dwn is not None:
+                self.dwn = dwn
+            if up is not None:
+                self.up = up
+            if self.up is not None and self.dwn is not None:
+                self.roi = (min(self.dwn[0],self.up[0]),min(self.dwn[1],self.up[1]),
+                    max(self.up[0],self.dwn[0]),max(self.up[1],self.dwn[1]))
+                self.width,self.height = self.roi[2]-self.roi[0], self.roi[3]-self.roi[1]
+                self.dwn,self.up=None,None
+            if right is not None:
+                self.dwn,self.up,self.roi=None,None,None
+                (self.width,self.height)=self.maxsize
+
 
     def close(self):
         self._disp.quit()
