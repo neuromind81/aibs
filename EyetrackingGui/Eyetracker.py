@@ -23,6 +23,11 @@ def dist2d(p1,p2):
     return math.sqrt((p2[0] - p1[0]) ** 2 +
                      (p2[1] - p1[1]) ** 2) 
 
+def dist3d(p1,p2):
+    return math.sqrt((p2[0] - p1[0]) ** 2 +
+                     (p2[1] - p1[1]) ** 2 +
+                     (p2[2] - p1[2]) ** 2) 
+
 class Eyetracker(object):
     def __init__(self):
         """Docstring for Eyetracker"""
@@ -45,6 +50,9 @@ class Eyetracker(object):
         self.pupilthresh = 240
         self.ledsize = [1,6]
         self.pupilsize = [7,100]
+
+        self.showTriangle = False
+        self.printOutput = False
 
         self.ledwiggle = 15 #HACK FIX ASAP
 
@@ -202,9 +210,14 @@ class GazeTracker(object):
         self.imgw=640
         self.imgh=480
         self.imgdiag=np.sqrt((self.imgw**2)+(self.imgh**2))
-        self.camfov=150
+        self.camfov=75 #from microsoft website; diagonal
         self.eyeradius=0.33
 
+    def setImgSize(self,size):
+        "input is tuple/list (x,y)"
+        self.imgw=size[0]
+        self.imgh=size[1]
+        self.imgdiag=np.sqrt((self.imgw**2)+(self.imgh**2))
 
     def gazeAngle(self,x):
         """Converts camera pixel distance to monitor angle """
@@ -244,7 +257,6 @@ class GazeTracker(object):
         """Cm to pix based on monitor properties"""
         pixpercm = self.monitorresolution[0]/self.monitorsize[0]
         return cm*pixpercm*1.000
-
 
 
 def main():

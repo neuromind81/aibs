@@ -7,15 +7,218 @@
     <x>0</x>
     <y>0</y>
     <width>788</width>
-    <height>627</height>
+    <height>704</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Eyetracker</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0" colspan="2">
+   <layout class="QGridLayout" name="gridLayout_7">
+    <item row="1" column="0">
+     <widget class="QGroupBox" name="groupBox_led">
+      <property name="title">
+       <string>LED</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_led_binary">
+         <property name="text">
+          <string>Binary Thresh</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QSlider" name="horizontalSlider_led_binary">
+         <property name="minimum">
+          <number>180</number>
+         </property>
+         <property name="maximum">
+          <number>255</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="label_led_binary_value">
+         <property name="text">
+          <string>0.0</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_led_min">
+         <property name="text">
+          <string>Min Size</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSlider" name="horizontalSlider_led_min">
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>30</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QLabel" name="label_led_min_value">
+         <property name="text">
+          <string>0.0</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_led_max">
+         <property name="text">
+          <string>Max Size</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QSlider" name="horizontalSlider_led_max">
+         <property name="minimum">
+          <number>3</number>
+         </property>
+         <property name="maximum">
+          <number>60</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QLabel" name="label_led_max_value">
+         <property name="text">
+          <string>0.0</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QGroupBox" name="groupBox_pupil">
+      <property name="title">
+       <string>Pupil</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_5">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_pupil_binary">
+         <property name="text">
+          <string>Binary Thresh</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QSlider" name="horizontalSlider_pupil_binary">
+         <property name="minimum">
+          <number>180</number>
+         </property>
+         <property name="maximum">
+          <number>255</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="label_pupil_binary_value">
+         <property name="text">
+          <string>0.0</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_pupil_min">
+         <property name="text">
+          <string>Min Size</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSlider" name="horizontalSlider_pupil_min">
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>200</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QLabel" name="label_pupil_min_value">
+         <property name="text">
+          <string>0.0</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_pupil_max">
+         <property name="text">
+          <string>Max Size</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QSlider" name="horizontalSlider_pupil_max">
+         <property name="minimum">
+          <number>50</number>
+         </property>
+         <property name="maximum">
+          <number>600</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QLabel" name="label_pupil_max_value">
+         <property name="text">
+          <string>0.0</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QGroupBox" name="groupBox">
+      <property name="title">
+       <string>Options</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="0" column="0">
+        <widget class="QCheckBox" name="checkBox_triangle">
+         <property name="text">
+          <string>Show triangle</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QCheckBox" name="checkBox_printOutput">
+         <property name="text">
+          <string>Print output</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="0" column="0">
      <widget class="QGroupBox" name="groupBox_camera">
       <property name="title">
        <string>Camera</string>
@@ -174,7 +377,7 @@
       </layout>
      </widget>
     </item>
-    <item row="0" column="3">
+    <item row="0" column="1">
      <widget class="QGroupBox" name="groupBox_general">
       <property name="title">
        <string>General</string>
@@ -231,205 +434,34 @@
       </layout>
      </widget>
     </item>
-    <item row="1" column="0" colspan="2">
-     <widget class="QGroupBox" name="groupBox_led">
-      <property name="title">
-       <string>LED</string>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_4">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_led_binary">
-         <property name="text">
-          <string>Binary Thresh</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QSlider" name="horizontalSlider_led_binary">
-         <property name="minimum">
-          <number>180</number>
-         </property>
-         <property name="maximum">
-          <number>255</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QLabel" name="label_led_binary_value">
-         <property name="text">
-          <string>0.0</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_led_min">
-         <property name="text">
-          <string>Min Size</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QSlider" name="horizontalSlider_led_min">
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>30</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QLabel" name="label_led_min_value">
-         <property name="text">
-          <string>0.0</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_led_max">
-         <property name="text">
-          <string>Max Size</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QSlider" name="horizontalSlider_led_max">
-         <property name="minimum">
-          <number>3</number>
-         </property>
-         <property name="maximum">
-          <number>60</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="2">
-        <widget class="QLabel" name="label_led_max_value">
-         <property name="text">
-          <string>0.0</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="1" column="3">
-     <widget class="QGroupBox" name="groupBox_pupil">
-      <property name="title">
-       <string>Pupil</string>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_5">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_pupil_binary">
-         <property name="text">
-          <string>Binary Thresh</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QSlider" name="horizontalSlider_pupil_binary">
-         <property name="minimum">
-          <number>180</number>
-         </property>
-         <property name="maximum">
-          <number>255</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QLabel" name="label_pupil_binary_value">
-         <property name="text">
-          <string>0.0</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_pupil_min">
-         <property name="text">
-          <string>Min Size</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QSlider" name="horizontalSlider_pupil_min">
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>200</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QLabel" name="label_pupil_min_value">
-         <property name="text">
-          <string>0.0</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_pupil_max">
-         <property name="text">
-          <string>Max Size</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QSlider" name="horizontalSlider_pupil_max">
-         <property name="minimum">
-          <number>50</number>
-         </property>
-         <property name="maximum">
-          <number>600</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="2">
-        <widget class="QLabel" name="label_pupil_max_value">
-         <property name="text">
-          <string>0.0</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="label_output">
-      <property name="text">
-       <string>Output to:</string>
-      </property>
-     </widget>
-    </item>
     <item row="2" column="1">
-     <widget class="QLineEdit" name="lineEdit_output">
-      <property name="text">
-       <string>C:\eyetracking.dat</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="3">
-     <widget class="QPushButton" name="pushButton_output">
-      <property name="text">
+     <widget class="QGroupBox" name="groupBox_Output">
+      <property name="title">
        <string>Output</string>
       </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <widget class="QRadioButton" name="radioButton_toFile">
+         <property name="text">
+          <string>To file:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="lineEdit_output">
+         <property name="text">
+          <string>C:\eyetracking.dat</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QPushButton" name="pushButton_output">
+         <property name="text">
+          <string>Output</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>
@@ -440,7 +472,7 @@
      <x>0</x>
      <y>0</y>
      <width>788</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>

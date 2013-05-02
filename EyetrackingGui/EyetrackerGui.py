@@ -68,7 +68,7 @@ class MyForm(QtGui.QMainWindow):
         #Timer setup
         self.ctimer = QtCore.QTimer()
         self.ctimer.timeout.connect(self._tick)
-        self.ctimer.start(1)
+        self.ctimer.start(1) #run as fast as possible
 
 
     def _blurSlider(self):
