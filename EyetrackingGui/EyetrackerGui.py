@@ -148,7 +148,7 @@ class MyForm(QtGui.QMainWindow):
         else:
             self.output=True
             outdir = str(self.ui.lineEdit_output.text())
-            self.outputfile = open(outdir,'w+',os.O_NONBLOCK)
+            self.outputfile = open(outdir,'w+')
 
     def closeEvent(self,evnt):
         self.ctimer.stop()

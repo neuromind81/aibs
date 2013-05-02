@@ -17,7 +17,11 @@ from pylab import *
 import time
 import platform
 import numpy as np
+import math
 
+def dist2d(p1,p2):
+    return math.sqrt((p2[0] - p1[0]) ** 2 +
+                     (p2[1] - p1[1]) ** 2) 
 
 class Eyetracker(object):
     def __init__(self):
@@ -35,12 +39,14 @@ class Eyetracker(object):
             'exposure': -6.0    
         }
 
-        self.blur = 3
+        self.blur = 0
         self.zoom = 0
-        self.ledthresh = 233
-        self.pupilthresh = 246
-        self.ledsize = [34,81]
-        self.pupilsize = [330,929]
+        self.ledthresh = 253
+        self.pupilthresh = 240
+        self.ledsize = [1,6]
+        self.pupilsize = [7,100]
+
+        self.ledwiggle = 15 #HACK FIX ASAP
 
         #locations
         self.pupil = [-1,-1]
@@ -96,18 +102,14 @@ class Eyetracker(object):
             (0,0) is center of screen
         """
         x,y = self.getTriangle()
-        thetax,thetay = self.gt.gazePix(x),self.gt.gazePix(y)
-        return int(thetax),int(thetay)
+        thetax,thetay = self.gt.gazeAngle(x),self.gt.gazeAngle(y)
+        return int(self.gt.gazePix(thetax)),int(self.gt.gazePix(thetay))
 
     def nextFrame(self):
         """GETS NEXT FRAME AND PROCESSES IT"""
         ##TODO: SPLIT THIS UP.  SHOULD BE SEVERAL COMPARTMENTALIZED FUNCTIONS
         if self._disp.isNotDone():
             i = self.cam.getImage() #get camera image
-
-            if self._framecount%10==0:
-                #if i want to do something every N frames
-                self._framecount=0    
 
             #GREYSCALE
             i = i.grayscale()
@@ -129,13 +131,17 @@ class Eyetracker(object):
             i = i.equalize()
 
             #FIND LED
-            binary = i.binarize(thresh=self.ledthresh).invert() #get LED
-            led = i.findBlobsFromMask(binary,minsize=self.ledsize[0],
-                maxsize=self.ledsize[1])
-            if led:
-                if(len(led)>0): # if we got a blob
-                    self.led = [led[-1].x,led[-1].y]
-                    i.drawCircle(self.led,4,color=Color.GREEN,thickness=1)
+            if self._framecount%10==0:
+                self._framecount=0    
+                binary = i.binarize(thresh=self.ledthresh).invert() #get LED
+                led = i.findBlobsFromMask(binary,minsize=self.ledsize[0],
+                    maxsize=self.ledsize[1])
+                if led:
+                    if(len(led)>0): # if we got a blob
+                        new = [led[-1].x,led[-1].y]
+                        if dist2d(new,self.pupil) < self.ledwiggle:
+                            self.led = new
+            i.drawCircle(self.led,3,color=Color.GREEN,thickness=1)
             
             #FIND PUPIL
             binary = i.invert().binarize(thresh=self.pupilthresh).invert()
@@ -144,7 +150,7 @@ class Eyetracker(object):
             if pupil:
                 if(len(pupil)>0): # if we got a blob
                     self.pupil = [pupil[-1].x,pupil[-1].y]
-                    i.drawCircle(self.pupil,4,color=Color.RED,thickness=1)
+            i.drawCircle(self.pupil,4,color=Color.RED,thickness=1)
 
             #DRAW FPS
             try:
@@ -152,7 +158,7 @@ class Eyetracker(object):
             except:
                 pass
             self._tick = time.clock()
-            i.drawText("FPS: "+str(self._tock),0,i.height-10)
+            i.drawText(str(self._tock),0,i.height-10)
 
             #SHOW IMAGE
             i.save(self._disp)
@@ -190,13 +196,13 @@ class GazeTracker(object):
         self.monitordistance=11 #distance of mouse relative to screen
         self.mousex=self.monitorsize[0]/2 #x position of mouse relative to screen
         self.mousey=self.monitorsize[1]/2 #y position of mouse relative to screen
-        self.leddistance=5 #distance of LED from mouse
+        self.leddistance=3 #distance of LED from mouse
         self.ledx=0 #x position of LED relative to mouse
         self.ledy=0 #y position of LED relative to mouse
         self.imgw=640
         self.imgh=480
         self.imgdiag=np.sqrt((self.imgw**2)+(self.imgh**2))
-        self.camfov=90
+        self.camfov=150
         self.eyeradius=0.33
 
 

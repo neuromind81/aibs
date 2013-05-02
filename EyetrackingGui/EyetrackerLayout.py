@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Mon Apr 29 17:43:46 2013
+# Created: Wed May 01 15:53:25 2013
 #      by: PyQt4 UI code generator 4.9.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -112,7 +112,7 @@ class Ui_MainWindow(object):
         self.label_general_blur.setObjectName(_fromUtf8("label_general_blur"))
         self.gridLayout_3.addWidget(self.label_general_blur, 0, 0, 1, 1)
         self.horizontalSlider_general_blur = QtGui.QSlider(self.groupBox_general)
-        self.horizontalSlider_general_blur.setMaximum(10)
+        self.horizontalSlider_general_blur.setMaximum(5)
         self.horizontalSlider_general_blur.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider_general_blur.setObjectName(_fromUtf8("horizontalSlider_general_blur"))
         self.gridLayout_3.addWidget(self.horizontalSlider_general_blur, 0, 1, 1, 1)
@@ -139,6 +139,7 @@ class Ui_MainWindow(object):
         self.label_led_binary.setObjectName(_fromUtf8("label_led_binary"))
         self.gridLayout_4.addWidget(self.label_led_binary, 0, 0, 1, 1)
         self.horizontalSlider_led_binary = QtGui.QSlider(self.groupBox_led)
+        self.horizontalSlider_led_binary.setMinimum(180)
         self.horizontalSlider_led_binary.setMaximum(255)
         self.horizontalSlider_led_binary.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider_led_binary.setObjectName(_fromUtf8("horizontalSlider_led_binary"))
@@ -151,7 +152,7 @@ class Ui_MainWindow(object):
         self.gridLayout_4.addWidget(self.label_led_min, 1, 0, 1, 1)
         self.horizontalSlider_led_min = QtGui.QSlider(self.groupBox_led)
         self.horizontalSlider_led_min.setMinimum(1)
-        self.horizontalSlider_led_min.setMaximum(100)
+        self.horizontalSlider_led_min.setMaximum(30)
         self.horizontalSlider_led_min.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider_led_min.setObjectName(_fromUtf8("horizontalSlider_led_min"))
         self.gridLayout_4.addWidget(self.horizontalSlider_led_min, 1, 1, 1, 1)
@@ -162,8 +163,8 @@ class Ui_MainWindow(object):
         self.label_led_max.setObjectName(_fromUtf8("label_led_max"))
         self.gridLayout_4.addWidget(self.label_led_max, 2, 0, 1, 1)
         self.horizontalSlider_led_max = QtGui.QSlider(self.groupBox_led)
-        self.horizontalSlider_led_max.setMinimum(5)
-        self.horizontalSlider_led_max.setMaximum(200)
+        self.horizontalSlider_led_max.setMinimum(3)
+        self.horizontalSlider_led_max.setMaximum(60)
         self.horizontalSlider_led_max.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider_led_max.setObjectName(_fromUtf8("horizontalSlider_led_max"))
         self.gridLayout_4.addWidget(self.horizontalSlider_led_max, 2, 1, 1, 1)
@@ -179,6 +180,7 @@ class Ui_MainWindow(object):
         self.label_pupil_binary.setObjectName(_fromUtf8("label_pupil_binary"))
         self.gridLayout_5.addWidget(self.label_pupil_binary, 0, 0, 1, 1)
         self.horizontalSlider_pupil_binary = QtGui.QSlider(self.groupBox_pupil)
+        self.horizontalSlider_pupil_binary.setMinimum(180)
         self.horizontalSlider_pupil_binary.setMaximum(255)
         self.horizontalSlider_pupil_binary.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider_pupil_binary.setObjectName(_fromUtf8("horizontalSlider_pupil_binary"))
@@ -191,7 +193,7 @@ class Ui_MainWindow(object):
         self.gridLayout_5.addWidget(self.label_pupil_min, 1, 0, 1, 1)
         self.horizontalSlider_pupil_min = QtGui.QSlider(self.groupBox_pupil)
         self.horizontalSlider_pupil_min.setMinimum(1)
-        self.horizontalSlider_pupil_min.setMaximum(1000)
+        self.horizontalSlider_pupil_min.setMaximum(200)
         self.horizontalSlider_pupil_min.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider_pupil_min.setObjectName(_fromUtf8("horizontalSlider_pupil_min"))
         self.gridLayout_5.addWidget(self.horizontalSlider_pupil_min, 1, 1, 1, 1)
@@ -202,7 +204,7 @@ class Ui_MainWindow(object):
         self.label_pupil_max.setObjectName(_fromUtf8("label_pupil_max"))
         self.gridLayout_5.addWidget(self.label_pupil_max, 2, 0, 1, 1)
         self.horizontalSlider_pupil_max = QtGui.QSlider(self.groupBox_pupil)
-        self.horizontalSlider_pupil_max.setMinimum(200)
+        self.horizontalSlider_pupil_max.setMinimum(150)
         self.horizontalSlider_pupil_max.setMaximum(1500)
         self.horizontalSlider_pupil_max.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider_pupil_max.setObjectName(_fromUtf8("horizontalSlider_pupil_max"))

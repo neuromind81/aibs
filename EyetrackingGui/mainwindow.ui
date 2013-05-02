@@ -190,7 +190,7 @@
        <item row="0" column="1">
         <widget class="QSlider" name="horizontalSlider_general_blur">
          <property name="maximum">
-          <number>10</number>
+          <number>5</number>
          </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -246,6 +246,9 @@
        </item>
        <item row="0" column="1">
         <widget class="QSlider" name="horizontalSlider_led_binary">
+         <property name="minimum">
+          <number>180</number>
+         </property>
          <property name="maximum">
           <number>255</number>
          </property>
@@ -274,7 +277,7 @@
           <number>1</number>
          </property>
          <property name="maximum">
-          <number>100</number>
+          <number>30</number>
          </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -298,10 +301,10 @@
        <item row="2" column="1">
         <widget class="QSlider" name="horizontalSlider_led_max">
          <property name="minimum">
-          <number>5</number>
+          <number>3</number>
          </property>
          <property name="maximum">
-          <number>200</number>
+          <number>60</number>
          </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -333,6 +336,9 @@
        </item>
        <item row="0" column="1">
         <widget class="QSlider" name="horizontalSlider_pupil_binary">
+         <property name="minimum">
+          <number>180</number>
+         </property>
          <property name="maximum">
           <number>255</number>
          </property>
@@ -361,7 +367,7 @@
           <number>1</number>
          </property>
          <property name="maximum">
-          <number>1000</number>
+          <number>200</number>
          </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -385,10 +391,10 @@
        <item row="2" column="1">
         <widget class="QSlider" name="horizontalSlider_pupil_max">
          <property name="minimum">
-          <number>200</number>
+          <number>50</number>
          </property>
          <property name="maximum">
-          <number>1500</number>
+          <number>600</number>
          </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
