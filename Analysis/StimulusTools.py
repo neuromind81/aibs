@@ -25,7 +25,8 @@ class StimulusMatFile(object):
             setattr(self,k,v)
         
     def getOffScreenFrames(self):
-        """ Returns a list of frames when the foreground stimulus is offscreen """
+        """ Returns a list of frames when the foreground stimulus is offscreen 
+            UNFINISHED"""
         objectwidthDeg = int(self.terrain['objectwidthDeg'])
         mon = monitors.Monitors('testMonitor')
         objectwidthPix = misc.deg2pix(objectwidthDeg,mon)

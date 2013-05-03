@@ -51,8 +51,9 @@ class Eyetracker(object):
         self.ledsize = [1,6]
         self.pupilsize = [7,100]
 
-        self.showTriangle = False
+        self.showTriangle = True
         self.printOutput = False
+        self.recording = False
 
         self.ledwiggle = 15 #HACK FIX ASAP
 
@@ -87,9 +88,9 @@ class Eyetracker(object):
         self.roi = None
         self.up,self.dwn = None,None
 
-
         #create a gaze tracker instance
         self.gt = GazeTracker()
+
 
     def getNewCam(self):
         #self.cam = Camera(prop_set=self.camproperties) #actual camera
@@ -97,21 +98,26 @@ class Eyetracker(object):
         #self.cam = VirtualCamera(r"res/mouseeye.png",'image') #virtual camera uses image of mouse eye
         self.cam = VirtualCamera(r'res/video1.wmv','video')
 
+    def startVideo(self,path):
+        self.vs=VideoStream(path,30,True)
+        self.recording = True
+
+    def stopVideo(self):
+        self.vs=None
+        self.recording = False
+
     def setCamProp(self,prop):
         """Sets a camera property"""
         cv.SetCaptureProperty(self.cam.capture,
             self.cam.prop_map[prop], self.camproperties[prop])
 
-    def getTriangle(self):
-        return self.led[0]-self.pupil[0],self.led[1]-self.pupil[1]
-
     def getGaze(self):
         """Returns the monitor pixel of the gaze
             (0,0) is center of screen
         """
-        x,y = self.getTriangle()
-        thetax,thetay = self.gt.gazeAngle(x),self.gt.gazeAngle(y)
-        return int(self.gt.gazePix(thetax)),int(self.gt.gazePix(thetay))
+        x,y = self.led[0]-self.pupil[0],self.led[1]-self.pupil[1] #get triangle sides
+        thetax,thetay = self.gt.gazeAngle(x),self.gt.gazeAngle(y) #get angles
+        return int(self.gt.gazePix(thetax)),int(self.gt.gazePix(thetay)) #output pixel values
 
     def nextFrame(self):
         """GETS NEXT FRAME AND PROCESSES IT"""
@@ -147,7 +153,7 @@ class Eyetracker(object):
                 if led:
                     if(len(led)>0): # if we got a blob
                         new = [led[-1].x,led[-1].y]
-                        if dist2d(new,self.pupil) < self.ledwiggle:
+                        if dist2d(new,self.pupil) < self.ledwiggle: #hack
                             self.led = new
             i.drawCircle(self.led,3,color=Color.GREEN,thickness=1)
             
@@ -160,6 +166,11 @@ class Eyetracker(object):
                     self.pupil = [pupil[-1].x,pupil[-1].y]
             i.drawCircle(self.pupil,4,color=Color.RED,thickness=1)
 
+            #DRAW TRIANGLE?
+            if self.showTriangle:
+                i.drawLine(self.led,(self.pupil[0],self.led[1]),color=Color.ORANGE,thickness=1)
+                i.drawLine((self.pupil[0],self.led[1]),self.pupil,color=Color.BLUE,thickness=1)
+
             #DRAW FPS
             try:
                 self._tock = int(1/(time.clock()-self._tick))
@@ -170,6 +181,8 @@ class Eyetracker(object):
 
             #SHOW IMAGE
             i.save(self._disp)
+            if self.recording:
+                i.save(self.vs)
 
             #UPDATE FRAMECOUNT
             self._framecount += 1  

@@ -138,17 +138,32 @@ class MyForm(QtGui.QMainWindow):
             self.et.getNewCam()
 
     def _output(self):
-        out = str(self.et.getGaze())+'\n'
-        self.outputfile.write(out)
+        if self.ui.checkBox_toFile.isChecked():
+            out = str(self.et.getGaze())+'\n'
+            self.outputfile.write(out)
+        if self.ui.checkBox_toVideo.isChecked():
+            pass #grabs frames automatically
+        if self.ui.checkBox_toConsole.isChecked():
+            print self.et.getGaze()
 
     def _outputToggle(self):
         if self.output:
             self.output=False
-            self.outputfile.close()
+            try:
+                self.outputfile.close()
+            except Exception, e:
+                pass
+            try:
+                self.et.stopVideo()
+            except Exception, e:
+                print e
         else:
+            if self.ui.checkBox_toFile.isChecked():
+                outdir = str(self.ui.lineEdit_output.text())
+                self.outputfile = open(outdir,'w+')
+            if self.ui.checkBox_toVideo.isChecked():
+                self.et.startVideo(str(self.ui.lineEdit_video.text()))
             self.output=True
-            outdir = str(self.ui.lineEdit_output.text())
-            self.outputfile = open(outdir,'w+')
 
     def closeEvent(self,evnt):
         self.ctimer.stop()
