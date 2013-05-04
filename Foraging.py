@@ -283,6 +283,7 @@ class Foraging(SweepStim):
         
     def logMeta(self):
         """ Writes all important information to log. """
+        ##TODO: COME UP WITH A PRETTIER, SHORTER WAY TO DO THIS
         dir = self.logdir
         file = self.mouseid + ".log" #logger automatically appends timestamp
         path = os.path.join(dir,file)
