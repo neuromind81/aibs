@@ -65,22 +65,22 @@ class Encoder():
     Currently no support for PWM encoders, only analog.
 
     '''
-    def __init__(self, device = 'Dev1', vin = 0, vsig = 1, type = 'analog', buffer = 100):
+    def __init__(self, device = 'Dev1', vin = 0, vsig = 1, typestr = 'analog', bufferSize = 100):
         '''
         Constructor
         '''
         self.device = device
         self.vin = vin
         self.vsig = vsig
-        self.type = type
-        self.buffer = buffer
+        self.type = typestr
+        self.buffer = bufferSize
         
         self.noEObject = 'No valid encoder object has been created.'
         
-        if type == 'analog':
-            self.AISignal = ait(device,[vsig,vin],buffer) #Device 1, Channels 2 and 1
+        if typestr == 'analog':
+            self.AISignal = ait(device,[vsig,vin],self.buffer) #Device 1, Channels 2 and 1
         else:
-            print 'No support for ' + type + 'encoders.'
+            print 'No support for ' + typestr + 'encoders.'
             self.AISignal = None
             
     def __repr__(self):

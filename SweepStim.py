@@ -52,7 +52,6 @@ class SweepStim(object):
         #self.sweepclock = core.Clock()
         
         #MONITOR INFO
-        ##TODO: Get monitor from script
         self.window = window
         self.window.winHandle.set_exclusive_mouse()
         self.window.winHandle.set_exclusive_keyboard()

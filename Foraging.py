@@ -65,7 +65,6 @@ class Foraging(SweepStim):
         self.timedomain = False
         
         #MONITOR INFO
-        ##TODO: Get monitor from script
         self.wwidth = window.size[0]
         self.wheight = window.size[1]
         self.monitor = window.monitor

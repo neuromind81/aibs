@@ -79,13 +79,13 @@ class AnalogInput(Task):
     Set self.accumulate on/off to accumulate all data into self.dataArray
     
     '''
-    def __init__(self,device = 'Dev1',channels = [0],bufferSize = 500):
-        ##TODO: Allow user to select clock time.
+    def __init__(self,device = 'Dev1',channels = [0],bufferSize = 500,clockSpeed=10000.0):
         #construct task
         Task.__init__(self)
         
         #set up task properties
         self.bufferSize = bufferSize
+        self.clockSpeed = clockSpeed
         self.channels = channels
         self.data = zeros((bufferSize,len(self.channels))) #data buffer
         self.dataArray = []
@@ -109,14 +109,14 @@ class AnalogInput(Task):
         None               #i have no idea what this does update:reserved for future use
         
         '''
-        self.CfgSampClkTiming("",10000.0,DAQmx_Val_Rising,DAQmx_Val_ContSamps,self.bufferSize)
+        self.CfgSampClkTiming("",self.clockSpeed,DAQmx_Val_Rising,DAQmx_Val_ContSamps,self.bufferSize)
         
         ''' #Configures sampling
         ""                   #external clock (for example "/Dev1/PFIO") or "" for internal clock
-        10000.0              #rate of internal clock or expected rate of external clock
+        self.clockSpeed      #rate of internal clock or expected rate of external clock
         DAQmx_Val_Rising     #aquire on rising or falling edge of clock ticks
         DAQmx_Val_ContSamps  #continuous or finite samples
-        1000                 #if continuous samples, this is the buffer size.  if finite, this is total sample size
+        self.bufferSize      #if continuous samples, this is the buffer size.  if finite, this is total sample size
         
         '''
         self.AutoRegisterEveryNSamplesEvent(DAQmx_Val_Acquired_Into_Buffer,self.bufferSize,0) #set up data buffer callback
@@ -126,7 +126,7 @@ class AnalogInput(Task):
         self.ReadAnalogF64(self.bufferSize,10.0,DAQmx_Val_Auto,self.data,(self.bufferSize*len(self.channels)),byref(read),None)
         
         ''' #Configures sampling
-        500                #samples per channel
+        self.bufferSize    #samples per channel
         10.0               #timeout
         DAQmx_Val_Auto     #fill mode alternatives are DAQmx_Val_GroupByChannel and DAQmx_Val_GroupByScanNumber
         self.data          #buffer
@@ -136,8 +136,6 @@ class AnalogInput(Task):
         '''
         if (self.accumulate == True):
             self.dataArray.extend(self.data.tolist())  #collect all data
-            
-        #print self.data[499] #for troubleshooting
         
     def DoneCallback(self, status):
         print "Status",status.value
