@@ -15,11 +15,13 @@ MOUSE: MOVE OBJECT
 MOUSEWHEEL: ROTATE
 ~: HOLD
 NUMBERKEYS: STIMULI SELECT
-M: mask
+M: toggle gaussian mask
+T: Toggle text
 """
 
 class ManualStim(object):
 	"""docstring for ManualStim"""
+	##TODO: REWRITE.  Make it more extensible.  Fix text display to not be so laggy.
 	def __init__(self, *args, **kwargs):
 
 		print CONTROLS
@@ -31,8 +33,14 @@ class ManualStim(object):
 		self.monitor='testMonitor'
 
 		self.tf = 0
+		self.ori = 0
+		self.contrast = 1
+		self.phase = 0
+		self.sf = 1
+		self.size = (10,10)
 		self.bgcolor=0
 		self.textstr=""
+		self.mask=None
 
 		for k,v in self.kwargs.iteritems():
 			setattr(self,k,v)
@@ -49,7 +57,8 @@ class ManualStim(object):
 				size=[10,10],ori=0,name='box',autoLog=False,units='deg',pos=[0,0])
 		]
 
-		self.text = visual.TextStim(self.window,text=self.textstr,pos=(-10,-10))
+		self.text = visual.TextStim(self.window,text=self.textstr,pos=(-8,-10),wrapWidth=100)
+		self.drawtext = True
 
 		self.current = None
 
@@ -58,6 +67,14 @@ class ManualStim(object):
 
 		self.mouse = event.Mouse(win=self.window)
 		self.mouse.setVisible(0)
+
+	def _updateText(self):
+		self.textstr = "Position: " + str(self.mouse.getPos()) + " deg\n" + \
+			"Size: " + str(self.size) + " deg\n" + "Contrast: " + str(self.contrast) + \
+			"\n" + "SF: " + str(self.sf) + " cycles/deg\n" + "TF: " + str(self.tf) + \
+			" cycles/sec\n" + "Ori: " + str(self.ori%360) + " deg"
+		self.text.setText(self.textstr)
+
 
 	def _handleKeys(self):
 		
@@ -71,11 +88,13 @@ class ManualStim(object):
 				self.stimuli[self.current].setSize([0,0.1],"+")
 			elif self.keys[key.DOWN]:
 				self.stimuli[self.current].setSize([0,0.1],"-")
+			self.size = self.stimuli[self.current].size
 
 			if self.keys[key.BRACKETLEFT]:
 				self.stimuli[self.current].setSF(0.99,"/")
 			if self.keys[key.BRACKETRIGHT]:
 				self.stimuli[self.current].setSF(0.99,"*")
+			self.sf = self.stimuli[self.current].sf
 
 			if self.stimuli[self.current].name in ["grating","box"]:
 				if self.keys[key.EQUAL]:
@@ -87,8 +106,24 @@ class ManualStim(object):
 				if self.keys[key.SEMICOLON]:
 					self.tf += 0.005
 				elif self.keys[key.APOSTROPHE]:
-					self.tf -= 0.005		
+					self.tf -= 0.005
+			self.contrast = self.stimuli[self.current].contrast
 
+			if self.keys[key.M]:
+				if self.mask == None:
+					self.stimuli[self.current].setMask('gauss')
+					self.mask = "gauss"
+				else:
+					self.stimuli[self.current].setMask(None)
+					self.mask = None
+				time.sleep(0.1)
+
+			if self.keys[key.T]:
+				if self.drawtext:
+					self.drawtext=False
+				else:
+					self.drawtext=True
+				time.sleep(0.1)
 
 		#STIMULUS #
 		if self.keys[key.NUM_0]:
@@ -108,9 +143,7 @@ class ManualStim(object):
 			self.stimuli[self.current].setPos(pos)
 			if wheel[1] != 0:
 				self.stimuli[self.current].setOri(wheel[1]*15,"+")
-
-	def _drawText(self):
-		self.textstr="pos (deg): "
+			self.ori = self.stimuli[self.current].ori
 
 	def _update(self):
 		pass
@@ -125,10 +158,11 @@ class ManualStim(object):
 
 			self._handleKeys()
 			self._handleMouse()
+			if self.drawtext: self._updateText()
 			if self.current is not None:
 				self.stimuli[self.current].draw()
 				self.stimuli[self.current].setPhase(t.getTime()*self.tf)
-			self._drawText()
+				if self.drawtext: self.text.draw()
 			self.window.flip()
 
 
