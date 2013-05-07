@@ -2,6 +2,10 @@
 Created on Oct 18, 2012
 
 @author: derricw
+
+Displays a GUI for adjusting camera parameters and thresholds for pruning out the LED
+    and pupil on an Eyetracker object instance.
+
 '''
 
  

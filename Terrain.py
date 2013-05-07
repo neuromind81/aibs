@@ -68,6 +68,7 @@ class Terrain(object):
         self.selectiontime = 30 #how long (in frames) correct stimuli needs to be held in place
                               ##TODO: convert to seconds based on vsync
         self.windowwidth = 200 #width of correct window (pixels)
+        self.windowx = 0 # x position of the selection window
         self.lapdistance = 1920 #distance between stimuli in pixels (should be higher than screen size /2)
         self.speedgain = 1 #gain of encoder degrees to pixels
         self.objectwidthDeg = 20 #width of stimulus object
