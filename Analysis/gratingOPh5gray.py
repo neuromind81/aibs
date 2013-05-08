@@ -21,8 +21,8 @@ def gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX=No
     
     '''load data and stimulus information'''    
     print "loading traces from:", datapath    
-    #celltraces = loadh5(datapath, 'data_t')
-    celltraces = loadtraces(datapath)
+    celltraces = loadh5(datapath, 'data_t')
+    #celltraces = loadtraces(datapath)
     
     print "loading stimulus log from:",logpath 
     (stimuluscondition, sweeplength, constring) = getSweepTimesOP(logpath, modality)
@@ -230,12 +230,12 @@ def dotuningOP(synccondition, celltraces, sortc, sweeplength, showflag):
 #        return (f0, f1, f2)
         
 if __name__=='__main__':
-    datapath = r'I:\CA153_130307\a_raw_traces.mat'
-    logpath = r'I:\CA153_130307\130307124033-CA153_130307_a.log'
-    syncpath = r'I:\CA153_130307\a_syncdata.mat'
-    savepath = r'I:\CA153_130307'
+    datapath = r'Z:\ImageData\CA203_130426\CA203_130426_ch2_025_Downsampled\Concat\Traces\Traces_Concat_Downsampled_CA203_130426_ch2_025_f00034.h5'
+    logpath = r'Z:\ImageData\CA203_130426\mask\130426122650-CA203_130425_masks.log'
+    syncpath = r'Z:\ImageData\CA203_130426\mask\Sync\syncdata.mat'
+    savepath = r'Z:\ImageData\CA203_130426\mask'
     modality = 'ori'
     showflag = 0
-    subX = -25
-    subY = 20
-    (tuning, f0mean, f0sem, synccondition) = gratingOP(datapath, logpath, syncpath, savepath, modality, showflag)
+    subX = -50
+    subY = 0
+    (tuning, f0mean, f0sem, synccondition) = gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX, subY)

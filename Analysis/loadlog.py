@@ -10,6 +10,7 @@ import scipy.io as sio
 import numpy as np
 import h5py
 from findlevel import *
+import sys
 
 
     
@@ -65,6 +66,7 @@ def loadsweeptimes(path):
     print "***Monitor lag:", (delay/20000)
     if delay > 0:
         print "ERROR: diode before vsync"
+        sys.exit('diode error')
     sweep -= delay
     #converts to time in seconds
     sweeptiming = sweep + 0.0
@@ -120,6 +122,7 @@ def loadsweeptimesnogap(path):
     print "***monitor lag:", (delay/20000)
     if delay > 0:
         print "ERROR: diode before vsync"
+        sys.exit('diode error')
     sweep -= delay
     #converts to time
     sweeptiming = sweep + 0.0

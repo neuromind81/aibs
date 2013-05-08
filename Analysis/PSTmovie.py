@@ -13,7 +13,7 @@ import os, sys
 import matplotlib.pyplot as plt
 from loadlog import loadh5
 
-def PSTmovie(datapath, logpath, syncpath, modality, moviename, subX, subY):
+def PSTmovie(datapath, logpath, syncpath, modality, moviename, subX=None, subY=None):
     '''load stimulus log'''
     print "loading stimulus log from:",logpath    
     (stimuluscondition, sweeplength, _) = getSweepTimesOP(logpath, modality)
@@ -37,6 +37,13 @@ def PSTmovie(datapath, logpath, syncpath, modality, moviename, subX, subY):
     
     '''stimuluscondition to synccondition'''
     synccondition = getsync(syncpath, stimuluscondition)
+    
+    if subX is None:
+        subX = stimuluscondition[0,2]
+    if subY is None:
+        subY = stimuluscondition[0,3]
+    print "subX: ", subX
+    print "subY: ", subY
     
     '''select specific (subX, subY) region'''
     temp = []
@@ -123,12 +130,12 @@ def plotmov(movie, condition, frame):
     text(50, 500, texttoshow, fontsize=12, color='white')    
 
 if __name__=='__main__':
-    datapath = r'Z:\ImageData\CA211_130331_OriAleena_pos_-50_20b\CA211_130331_OriAleena_pos_-50_20b_ch2_006_Downsampled\Concat\Concat_Downsampled_CA211_130331_OriAleena_pos_-50_20b_ch2_006_f00084.h5'
-    logpath = r'Z:\ImageData\CA211_130331_OriAleena_pos_-50_20b\130331135955-CA211_130331_OriAleena_pos_-50_20b.log'
-    syncpath = r'Z:\ImageData\CA211_130331_OriAleena_pos_-50_20b\Sync\syncdata.mat'
+    datapath = r'Z:\ImageData\CA203_130425_grating\CA203_130425_grating_ch2_015_Downsampled\Concat\Concat_Downsampled_CA203_130425_grating_ch2_015_f00052.h5'
+    logpath = r'Z:\ImageData\CA203_130425_grating\130425120039-CA203_130425_gratings.log'
+    syncpath = r'Z:\ImageData\CA203_130425_grating\Ori\Sync\syncdata.mat'
     modality = 'ori'
-    moviename = 'CA211_Orib_movie.avi'
-    subX = -50
+    moviename = 'CA203_15_Ori_movie.avi'
+    subX = -25
     subY = 20
     
     (stimuluscondition, syncsub) = PSTmovie(datapath, logpath, syncpath, modality, moviename, subX, subY)

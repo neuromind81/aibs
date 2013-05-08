@@ -11,21 +11,36 @@ import scipy.io as sio
 import numpy as np
 import os
 import h5py
-
+from findlevel import *
+import sys
 
 def getsync(syncpath, stimuluscondition):
     '''stimuluscondition to synccondition'''
     print "loading stimulus sync from:",syncpath
     sync = sio.loadmat(syncpath)
     syncframe = sync['syncframe']
+    syncdata = sync['syncdata']
     del sync
+
+    '''test integrity of sync signal'''
+    thr = np.amin(syncdata)+(0.75*(np.ptp(syncdata)))
+    temp = findlevels(syncdata, thr, 100, 'both')
+    levellen = np.ediff1d(temp, to_begin=temp[0])
+    fframe = findlevel(levellen, 256, 'down')
+    print "first frame:", fframe
+    test = np.where(levellen>256)
+    if amax(test) > fframe:
+        print "SYNC ERROR!!"
+        sys.exit('Problems with the sync data')
+    else:
+        print "Sync is good!"
     
     '''stimulus frame to acquisition frame'''
     synccondition = np.zeros((size(stimuluscondition,0),size(stimuluscondition,1)))
 
     for i in range(len(stimuluscondition)):
-        start = stimuluscondition[i,0] + 3
-        end = stimuluscondition[i,1] + 3
+        start = stimuluscondition[i,0] + fframe
+        end = stimuluscondition[i,1] + fframe
         temp = []
         temp = np.where(syncframe[0][:] == start)
         synccondition[i,0] = int(floor(temp[0][0]/256/8))
