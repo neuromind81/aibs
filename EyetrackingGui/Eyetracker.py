@@ -117,7 +117,9 @@ class Eyetracker(object):
         """
         x,y = self.led[0]-self.pupil[0],self.led[1]-self.pupil[1] #get triangle sides
         thetax,thetay = self.gt.gazeAngle(x),self.gt.gazeAngle(y) #get angles
-        return int(self.gt.gazePix(thetax)),int(self.gt.gazePix(thetay)) #output pixel values
+        print thetax,thetay
+        pixx,pixy = self.gt.gazePix(thetax,thetay)
+        return int(pixx),int(pixy) #output pixel values
 
     def nextFrame(self):
         """GETS NEXT FRAME AND PROCESSES IT"""
@@ -222,26 +224,28 @@ class GazeTracker(object):
         self.ledy=0 #y position of LED relative to mouse
         self.imgw=640
         self.imgh=480
-        self.imgdiag=np.sqrt((self.imgw**2)+(self.imgh**2))
-        self.camfov=75 #from microsoft website; diagonal
+        self.camfov=75 #from microsoft website; diagonal #CHANGE THIS AFTER ZOON IN USE
         self.eyeradius=0.33
 
-    def setImgSize(self,size):
-        "input is tuple/list (x,y)"
-        self.imgw=size[0]
-        self.imgh=size[1]
-        self.imgdiag=np.sqrt((self.imgw**2)+(self.imgh**2))
+    def gazeAngle(self,pixeldistance):
+        """Converts camera pixel distance to angle """
+        fovd=self.getCamFOVcm() #field of view of the camera in cm
+        pixpercm=self.imgw/fovd #pixels per cm estimate
+        dcm=pixeldistance/pixpercm #pixeldistance converted to cm
+        return math.degrees(math.asin(dcm/self.eyeradius))
 
-    def gazeAngle(self,x):
-        """Converts camera pixel distance to monitor angle """
-        fovd=self.leddistance*np.tan(np.radians(self.camfov/2))*2
-        pixpercm=self.imgdiag/fovd
-        xdist=x/pixpercm
-        return np.degrees(np.arctan(xdist/self.eyeradius))
+    def getCamFOVcm(self):
+        """Gets camera field of view in cm using its fov in degrees and distance from mouse """
+        return self.leddistance*math.tan(math.radians(self.camfov/2.000))*2.000
 
-    def gazePix(self,angle):
-        """Converts gaze angle to monitor pixel"""
-        return self.deg2pix(angle)
+    def gazePix(self,anglex,angley):
+        """Converts gaze angle to monitor pixel
+        UNFINISHED"""
+        alphax = math.degrees(math.atan(self.ledx/self.monitordistance))
+        pixx = self.deg2pix(anglex-alphax)
+        alphay = math.degrees(math.atan(self.ledy/self.monitordistance))
+        pixy = self.deg2pix(angley-alphay)
+        return pixx,pixy
 
     def pix2cm(self,pix):
         """Pixels to cm based on monitor properties """
@@ -260,11 +264,11 @@ class GazeTracker(object):
 
     def deg2cm(self,deg):
         """Degrees to cm based on monitor properties """
-        return self.monitordistance*np.tan(np.radians(deg))*1.000
+        return self.monitordistance*math.tan(math.radians(deg))*1.000
         
     def cm2deg(self,cm):
         """cm to degrees based on monitor properties"""
-        return np.degrees(np.arctan(cm/self.monitordistance)*1.000)
+        return math.degrees(math.atan(cm/self.monitordistance)*1.000)
 
     def cm2pix(self,cm):
         """Cm to pix based on monitor properties"""
