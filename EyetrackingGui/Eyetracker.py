@@ -239,8 +239,7 @@ class GazeTracker(object):
         return self.leddistance*math.tan(math.radians(self.camfov/2.000))*2.000
 
     def gazePix(self,anglex,angley):
-        """Converts gaze angle to monitor pixel
-        UNFINISHED"""
+        """Converts gaze angle to monitor pixel"""
         alphax = math.degrees(math.atan(self.ledx/self.monitordistance))
         pixx = self.deg2pix(anglex-alphax)
         alphay = math.degrees(math.atan(self.ledy/self.monitordistance))

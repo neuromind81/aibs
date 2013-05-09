@@ -64,12 +64,15 @@ class MyForm(QtGui.QMainWindow):
         self.backupdir = ''
         self.screen = 0
         self.monitor = 'testMonitor'
+        self.protocol = ""
+        self.stage = ""
+        self.task = ""
         
         # Read config file
         try:
             f = open("foraging.cfg")
             for rl in f.readlines():
-                line = rl.split("=")
+                line = rl.split(" = ",1)
                 setattr(self,line[0], eval(line[1]))
             f.close()
         except:
@@ -77,6 +80,9 @@ class MyForm(QtGui.QMainWindow):
         
         # Add information to relevant fields
         self.ui.lineEdit_logDir.setText(self.logDir)
+        self.ui.lineEdit_task.setText(self.task)
+        self.ui.lineEdit_stage.setText(self.stage)
+        self.ui.lineEdit_foragingProtocol.setText(self.protocol)
         
         # Ensure important directories exist, create them if not.
         checkDirs(self.logDir,self.library,self.stimulilib,self.experimentslib,self.terrainlib,self.scriptlog)
@@ -94,6 +100,8 @@ class MyForm(QtGui.QMainWindow):
         self.ui.tableWidget_BGStimulus.itemChanged.connect(self._BGStimulusChanged)
         self.ui.tableWidget_FGStimulus.itemChanged.connect(self._FGStimulusChanged)
         self.ui.tableWidget_terrain.itemChanged.connect(self._terrainChanged)
+
+        self.ui.lineEdit_mouseid.textChanged.connect(self._mouseidChanged)
 
         #Load previous experiment
         self._loadLast()
@@ -256,6 +264,30 @@ class MyForm(QtGui.QMainWindow):
         if current[-1] is not "*":
             current +="*"
             self.ui.groupBox_terrain.setTitle(current)
+
+    def _mouseidChanged(self):
+        mouseid = str(self.ui.lineEdit_mouseid.text())
+        self._checkSchedule()
+        self._getRecords(mouseid)
+
+    def _checkSchedule(self):
+        pass
+
+    def _getRecords(self,mouseid):
+        if len(mouseid)>3:
+            try:
+                records = os.listdir(self.backupdir)
+                pruned = [r for r in records if mouseid in r]
+                self._populateRecords(pruned)
+            except Exception, e:
+                print e
+        else:
+            self.ui.tableWidget_mouse.clear()
+
+    def _populateRecords(self,files):
+        for f in files:
+            path = os.path.join(self.backupdir,f)
+            print path
 
     def _run(self):
         """Runs an experiment."""
