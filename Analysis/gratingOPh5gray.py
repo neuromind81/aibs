@@ -230,12 +230,12 @@ def dotuningOP(synccondition, celltraces, sortc, sweeplength, showflag):
 #        return (f0, f1, f2)
         
 if __name__=='__main__':
-    datapath = r'Z:\ImageData\CA203_130426\CA203_130426_ch2_025_Downsampled\Concat\Traces\Traces_Concat_Downsampled_CA203_130426_ch2_025_f00034.h5'
-    logpath = r'Z:\ImageData\CA203_130426\mask\130426122650-CA203_130425_masks.log'
-    syncpath = r'Z:\ImageData\CA203_130426\mask\Sync\syncdata.mat'
-    savepath = r'Z:\ImageData\CA203_130426\mask'
-    modality = 'ori'
+    datapath = r'Z:\ImageData\CA203_130426\CA203_130426_ch2_027_Downsampled\Concat\Traces\Traces_Concat_Downsampled_CA203_130426_ch2_027_f00099.h5'
+    logpath = r'Z:\ImageData\CA203_130426\sf\130426131015-CA203_130426_sf.log'
+    syncpath = r'Z:\ImageData\CA203_130426\sf\Sync\syncdata.mat'
+    savepath = r'Z:\ImageData\CA203_130426\sf'
+    modality = 'sf'
     showflag = 0
-    subX = -50
+    subX = -25
     subY = 0
     (tuning, f0mean, f0sem, synccondition) = gratingOP(datapath, logpath, syncpath, savepath, modality, showflag, subX, subY)
