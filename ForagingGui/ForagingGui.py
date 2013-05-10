@@ -267,7 +267,7 @@ class MyForm(QtGui.QMainWindow):
 
     def _mouseidChanged(self):
         mouseid = str(self.ui.lineEdit_mouseid.text())
-        self._checkSchedule()
+        self._checkSchedule() #should this be done here?
         self._getRecords(mouseid)
 
     def _checkSchedule(self):

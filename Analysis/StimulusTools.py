@@ -30,13 +30,55 @@ class StimulusMatFile(object):
         objectwidthDeg = int(self.terrain['objectwidthDeg'])
         mon = monitors.Monitors('testMonitor')
         objectwidthPix = misc.deg2pix(objectwidthDeg,mon)
-        
-        
         posx = array(self.posx)
-          
+
+    def getDistanceTraveled(self):
+        """ Gets distance traveled by mouse in meters
+            Assumes 6" diameter wheel and mouse fixed at 2" radius
+        """
+        return sum(self.dx)/360*(2*pi*0.051)
+
+    def getRewardsPerMinute(self):
+        """ Gets average rewards per minute for whole session."""
+        totalminutes = (self.stoptime - self.starttime)/60
+        return len(self.rewards)/totalminutes
+
+    def getCorrectPercent(self):
+        """ Gets percent of rewards received out of possible.
+            UNFINISHED        
+        """
+        correctlaps = self.getRewardLaps()
+        rewardframes = self.rewards[:,1]
+        count = 0
+        #print self.laps[correctlaps]
+        for lap in correctlaps:
+            for rf in rewardframes:
+                if self.laps[lap,1] <= rf < self.laps[min(lap+1,len(self.laps)-1),1]:
+                    count+=1
+        print count
+        return round(count/len(correctlaps)*100.000,3)
+
+    def getRewardLaps(self):
+        """ Gets laps where a reward is possible.  REWRITE FOR TERRAIN THAT USES
+                PARAMETERS WITH MULTIPLE CORRECT VALUES!!!
+        """
+        params = self.terrain['params'][0][0].reshape(-1)
+        #correct = list(zip(*[x[0][0]['correct'].reshape(-1).tolist() for x in params])[0]) #WHAT THE FUCK
+        correct = array([x[0][0]['correct'].reshape(-1) for x in params]).reshape(-1) #BETTER BUT STILL UGLY
+        #print "Correct terrain: ",correct #debugging
+        tlog = self.terrainlog[1:]
+        correctlaps = []
+        for l in range(len(tlog)):
+            if tlog[l].tolist()==correct.tolist():
+                correctlaps.append(l)
+        return array(correctlaps)
+        
+        
+        
 def main():
-    path = r"C:\ForagingLogs\130415161217-test.mat"
+    path = r"\\aibsdata\neuralcoding\Neural Coding\Behavior\130509121003-CA203.mat"
     mat = StimulusMatFile(path)
+    print mat.getCorrectPercent()
     return mat
           
 if __name__ == "__main__":
