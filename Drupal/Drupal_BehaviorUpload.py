@@ -4,18 +4,18 @@ import math
 import os.path, datetime
 from config import config
 from drupal_services import DrupalServices
-import os.path, sys, time, mimetypes, xmlrpclib, pprint, base64
+import sys, time, mimetypes, xmlrpclib, pprint, base64
 
 def uploadlog(path, contentType):
-    """ 
-    Uploads information from a behavior log to server.  
-        path is log path.  
+    """
+    Uploads information from a behavior log to server.
+        path is log path.
         contentType is which tab.
     """
     drupal = DrupalServices(config)
 
     rel = getBehaviorInfo(path)
-     
+
     ''' EXAMPLE
     new_node = { 'language' : 'und',
                  'type': contentType,
@@ -23,7 +23,7 @@ def uploadlog(path, contentType):
                  'field_clearing' : {'und' : { '0' : {'value': cleared}}},
                  'field_test_data' : { 'und' : { '0' : {'value' : testdata } }},
                  'field_id' : { 'und' : { '0' : {'value' : Id } }},
-                 'field_date_headpost' : { 'und' : { '0' : {'value' : headpost } }},                
+                 'field_date_headpost' : { 'und' : { '0' : {'value' : headpost } }},
                  'body': { 'und' : { '0' : {'value' : datasetname } }} ,
     }
     '''
@@ -38,22 +38,22 @@ def uploadlog(path, contentType):
                  'field_correctpercent' : { 'und' : { '0' : { 'value' : rel['correctpercent']}}},
                  'field_protocol' : { 'und' : { '0' : { 'value' : rel['protocol']}}},
     }
-    
+
     #PUSH NODE
     node = drupal.call('node.create', new_node)
-       
-    print 'New node id: %s' % node['nid'] 
-    
+
+    print 'New node id: %s' % node['nid']
+
     #RECALL NODE
     created_node = drupal.call('node.retrieve', int(node['nid']))
-    
+
     #PRINT INFORMATION
     print "Node information"
     print "Node title: %s " % (created_node['title'])
     #print "Node body: %s " % (created_node['body']['und'][0]['value'])
 
 def getBehaviorInfo(path):
-  
+
   info = {}
   relevant = {}
   f = open(path)

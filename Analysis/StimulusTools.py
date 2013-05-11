@@ -15,6 +15,8 @@ class StimulusMatFile(object):
         """Creates a mat file object for outputing various values for
             data analysis.
             after loading a .mat file, self.data contains a dictionary of all values.
+            
+            SOME METHODS ARE FINISHED AND SOME ARE NOT.
             """
         if path is not None: self.loadMat(path)
         
@@ -45,18 +47,35 @@ class StimulusMatFile(object):
 
     def getCorrectPercent(self):
         """ Gets percent of rewards received out of possible.
-            UNFINISHED        
+            Does not discriminate between manually dispensed rewards, but
+            will not count more than one reward per lap (so the max is 100%)
         """
         correctlaps = self.getRewardLaps()
         rewardframes = self.rewards[:,1]
-        count = 0
+        received = 0
+        missed = 0
+        found = True
         #print self.laps[correctlaps]
         for lap in correctlaps:
+            found = False
             for rf in rewardframes:
                 if self.laps[lap,1] <= rf < self.laps[min(lap+1,len(self.laps)-1),1]:
-                    count+=1
-        print count
-        return round(count/len(correctlaps)*100.000,3)
+                    found = True
+            if found: received +=1
+            else: missed +=1
+        return round(received/float(len(correctlaps))*100.000,3)
+        
+    def getFalsePositives(self):
+        """Gets instances where the mouse tries to choose an incorrect object.
+            Output is a vector of frames in which a false positive occurred.
+            UNFINISHED
+        """
+        window = int(self.terrain['windowwidth'])
+        selectiontime = int(self.terrain['selectiontime'])
+        try: windowx = int(self.terrain['windowx'])
+        except: windowx = 0
+        posx = self.posx                
+        return None
 
     def getRewardLaps(self):
         """ Gets laps where a reward is possible.  REWRITE FOR TERRAIN THAT USES
@@ -73,12 +92,21 @@ class StimulusMatFile(object):
                 correctlaps.append(l)
         return array(correctlaps)
         
+    def getIncorrectLaps(self):
+        """Returns laps that featured an incorrect object."""
+        rewardlaps = self.getRewardLaps()
+        alllaps = array(range(len(self.laps)))
+        incorrectlaps = delete(alllaps,rewardlaps)
+        return incorrectlaps
+        
+        
         
         
 def main():
     path = r"\\aibsdata\neuralcoding\Neural Coding\Behavior\130509121003-CA203.mat"
     mat = StimulusMatFile(path)
-    print mat.getCorrectPercent()
+    fp = mat.getFalsePositives()
+    print len(fp)
     return mat
           
 if __name__ == "__main__":

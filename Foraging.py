@@ -163,7 +163,7 @@ class Foraging(SweepStim):
     def checkTerrain(self):
         """ Determines if a reward should be given """
         if self.terrain.iscorrect:
-            if (self.terrain.windowwidth+self.terrain.windowx) > self.x > (self.terrain.windowx
+            if (self.terrain.windowwidth+self.terrain.windowx) >= self.x > (self.terrain.windowx
                 -self.terrain.windowwidth):
                 if self.framescorrect > self.terrain.selectiontime:
                     if self.ni: self.reward.reward()
