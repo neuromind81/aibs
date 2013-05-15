@@ -49,7 +49,7 @@ def BehaviorMetrics(logpath):
     
     '''correct rewards'''
     numberrewards = len(rewards)    
-    percentcorrect =  (numberrewards/float(expectedrewards)) * 100
+    percentcorrect =  round((numberrewards/float(expectedrewards)) * 100, 2)
     totalwater = numberrewards * 0.005
     
     rewardsframe = np.empty((len(rewards),1))
@@ -77,7 +77,7 @@ def BehaviorMetrics(logpath):
                 if test[ip] == False:
                     vars()[ifalse] += 1
 
-    percentfp = round((falsepositive/float(expectedincorrect)) * 100,3)
+    percentfp = round((falsepositive/float(expectedincorrect)) * 100, 2)
     
     '''distance run'''
     distance = []
