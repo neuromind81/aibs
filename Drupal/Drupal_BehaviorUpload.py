@@ -1,10 +1,12 @@
 from pylab import *
 import numpy
 import math
-import os.path, datetime
+import scipy.io as sio
+import os, datetime
 from config import config
 from drupal_services import DrupalServices
 import sys, time, mimetypes, xmlrpclib, pprint, base64
+from aibs.Analysis.StimulusTools import StimulusMatFile
 
 def uploadlog(path, contentType):
     """
@@ -54,30 +56,16 @@ def uploadlog(path, contentType):
 
 def getBehaviorInfo(path):
 
-  info = {}
-  relevant = {}
-  f = open(path)
-  for line in f.readlines():
-    param = line.split(" = ")
-    if not "#" in line:
-      try:
-        info[param[0]] = eval(param[1])
-        exec(line)
-      except:
-        info[param[0]] = param[1]
-  for k,v in info.iteritems():
-    pass
+  matfile = StimulusMatFile(path)
 
-  totalseconds = (stoptime-starttime).total_seconds()
-  totalminutes = totalseconds/60.0
-  relevant["rewardsperminute"] = len(rewards)/totalminutes
-  relevant["traveldistance"] = sum(dx)/360*(2*numpy.pi*1.5)/12
-  relevant["correctpercent"] = round(float(len(rewards))/float((len(terrainlog))-1)*100.000,3)
-  relevant["logpath"] = r"Y:\Behavior\CA153\130119173855-sweep.log" #get from file later
-  relevant["logname"] = "130119173855-sweep.log" #get from file later
-  relevant["protocol"] = "Virtual Foraging" #get from file later
+  relevant["rewardsperminute"] = matfile.getRewardsPerMinute()
+  relevant["traveldistance"] = matfile.getDistanceTraveled()
+  relevant["correctpercent"] = matfile.getCorrectPercent()
+  relevant["logpath"] = path
+  relevant["logname"] = str(matfile.filename)
+  relevant["protocol"] = str(matfile.protocol)
   relevant["data"] = None #get from file later
-  relevant["mouseid"] = "CA153" #need to fix log parsing to get this from file
+  relevant["mouseid"] = str(matfile.mouseid[0])
 
   print relevant
   return relevant
@@ -85,10 +73,13 @@ def getBehaviorInfo(path):
 
 
 if __name__ == "__main__":
-    import os
 
-    logdir = r"C:\Users\derricw\Documents\PythonProjects"
-    filename = "130119173855-sweep.log"
-    path = os.path.join(logdir,filename)
+    logdir = r"\\aibsdata\neuralcoding\Neural Coding\Behavior"
+    files = os.listdir(logdir)
+    for f in files:
+      name,ext = os.path.splitext(f)
+      if ext in ".mat":
+        path = os.path.join(logdir,f)
 
-    uploadlog(path,'behavior')
+
+    #uploadlog(path,'behavior')
