@@ -28,9 +28,9 @@ def loadsweeptimes(path):
     #duration = len(data)/channels/samplerate
     
     data = loadbinary(datapath, channels=channels)
-    sweeptrace = np.array(data[:, (channels-3)])
-    vsynctrace = np.array(data[:, (channels-2)])
-    diodetrace = np.array(data[:, (channels-1)])    
+    sweeptrace = np.array(data[:, (channels-5)])
+    vsynctrace = np.array(data[:, (channels-4)])
+    diodetrace = np.array(data[:, (channels-3)])    
     d = open(datapath)
 #    data = np.fromfile(d,np.int16)    
 #    datareshaped = np.transpose(np.reshape(data,(len(data)/channels,channels)))
@@ -87,9 +87,9 @@ def loadsweeptimesnogap(path):
 #    #duration = len(data)/channels/samplerate
     
     data = loadbinary(datapath, channels=channels)
-    sweeptrace = np.array(data[:, (channels-3)])
-    vsynctrace = np.array(data[:, (channels-2)])
-    diodetrace = np.array(data[:, (channels-1)])
+    sweeptrace = np.array(data[:, (channels-5)])
+    vsynctrace = np.array(data[:, (channels-4)])
+    diodetrace = np.array(data[:, (channels-3)])
 #    d = open(datapath)
 #    data = np.fromfile(d,np.int16)    
 #    datareshaped = np.transpose(np.reshape(data,(len(data)/channels,channels)))
@@ -162,6 +162,7 @@ def loadmeta(path):
 #    for item in meta:
 #        print item.strip()
     return channels, samplerate
+
 
 def loadsweep(datapath):
     '''loads sweep and diode data - old version based on output from Jay's Matlab algorithm'''
